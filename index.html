@@ -153,8 +153,8 @@
                     <h3 class="font-cinzel text-xl text-gold font-semibold">Template Settings</h3>
                     
                     <div>
-                        <label class="block text-xs uppercase tracking-wider text-gold/80 mb-1">Category / Type</label>
-                        <select id="gen-category" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">
+                        <label class="block text-xs uppercase tracking-wider text-gold/80 mb-1">Template Style / Category</label>
+                        <select id="gen-category" onchange="updatePosterPreview()" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">
                             <option value="sports">Live Sports</option>
                             <option value="events">Events & Music</option>
                             <option value="drinks">Drinks & Specials</option>
@@ -440,32 +440,4 @@
             <button onclick="closePosterModal()" class="absolute top-4 right-4 text-gold hover:text-white text-xl transition-colors w-8 h-8 flex items-center justify-center rounded-full bg-timber-dark border border-gold/40">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-            <div class="text-center space-y-4">
-                <span id="modal-badge" class="inline-block bg-gold text-timber-dark font-cinzel font-bold px-4 py-1 rounded-full text-xs uppercase tracking-widest">badge</span>
-                <h3 id="modal-title" class="font-cinzel text-3xl md:text-4xl font-bold gold-gradient-text uppercase">Title</h3>
-                <div class="w-20 h-0.5 bg-gold mx-auto"></div>
-                <p id="modal-subtitle" class="text-gold-light/90 text-base leading-relaxed px-2">Subtitle details go here...</p>
-                <div id="modal-date" class="text-gold font-cinzel font-bold text-xl pt-2"><i class="fa-regular fa-clock mr-2"></i>Date</div>
-            </div>
-            <div class="flex gap-3 pt-4 border-t border-gold/20">
-                <button onclick="closePosterModal()" class="flex-1 bg-timber-light hover:bg-timber text-gold border border-gold/40 py-2.5 rounded-xl font-medium text-sm transition-all">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- FIXED FULLSCREEN TV DISPLAY OVERLAY -->
-    <div id="tv-fullscreen-modal" class="fixed inset-0 bg-[#0f0a07] z-[120] hidden flex-col justify-between p-8 select-none">
-        <div class="flex justify-between items-center border-b border-gold/30 pb-4">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-full border border-gold flex items-center justify-center text-gold">
-                    <svg class="w-6 h-6 text-gold" viewBox="0 0 100 100" fill="currentColor">
-                        <path d="M15 20 L85 80 M85 20 L15 80" stroke="#d4af37" stroke-width="6" stroke-linecap="round"/>
-                        <path d="M30 45 Q50 20 70 45 L75 60 Q50 65 25 60 Z" fill="#d4af37"/>
-                    </svg>
-                </div>
-                <h1 class="font-cinzel font-bold text-2xl gold-gradient-text tracking-wider">The Miners Arms Brereton - Live TV Display</h1>
-            </div>
-            <button onclick="closeTvFullScreen()" class="bg-timber-light hover:bg-timber text-gold border border-gold/40 px-4 py-2 rounded-lg text-sm flex items-center space-x-2">
-                <i class="fa-solid fa-xmark"></i><span>Exit Full Screen</span>
-            </button>
-        </div>
+            <div
