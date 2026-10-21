@@ -135,6 +135,7 @@
                         <option value="stpatricks">St. Patrick's Day</option>
                         <option value="halloween">Halloween</option>
                         <option value="lottery">Lottery Results</option>
+                        <option value="custom">Custom Uploads</option>
                     </select>
                 </div>
             </div>
@@ -153,7 +154,18 @@
             <div id="generator-content-area" class="space-y-6">
                 <div class="bg-timber/60 p-6 rounded-2xl border border-gold/20">
                     <h2 class="font-cinzel text-3xl font-bold gold-gradient-text">Pub Poster Studio</h2>
-                    <p class="text-gold/70 text-sm mt-1">Design customized notices using icons, themes, and special event templates.</p>
+                    <p class="text-gold/70 text-sm mt-1">Design customized notices using templates or upload image posters directly for TV and phone displays.</p>
+                </div>
+
+                <!-- UPLOAD POSTER PICTURE CARD -->
+                <div class="bg-timber/50 p-6 rounded-2xl border border-gold/30 space-y-4">
+                    <h3 class="font-cinzel text-xl text-gold font-semibold"><i class="fa-solid fa-file-image mr-2"></i>Upload Image Poster</h3>
+                    <p class="text-xs text-gold/70">Upload a pre-designed poster graphic (JPG, PNG). It will be formatted to fit phones and TVs in live view.</p>
+                    <div class="flex flex-col sm:flex-row gap-4 items-center">
+                        <input type="file" id="poster-image-file" accept="image/*" class="w-full sm:w-auto bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2 text-sm focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-gold file:text-timber-dark hover:file:bg-gold-dark">
+                        <input type="text" id="poster-image-title" placeholder="Poster Title / Name" class="w-full sm:flex-1 bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">
+                        <button onclick="uploadImagePoster()" class="w-full sm:w-auto bg-gold hover:bg-gold-dark text-timber-dark font-bold px-6 py-2.5 rounded-lg text-sm shadow transition-all whitespace-nowrap">Upload & Publish</button>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -477,7 +489,6 @@
             return 'background: radial-gradient(circle at 30% 30%, #86efac, #16a34a);'; // Bright Green
         }
 
-        // renderBallHTML: Waiting = Bright, Won/Crossed = Dull
         function renderBallHTML(n, isWinningMatch = false) {
             const statusClass = isWinningMatch ? 'won-dull' : 'waiting-bright';
             return `<span class="lottery-ball ${statusClass}" style="${getBrightBallColorStyle(n)}">${n}</span>`;
@@ -606,11 +617,48 @@
                 title: document.getElementById('gen-title').value,
                 subtitle: document.getElementById('gen-subtitle').value,
                 date: document.getElementById('gen-date').value,
-                badge: document.getElementById('gen-badge').value
+                badge: document.getElementById('gen-badge').value,
+                isImageUpload: false
             };
             posters.unshift(newPoster);
             saveToStorage();
             switchTab('posters');
+        };
+
+        // Handle Image Upload Poster Feature
+        window.uploadImagePoster = function() {
+            if (!isAdminLoggedIn) {
+                alert('Admin authorization required to upload posters.');
+                return;
+            }
+            const fileInput = document.getElementById('poster-image-file');
+            const titleInput = document.getElementById('poster-image-title');
+            const title = titleInput.value.trim() || 'Uploaded Notice';
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64Image = e.target.result;
+                    const customImagePoster = {
+                        id: Date.now(),
+                        category: 'custom',
+                        title: title,
+                        imageSrc: base64Image,
+                        isImageUpload: true,
+                        date: 'Active Notice',
+                        badge: 'NEW'
+                    };
+                    posters.unshift(customImagePoster);
+                    saveToStorage();
+                    fileInput.value = '';
+                    titleInput.value = '';
+                    alert('Poster image uploaded and published to live TV & mobile displays successfully!');
+                    switchTab('posters');
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                alert('Please select an image file to upload.');
+            }
         };
 
         window.renderPosters = function() {
@@ -635,44 +683,78 @@
                     title: 'LATEST LOTTERY RESULTS',
                     subtitle: `Winning Numbers: ${currentWinningLotteryNums.join(', ')}.\n\nEntries:\n${playerResultsText}`,
                     date: 'Drawn Today',
-                    badge: 'JACKPOT DRAW'
+                    badge: 'JACKPOT DRAW',
+                    isImageUpload: false
                 });
             }
 
             const filtered = displayList.filter(p => filter === 'all' || p.category === filter);
             filtered.forEach(p => {
-                const iconHTML = p.icon ? `<div class="text-gold text-2xl mb-2"><i class="${p.icon}"></i></div>` : '';
-                grid.innerHTML += `
-                    <div onclick="openPosterModal('${p.id}')" class="bg-timber/50 border border-gold/30 rounded-xl p-6 flex flex-col justify-between cursor-pointer hover:border-gold transition-all transform hover:-translate-y-1 shadow-xl">
-                        <div>
-                            <div class="flex justify-between items-center mb-3">
-                                <span class="text-xs font-cinzel text-gold px-2.5 py-1 rounded-full border border-gold/40 uppercase">${p.category}</span>
-                                <span class="text-xs bg-gold text-timber-dark font-bold px-2 py-0.5 rounded">${p.badge}</span>
+                if (p.isImageUpload) {
+                    grid.innerHTML += `
+                        <div onclick="openPosterModal('${p.id}')" class="bg-timber/50 border border-gold/30 rounded-xl p-4 flex flex-col justify-between cursor-pointer hover:border-gold transition-all transform hover:-translate-y-1 shadow-xl">
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-xs font-cinzel text-gold px-2.5 py-1 rounded-full border border-gold/40 uppercase">Custom Upload</span>
+                                    <span class="text-xs bg-gold text-timber-dark font-bold px-2 py-0.5 rounded">${p.badge}</span>
+                                </div>
+                                <h3 class="font-cinzel text-lg font-bold gold-gradient-text mb-2">${p.title}</h3>
+                                <div class="w-full aspect-[4/3] rounded-lg overflow-hidden border border-gold/30 bg-black/50">
+                                    <img src="${p.imageSrc}" alt="${p.title}" class="w-full h-full object-contain">
+                                </div>
                             </div>
-                            ${iconHTML}
-                            <h3 class="font-cinzel text-xl font-bold gold-gradient-text mb-2">${p.title}</h3>
-                            <div class="text-gold-light/80 text-sm line-clamp-4 space-y-1">${p.subtitle.replace(/\n/g, '<br>')}</div>
+                            <div class="border-t border-gold/20 pt-3 mt-3 flex justify-between items-center text-xs text-gold/70">
+                                <span><i class="fa-regular fa-clock mr-1"></i>${p.date}</span>
+                                <button onclick="event.stopPropagation(); archivePoster(${p.id})" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-box-archive"></i></button>
+                            </div>
                         </div>
-                        <div class="border-t border-gold/20 pt-3 mt-4 flex justify-between items-center text-xs text-gold/70">
-                            <span><i class="fa-regular fa-clock mr-1"></i>${p.date}</span>
-                            ${p.id !== 'lottery-auto' ? `<button onclick="event.stopPropagation(); archivePoster(${p.id})" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-box-archive"></i></button>` : ''}
+                    `;
+                } else {
+                    const iconHTML = p.icon ? `<div class="text-gold text-2xl mb-2"><i class="${p.icon}"></i></div>` : '';
+                    grid.innerHTML += `
+                        <div onclick="openPosterModal('${p.id}')" class="bg-timber/50 border border-gold/30 rounded-xl p-6 flex flex-col justify-between cursor-pointer hover:border-gold transition-all transform hover:-translate-y-1 shadow-xl">
+                            <div>
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="text-xs font-cinzel text-gold px-2.5 py-1 rounded-full border border-gold/40 uppercase">${p.category}</span>
+                                    <span class="text-xs bg-gold text-timber-dark font-bold px-2 py-0.5 rounded">${p.badge}</span>
+                                </div>
+                                ${iconHTML}
+                                <h3 class="font-cinzel text-xl font-bold gold-gradient-text mb-2">${p.title}</h3>
+                                <div class="text-gold-light/80 text-sm line-clamp-4 space-y-1">${p.subtitle.replace(/\n/g, '<br>')}</div>
+                            </div>
+                            <div class="border-t border-gold/20 pt-3 mt-4 flex justify-between items-center text-xs text-gold/70">
+                                <span><i class="fa-regular fa-clock mr-1"></i>${p.date}</span>
+                                ${p.id !== 'lottery-auto' ? `<button onclick="event.stopPropagation(); archivePoster(${p.id})" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-box-archive"></i></button>` : ''}
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                }
             });
         };
 
         window.openPosterModal = function(id) {
             const p = posters.find(item => item.id == id) || archive.find(item => item.id == id) || { title: 'LATEST LOTTERY RESULTS', badge: 'JACKPOT', icon: 'fa-solid fa-ticket', subtitle: `Winning Numbers: ${currentWinningLotteryNums.join(', ')}`, date: 'Today' };
-            const iconHTML = p.icon ? `<div class="text-gold text-3xl mb-2"><i class="${p.icon}"></i></div>` : '';
-            document.getElementById('modal-content').innerHTML = `
-                <div class="inline-block border border-gold/60 px-4 py-1 rounded-full text-xs font-cinzel text-gold tracking-widest uppercase mb-2">The Miners Arms Brereton</div>
-                ${iconHTML}
-                <h3 class="font-cinzel text-2xl font-bold gold-gradient-text uppercase">${p.title}</h3>
-                <div class="inline-block bg-gold text-timber-dark font-bold px-4 py-1 rounded text-xs uppercase my-2">${p.badge}</div>
-                <div class="text-gold-light text-sm leading-relaxed space-y-2">${p.subtitle.replace(/\n/g, '<br>')}</div>
-                <div class="text-gold font-bold text-sm pt-2 border-t border-gold/30">${p.date}</div>
-            `;
+            
+            if (p.isImageUpload) {
+                document.getElementById('modal-content').innerHTML = `
+                    <div class="inline-block border border-gold/60 px-4 py-1 rounded-full text-xs font-cinzel text-gold tracking-widest uppercase mb-2">The Miners Arms Brereton</div>
+                    <h3 class="font-cinzel text-2xl font-bold gold-gradient-text uppercase">${p.title}</h3>
+                    <div class="w-full max-h-[60vh] overflow-hidden rounded-xl border border-gold/40 my-3 bg-black/60 flex items-center justify-center">
+                        <img src="${p.imageSrc}" alt="${p.title}" class="max-w-full max-h-[55vh] object-contain">
+                    </div>
+                    <div class="text-gold font-bold text-sm pt-2 border-t border-gold/30">${p.date}</div>
+                `;
+            } else {
+                const iconHTML = p.icon ? `<div class="text-gold text-3xl mb-2"><i class="${p.icon}"></i></div>` : '';
+                document.getElementById('modal-content').innerHTML = `
+                    <div class="inline-block border border-gold/60 px-4 py-1 rounded-full text-xs font-cinzel text-gold tracking-widest uppercase mb-2">The Miners Arms Brereton</div>
+                    ${iconHTML}
+                    <h3 class="font-cinzel text-2xl font-bold gold-gradient-text uppercase">${p.title}</h3>
+                    <div class="inline-block bg-gold text-timber-dark font-bold px-4 py-1 rounded text-xs uppercase my-2">${p.badge}</div>
+                    <div class="text-gold-light text-sm leading-relaxed space-y-2">${p.subtitle.replace(/\n/g, '<br>')}</div>
+                    <div class="text-gold font-bold text-sm pt-2 border-t border-gold/30">${p.date}</div>
+                `;
+            }
             document.getElementById('poster-modal').classList.remove('hidden');
             document.getElementById('poster-modal').classList.add('flex');
         };
@@ -711,7 +793,7 @@
                     <div class="bg-timber/40 border border-gold/20 rounded-xl p-6 flex flex-col justify-between opacity-75">
                         <div>
                             <h3 class="font-cinzel text-lg font-bold text-gold mb-1">${p.title}</h3>
-                            <p class="text-gold-light/60 text-xs">${p.subtitle}</p>
+                            <p class="text-gold-light/60 text-xs">${p.isImageUpload ? 'Custom Image Poster' : p.subtitle}</p>
                         </div>
                         <div class="mt-4 flex justify-between items-center">
                             <button onclick="restorePoster(${p.id})" class="text-xs bg-gold/20 text-gold px-3 py-1 rounded border border-gold/40 hover:bg-gold/30">Restore</button>
@@ -810,7 +892,6 @@
             resultBox.classList.remove('hidden');
             resultBox.innerHTML = currentBonusWinnerAnnouncement;
 
-            // Automatically create and push a bonus ball winner poster to the live rotation
             if (winner) {
                 const bonusPoster = {
                     id: Date.now(),
@@ -820,7 +901,8 @@
                     title: 'BONUS BALL WINNER!',
                     subtitle: `Congratulations to ${winner} for winning with Ball #${winNum}!\n\nDrinks are on the house or collect your cash prize at the bar!`,
                     date: 'Drawn Today',
-                    badge: 'JACKPOT WINNER'
+                    badge: 'JACKPOT WINNER',
+                    isImageUpload: false
                 };
                 posters.unshift(bonusPoster);
                 saveToStorage();
@@ -864,7 +946,7 @@
             lotteryPlayers.forEach((p, idx) => {
                 let formattedBalls = p.nums.map(n => {
                     const isMatched = currentWinningLotteryNums.includes(n);
-                    return renderBallHTML(n, isMatched); // isMatched = true makes it dull/crossed off
+                    return renderBallHTML(n, isMatched);
                 }).join(' ');
 
                 list.innerHTML += `
@@ -933,7 +1015,7 @@
             renderTvFeed();
         };
 
-        // TV Feed Carousel & Fullscreen Mode (Marquee at top, zero-scroll fit)
+        // TV Feed Carousel & Fullscreen Mode (Marquee at top, zero-scroll fit, image upload support)
         window.renderTvFeed = function() {
             const container = document.getElementById('tv-full-poster-display');
             if (!container) return;
@@ -953,37 +1035,56 @@
                     title: 'LATEST LOTTERY RESULTS',
                     badge: 'JACKPOT DRAW',
                     subtitle: `Winning Numbers:\n${winningBallsStr}\n\n${playerResultsText}`,
-                    date: 'Drawn Live Today'
+                    date: 'Drawn Live Today',
+                    isImageUpload: false
                 });
             }
 
             if (tvCarouselIndex >= carouselPosters.length) tvCarouselIndex = 0;
             const p = carouselPosters[tvCarouselIndex] || { title: 'THE MINERS ARMS', subtitle: 'Welcome to Brereton community pub.', badge: 'OPEN', date: 'Daily' };
             
-            document.getElementById('tv-poster-counter')?.innerText ? null : null;
-            const iconHTML = p.icon ? `<div class="text-gold text-2xl mb-0.5"><i class="${p.icon}"></i></div>` : '';
-
-            container.innerHTML = `
-                <!-- Marquee ticker at the very top of the poster -->
-                <div class="bg-timber-dark/90 border border-gold/40 rounded-md p-1.5 overflow-hidden mb-1">
-                    <div class="whitespace-nowrap animate-marquee text-gold font-cinzel text-xs tracking-wider">
-                        <span>${liveTickerText}</span>
+            if (p.isImageUpload) {
+                container.innerHTML = `
+                    <!-- Marquee ticker at the very top of the poster -->
+                    <div class="bg-timber-dark/90 border border-gold/40 rounded-md p-1.5 overflow-hidden mb-1">
+                        <div class="whitespace-nowrap animate-marquee text-gold font-cinzel text-xs tracking-wider">
+                            <span>${liveTickerText}</span>
+                        </div>
                     </div>
-                </div>
-
-                <div>
-                    <div class="inline-block border border-gold/60 px-3 py-0.5 rounded-full text-[10px] font-cinzel text-gold tracking-widest uppercase mb-0.5">The Miners Arms Brereton</div>
-                    ${iconHTML}
-                    <h3 class="font-cinzel text-base md:text-xl font-black gold-gradient-text uppercase tracking-wider mb-0.5">${p.title}</h3>
-                </div>
-                <div class="my-auto space-y-1.5">
-                    <div class="inline-block bg-gold text-timber-dark font-cinzel font-bold px-4 py-1 rounded-md text-[11px] shadow-md uppercase tracking-wider">${p.badge}</div>
-                    <div class="text-gold-light/90 text-xs leading-relaxed px-2 space-y-1">${p.subtitle.replace(/\n/g, '<br>')}</div>
-                </div>
-                <div class="border-t border-gold/30 pt-1.5 mt-auto">
-                    <div class="text-gold font-cinzel font-bold text-xs">${p.date}</div>
-                </div>
-            `;
+                    <div>
+                        <div class="inline-block border border-gold/60 px-3 py-0.5 rounded-full text-[10px] font-cinzel text-gold tracking-widest uppercase mb-0.5">The Miners Arms Brereton</div>
+                        <h3 class="font-cinzel text-base md:text-lg font-black gold-gradient-text uppercase tracking-wider mb-1">${p.title}</h3>
+                    </div>
+                    <div class="flex-1 my-1 flex items-center justify-center overflow-hidden">
+                        <img src="${p.imageSrc}" alt="${p.title}" class="max-h-[280px] max-w-full object-contain rounded-lg border border-gold/30">
+                    </div>
+                    <div class="border-t border-gold/30 pt-1 mt-auto">
+                        <div class="text-gold font-cinzel font-bold text-xs">${p.date}</div>
+                    </div>
+                `;
+            } else {
+                const iconHTML = p.icon ? `<div class="text-gold text-2xl mb-0.5"><i class="${p.icon}"></i></div>` : '';
+                container.innerHTML = `
+                    <!-- Marquee ticker at the very top of the poster -->
+                    <div class="bg-timber-dark/90 border border-gold/40 rounded-md p-1.5 overflow-hidden mb-1">
+                        <div class="whitespace-nowrap animate-marquee text-gold font-cinzel text-xs tracking-wider">
+                            <span>${liveTickerText}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="inline-block border border-gold/60 px-3 py-0.5 rounded-full text-[10px] font-cinzel text-gold tracking-widest uppercase mb-0.5">The Miners Arms Brereton</div>
+                        ${iconHTML}
+                        <h3 class="font-cinzel text-base md:text-xl font-black gold-gradient-text uppercase tracking-wider mb-0.5">${p.title}</h3>
+                    </div>
+                    <div class="my-auto space-y-1.5">
+                        <div class="inline-block bg-gold text-timber-dark font-cinzel font-bold px-4 py-1 rounded-md text-[11px] shadow-md uppercase tracking-wider">${p.badge}</div>
+                        <div class="text-gold-light/90 text-xs leading-relaxed px-2 space-y-1">${p.subtitle.replace(/\n/g, '<br>')}</div>
+                    </div>
+                    <div class="border-t border-gold/30 pt-1.5 mt-auto">
+                        <div class="text-gold font-cinzel font-bold text-xs">${p.date}</div>
+                    </div>
+                `;
+            }
         };
 
         // Auto rotate posters on TV every 7 seconds
