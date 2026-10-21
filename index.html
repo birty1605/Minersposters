@@ -469,7 +469,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT LOGIC WITH CLOUDINARY INTEGRATION -->
+    <!-- SCRIPT LOGIC WITH CLOUDINARY & PUBLISH FIX -->
     <script>
         // ==========================================
         // FIREBASE CLOUD CONFIGURATION (minersposters)
@@ -604,6 +604,95 @@
         }
 
         // ==========================================
+        // TEMPLATE PRESET & PREVIEW LOGIC
+        // ==========================================
+        const templatePresets = {
+            sports: { title: "LIVE PREMIER LEAGUE", subtitle: "Join us this Saturday for live HD matches on our big screens. Special cask ales on tap all day!", date: "Saturday @ 3:00 PM", badge: "FREE ENTRY", icon: "fa-solid fa-futbol" },
+            events: { title: "WEEKLY PUB QUIZ & DJ", subtitle: "Test your knowledge with our resident quizmaster followed by weekend disco!", date: "Tonight @ 8:30 PM", badge: "£2 ENTRY", icon: "fa-solid fa-compact-disc" },
+            drinks: { title: "REAL ALE & CASK SPECIAL", subtitle: "Sample our guest ales brewed locally in Staffordshire. Buy one get one half price on selected pints!", date: "All Weekend", badge: "SPECIAL OFFER", icon: "fa-solid fa-beer-mug-empty" },
+            christmas: { title: "CHRISTMAS PARTY NIGHT", subtitle: "Book your festive table now! Traditional roast turkey, mince pies, and mulled wine.", date: "December 20th", badge: "BOOK NOW", icon: "fa-solid fa-tree" },
+            stpatricks: { title: "ST. PATRICKS DAY BASH", subtitle: "Live traditional music, hearty Irish stew, and discounted pints of Guinness all night long!", date: "March 17th", badge: "LIVE MUSIC", icon: "fa-solid fa-clover" },
+            halloween: { title: "HALLOWEENS SPOOKTACULAR", subtitle: "Fancy dress competition with prizes for best costume! Spooky cocktails and monster tunes.", date: "October 31st @ 8:00 PM", badge: "FANCY DRESS", icon: "fa-solid fa-ghost" }
+        };
+
+        function applyTemplatePreset() {
+            const cat = document.getElementById('gen-category').value;
+            const preset = templatePresets[cat];
+            if (preset) {
+                document.getElementById('gen-title').value = preset.title;
+                document.getElementById('gen-subtitle').value = preset.subtitle;
+                document.getElementById('gen-date').value = preset.date;
+                document.getElementById('gen-badge').value = preset.badge;
+                document.getElementById('gen-icon').value = preset.icon;
+                updatePosterPreview();
+            }
+        }
+
+        function updatePosterPreview() {
+            const title = document.getElementById('gen-title').value || '';
+            const subtitle = document.getElementById('gen-subtitle').value || '';
+            const date = document.getElementById('gen-date').value || '';
+            const badge = document.getElementById('gen-badge').value || '';
+            const icon = document.getElementById('gen-icon').value || 'fa-solid fa-futbol';
+            const theme = document.getElementById('gen-theme').value || 'gold';
+
+            document.getElementById('prev-title').innerText = title;
+            document.getElementById('prev-subtitle').innerText = subtitle;
+            document.getElementById('prev-date').innerText = date;
+            document.getElementById('prev-badge').innerText = badge;
+            document.getElementById('prev-icon').className = icon;
+
+            const previewBox = document.getElementById('poster-preview-box');
+            if (theme === 'royal') {
+                previewBox.className = 'w-full max-w-md aspect-[1/1.414] bg-gradient-to-b from-red-950 via-timber-dark to-black border-4 border-gold rounded-xl p-8 flex flex-col justify-between text-center shadow-2xl relative overflow-hidden';
+            } else if (theme === 'neon') {
+                previewBox.className = 'w-full max-w-md aspect-[1/1.414] bg-gradient-to-b from-slate-950 via-zinc-900 to-black border-4 border-cyan-400 rounded-xl p-8 flex flex-col justify-between text-center shadow-2xl relative overflow-hidden';
+            } else if (theme === 'rustic') {
+                previewBox.className = 'w-full max-w-md aspect-[1/1.414] bg-gradient-to-b from-emerald-950 via-timber-dark to-black border-4 border-amber-500 rounded-xl p-8 flex flex-col justify-between text-center shadow-2xl relative overflow-hidden';
+            } else {
+                previewBox.className = 'w-full max-w-md aspect-[1/1.414] bg-gradient-to-b from-[#2c1e13] via-[#1a120b] to-[#0f0a07] border-4 border-gold rounded-xl p-8 flex flex-col justify-between text-center shadow-2xl relative overflow-hidden';
+            }
+        }
+
+        window.saveGeneratedPoster = function() {
+            if (currentRole !== 'admin') {
+                alert('Administrator access required to publish posters.');
+                return;
+            }
+
+            const category = document.getElementById('gen-category').value;
+            const theme = document.getElementById('gen-theme').value;
+            const icon = document.getElementById('gen-icon').value;
+            const title = document.getElementById('gen-title').value.trim();
+            const subtitle = document.getElementById('gen-subtitle').value.trim();
+            const date = document.getElementById('gen-date').value.trim();
+            const badge = document.getElementById('gen-badge').value.trim();
+
+            if (!title) {
+                alert('Please enter a headline for your poster.');
+                return;
+            }
+
+            const newPoster = {
+                id: Date.now(),
+                category,
+                theme,
+                icon,
+                title,
+                subtitle,
+                date,
+                badge,
+                isImageUpload: false
+            };
+
+            posters.unshift(newPoster);
+            saveToCloud();
+            renderPosters();
+            switchTab('posters');
+            alert('Poster successfully published to live screens and posters view!');
+        };
+
+        // ==========================================
         // CLOUDINARY UPLOAD WIDGET INTEGRATION
         // ==========================================
         function openCloudinaryUploadWidget() {
@@ -643,6 +732,7 @@
                     posters.unshift(newPoster);
                     saveToCloud();
                     renderPosters();
+                    switchTab('posters');
                     document.getElementById('poster-image-title').value = '';
                     alert('Image uploaded successfully via Cloudinary and published to live screens!');
                 }
@@ -1219,4 +1309,4 @@
         });
     </script>
 </body>
-</html>
+    </html>
