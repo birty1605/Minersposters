@@ -119,7 +119,7 @@
                 </div>
 
                 <div id="guest-login-box" class="space-y-4 pt-2">
-                    <p class="text-xs text-gold-light/70">Guest access grants immediate viewing of the Live TV Display Feed synchronized across all screens.</p>
+                    <p class="text-xs text-gold-light/70">Guest access grants immediate viewing of the Live TV Display Feed and Posters synchronized across all screens.</p>
                     <button onclick="proceedAsGuest()" class="w-full bg-gold hover:bg-gold-dark text-timber-dark font-bold py-3.5 rounded-xl shadow-xl transition-all font-cinzel tracking-wider text-sm flex items-center justify-center space-x-2">
                         <i class="fa-solid fa-play"></i><span>Launch Live TV Feed</span>
                     </button>
@@ -165,9 +165,9 @@
 
             <nav class="flex flex-wrap items-center gap-2" id="app-nav-bar">
                 <button onclick="switchTab('tv')" id="btn-tv" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 bg-gold text-timber-dark shadow-md flex items-center space-x-2"><i class="fa-solid fa-tv"></i><span>TV Live View</span></button>
+                <button onclick="switchTab('posters')" id="btn-posters" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 text-gold-light hover:bg-timber-light flex items-center space-x-2"><i class="fa-solid fa-image"></i><span>Posters View</span></button>
                 
                 <div id="admin-only-nav-items" class="hidden flex flex-wrap items-center gap-2">
-                    <button onclick="switchTab('posters')" id="btn-posters" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 text-gold-light hover:bg-timber-light flex items-center space-x-2"><i class="fa-solid fa-image"></i><span>Posters</span></button>
                     <button onclick="switchTab('generator')" id="btn-generator" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 text-gold-light hover:bg-timber-light flex items-center space-x-2"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Generator</span></button>
                     <button onclick="switchTab('games')" id="btn-games" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 text-gold-light hover:bg-timber-light flex items-center space-x-2"><i class="fa-solid fa-ticket"></i><span>Lottery & Bonus</span></button>
                     <button onclick="switchTab('archive')" id="btn-archive" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 text-gold-light hover:bg-timber-light flex items-center space-x-2"><i class="fa-solid fa-box-archive"></i><span>Archive</span></button>
@@ -183,9 +183,10 @@
 
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 overflow-y-auto" id="main-container">
 
-        <!-- POSTERS TAB -->
-        <section id="tab-posters" class="tab-content space-y-6">
-            <div class="bg-timber-dark border-2 border-gold/60 rounded-2xl p-4 shadow-xl space-y-3">
+        <!-- POSTERS TAB (VIEW ONLY FOR GUESTS, EDITABLE FOR ADMINS) -->
+        <section id="tab-posters" class="tab-content hidden space-y-6">
+            <!-- ADMIN ONLY MARQUEE EDIT BANNER -->
+            <div id="admin-marquee-box" class="bg-timber-dark border-2 border-gold/60 rounded-2xl p-4 shadow-xl space-y-3 hidden">
                 <div class="flex items-center justify-between">
                     <h3 class="font-cinzel font-bold text-gold text-base flex items-center space-x-2">
                         <i class="fa-solid fa-pen-to-square"></i>
@@ -204,7 +205,7 @@
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-timber/60 p-6 rounded-2xl border border-gold/20">
                 <div>
                     <h2 class="font-cinzel text-3xl font-bold gold-gradient-text">Active Pub Posters & Notices</h2>
-                    <p class="text-gold/70 text-sm mt-1">Synchronized in real-time across all display monitors in The Miners Arms.</p>
+                    <p class="text-gold/70 text-sm mt-1">Live synchronized notices across all display screens in The Miners Arms.</p>
                 </div>
                 <div>
                     <select id="poster-filter" onchange="filterPosters()" class="bg-timber-dark border border-gold/40 text-gold-light rounded-lg px-4 py-2 text-sm focus:outline-none">
@@ -411,7 +412,7 @@
         </section>
 
         <!-- TV LIVE VIEW TAB -->
-        <section id="tab-tv" class="tab-content hidden space-y-4">
+        <section id="tab-tv" class="tab-content space-y-4">
             <div id="tv-fullscreen-wrapper" class="bg-black border-2 border-gold rounded-2xl p-2 md:p-3 shadow-2xl flex flex-col justify-between h-[88vh] min-h-[520px] relative overflow-hidden">
                 <div class="absolute top-2 right-2 z-30">
                     <button onclick="toggleTvFullScreen()" class="bg-timber/80 hover:bg-gold text-gold hover:text-timber-dark border border-gold/50 px-3 py-1 rounded-lg text-xs shadow-lg transition-all flex items-center space-x-1">
@@ -464,7 +465,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT LOGIC WITH YOUR MINERSPOSTERS FIREBASE CONFIGURATION -->
+    <!-- SCRIPT LOGIC WITH ROLE RESTRICTIONS -->
     <script>
         // ==========================================
         // FIREBASE CLOUD CONFIGURATION (minersposters)
@@ -480,7 +481,6 @@
             measurementId: "G-FV104CWLH4"
         };
 
-        // Initialize Firebase
         let db;
         try {
             firebase.initializeApp(firebaseConfig);
@@ -489,7 +489,6 @@
             console.warn("Firebase initialization warning. Using offline fallback mode.", e);
         }
 
-        // Default Data States
         let posters = [
             { id: 1, category: 'sports', theme: 'gold', icon: 'fa-solid fa-futbol', title: 'LIVE PREMIER LEAGUE', subtitle: 'Join us this Saturday for live HD matches on our big screens. Special cask ales on tap all day!', date: 'Saturday @ 3:00 PM', badge: 'FREE ENTRY' },
             { id: 2, category: 'events', theme: 'gold', icon: 'fa-solid fa-compact-disc', title: 'WEEKLY PUB QUIZ & DJ', subtitle: 'Test your knowledge with our resident quizmaster followed by weekend disco!', date: 'Tonight @ 8:30 PM', badge: '£2 ENTRY' },
@@ -505,15 +504,12 @@
         let currentRole = localStorage.getItem('miners_user_role') || null;
         let tvCarouselIndex = 0;
 
-        // Sync data to Cloud Firestore (or fallback to LocalStorage if offline)
         function saveToCloud() {
             const payload = { posters, archive, bonusPlayers, lotteryPlayers, currentWinningLotteryNums, currentBonusWinnerAnnouncement, liveTickerText };
             
             if (db) {
                 db.collection("miners_pub").doc("portal_state").set(payload)
-                .then(() => {
-                    updateSyncBadge(true);
-                })
+                .then(() => { updateSyncBadge(true); })
                 .catch(err => {
                     console.error("Cloud sync failed:", err);
                     updateSyncBadge(false);
@@ -525,7 +521,6 @@
             localStorage.setItem('miners_user_role', currentRole);
         }
 
-        // Real-Time Listener across all connected devices
         function initRealtimeSync() {
             if (!db) {
                 loadFromFallback();
@@ -547,7 +542,7 @@
                     updateSyncBadge(true);
                     refreshAllUI();
                 } else {
-                    saveToCloud(); // Initialize document if empty
+                    saveToCloud();
                 }
             }, (error) => {
                 console.error("Firestore listener error:", error);
@@ -595,7 +590,6 @@
             }
         }
 
-        // PORTAL LOGIN & ROLE MANAGEMENT
         function selectLoginRole(role) {
             const guestBtn = document.getElementById('role-btn-guest');
             const adminBtn = document.getElementById('role-btn-admin');
@@ -608,7 +602,7 @@
                 guestBox.classList.remove('hidden');
                 adminBox.classList.add('hidden');
             } else {
-                adminBtn.className = 'py-3 px-4 rounded-xl border border-gold bg-gold text-timber-dark font-cinzel font-bold text-sm transition-all flex items-center justify-center space-x-2 shadow-lg';
+                adminBtn.className = 'py-3 px-4 rounded-xl border border-gold bg-gold text-timber-dark font-bold text-sm transition-all flex items-center justify-center space-x-2 shadow-lg';
                 guestBtn.className = 'py-3 px-4 rounded-xl border border-gold/40 text-gold hover:bg-gold/10 font-cinzel font-bold text-sm transition-all flex items-center justify-center space-x-2';
                 adminBox.classList.remove('hidden');
                 guestBox.classList.add('hidden');
@@ -638,6 +632,7 @@
         function applyRoleStateUI() {
             const overlay = document.getElementById('portal-login-overlay');
             const adminNav = document.getElementById('admin-only-nav-items');
+            const adminMarqueeBox = document.getElementById('admin-marquee-box');
             const statusBadge = document.getElementById('login-status-badge');
 
             if (!currentRole) {
@@ -650,9 +645,11 @@
 
             if (currentRole === 'admin') {
                 adminNav.classList.remove('hidden');
+                if (adminMarqueeBox) adminMarqueeBox.classList.remove('hidden');
                 statusBadge.innerText = 'Admin (Logout)';
             } else {
                 adminNav.classList.add('hidden');
+                if (adminMarqueeBox) adminMarqueeBox.classList.add('hidden');
                 statusBadge.innerText = 'Guest Mode';
             }
         }
@@ -667,6 +664,7 @@
         }
 
         function updatePostersPageTicker() {
+            if (currentRole !== 'admin') return;
             const txt = document.getElementById('posters-marquee-input').value.trim();
             if (txt) {
                 liveTickerText = txt;
@@ -719,112 +717,6 @@
             document.getElementById(`btn-sub-${subId}`).className = 'px-4 py-2 rounded-lg font-medium text-sm bg-gold text-timber-dark transition-all';
         };
 
-        window.applyTemplatePreset = function() {
-            const cat = document.getElementById('gen-category').value;
-            const titleInput = document.getElementById('gen-title');
-            const subInput = document.getElementById('gen-subtitle');
-            const badgeInput = document.getElementById('gen-badge');
-            const themeInput = document.getElementById('gen-theme');
-            const iconInput = document.getElementById('gen-icon');
-
-            if (cat === 'christmas') {
-                titleInput.value = 'CHRISTMAS PARTY NIGHT';
-                subInput.value = 'Join us for our annual festive celebration! Traditional roast dinners, mince pies, and mulled wine.';
-                badgeInput.value = 'BOOK NOW';
-                themeInput.value = 'royal';
-                iconInput.value = 'fa-solid fa-tree';
-            } else if (cat === 'stpatricks') {
-                titleInput.value = 'ST. PATRICKS DAY CELEBRATION';
-                subInput.value = 'Guinness flowing, live traditional folk music, and craic all evening!';
-                badgeInput.value = 'SLÁINTE';
-                themeInput.value = 'rustic';
-                iconInput.value = 'fa-solid fa-clover';
-            } else if (cat === 'halloween') {
-                titleInput.value = 'HALLOWEEN SPOOKTACULAR';
-                subInput.value = 'Fancy dress competition, spooky cocktails, and haunting tunes in the lounge.';
-                badgeInput.value = 'PRIZES';
-                themeInput.value = 'neon';
-                iconInput.value = 'fa-solid fa-ghost';
-            } else if (cat === 'sports') {
-                titleInput.value = 'LIVE SPORTS ON BIG SCREENS';
-                subInput.value = 'Catch all the Premier League and international fixtures in HD with cold pints on tap.';
-                badgeInput.value = 'HD SCREENS';
-                themeInput.value = 'gold';
-                iconInput.value = 'fa-solid fa-futbol';
-            }
-            updatePosterPreview();
-        };
-
-        window.updatePosterPreview = function() {
-            const theme = document.getElementById('gen-theme').value;
-            const iconClass = document.getElementById('gen-icon').value;
-            const box = document.getElementById('poster-preview-box');
-            
-            if (theme === 'royal') {
-                box.className = 'w-full max-w-md aspect-[1/1.414] bg-gradient-to-b from-red-950 via-timber-dark to-black border-4 border-amber-500 rounded-xl p-8 flex flex-col justify-between text-center shadow-2xl relative overflow-hidden';
-            } else if (theme === 'neon') {
-                box.className = 'w-full max-w-md aspect-[1/1.414] bg-gradient-to-b from-zinc-950 via-purple-950 to-black border-4 border-cyan-400 rounded-xl p-8 flex flex-col justify-between text-center shadow-2xl relative overflow-hidden';
-            } else if (theme === 'rustic') {
-                box.className = 'w-full max-w-md aspect-[1/1.414] bg-gradient-to-b from-emerald-950 via-timber-dark to-black border-4 border-emerald-500 rounded-xl p-8 flex flex-col justify-between text-center shadow-2xl relative overflow-hidden';
-            } else {
-                box.className = 'w-full max-w-md aspect-[1/1.414] bg-gradient-to-b from-[#2c1e13] via-[#1a120b] to-[#0f0a07] border-4 border-gold rounded-xl p-8 flex flex-col justify-between text-center shadow-2xl relative overflow-hidden';
-            }
-
-            document.getElementById('prev-icon').className = iconClass;
-            document.getElementById('prev-title').innerText = document.getElementById('gen-title').value || 'TITLE';
-            document.getElementById('prev-subtitle').innerText = document.getElementById('gen-subtitle').value || '';
-            document.getElementById('prev-date').innerText = document.getElementById('gen-date').value || '';
-            document.getElementById('prev-badge').innerText = document.getElementById('gen-badge').value || '';
-        };
-
-        window.saveGeneratedPoster = function() {
-            const newPoster = {
-                id: Date.now(),
-                category: document.getElementById('gen-category').value,
-                theme: document.getElementById('gen-theme').value,
-                icon: document.getElementById('gen-icon').value,
-                title: document.getElementById('gen-title').value,
-                subtitle: document.getElementById('gen-subtitle').value,
-                date: document.getElementById('gen-date').value,
-                badge: document.getElementById('gen-badge').value,
-                isImageUpload: false
-            };
-            posters.unshift(newPoster);
-            saveToCloud();
-            switchTab('posters');
-        };
-
-        window.uploadImagePoster = function() {
-            const fileInput = document.getElementById('poster-image-file');
-            const titleInput = document.getElementById('poster-image-title');
-            const title = titleInput.value.trim() || 'Uploaded Notice';
-
-            if (fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const base64Image = e.target.result;
-                    const customImagePoster = {
-                        id: Date.now(),
-                        category: 'custom',
-                        title: title,
-                        imageSrc: base64Image,
-                        isImageUpload: true,
-                        date: 'Active Notice',
-                        badge: 'NEW'
-                    };
-                    posters.unshift(customImagePoster);
-                    saveToCloud();
-                    fileInput.value = '';
-                    titleInput.value = '';
-                    alert('Poster uploaded to cloud successfully!');
-                    switchTab('posters');
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                alert('Please select an image file to upload.');
-            }
-        };
-
         window.renderPosters = function() {
             const filter = document.getElementById('poster-filter').value;
             const grid = document.getElementById('posters-grid');
@@ -854,6 +746,8 @@
 
             const filtered = displayList.filter(p => filter === 'all' || p.category === filter);
             filtered.forEach(p => {
+                const archiveBtn = currentRole === 'admin' ? `<button onclick="event.stopPropagation(); archivePoster(${p.id})" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-box-archive"></i></button>` : '';
+                
                 if (p.isImageUpload) {
                     grid.innerHTML += `
                         <div onclick="openPosterModal('${p.id}')" class="bg-timber/50 border border-gold/30 rounded-xl p-4 flex flex-col justify-between cursor-pointer hover:border-gold transition-all transform hover:-translate-y-1 shadow-xl">
@@ -869,7 +763,7 @@
                             </div>
                             <div class="border-t border-gold/20 pt-3 mt-3 flex justify-between items-center text-xs text-gold/70">
                                 <span><i class="fa-regular fa-clock mr-1"></i>${p.date}</span>
-                                <button onclick="event.stopPropagation(); archivePoster(${p.id})" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-box-archive"></i></button>
+                                ${archiveBtn}
                             </div>
                         </div>
                     `;
@@ -888,7 +782,7 @@
                             </div>
                             <div class="border-t border-gold/20 pt-3 mt-4 flex justify-between items-center text-xs text-gold/70">
                                 <span><i class="fa-regular fa-clock mr-1"></i>${p.date}</span>
-                                ${p.id !== 'lottery-auto' ? `<button onclick="event.stopPropagation(); archivePoster(${p.id})" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-box-archive"></i></button>` : ''}
+                                ${p.id !== 'lottery-auto' ? archiveBtn : ''}
                             </div>
                         </div>
                     `;
@@ -931,6 +825,7 @@
         window.filterPosters = function() { renderPosters(); };
 
         window.archivePoster = function(id) {
+            if (currentRole !== 'admin') return;
             const index = posters.findIndex(p => p.id === id);
             if (index !== -1) {
                 const [removed] = posters.splice(index, 1);
@@ -941,6 +836,7 @@
         };
 
         window.renderArchive = function() {
+            if (currentRole !== 'admin') return;
             const grid = document.getElementById('archive-grid');
             if (!grid) return;
             grid.innerHTML = '';
@@ -965,6 +861,7 @@
         };
 
         window.restorePoster = function(id) {
+            if (currentRole !== 'admin') return;
             const index = archive.findIndex(p => p.id === id);
             if (index !== -1) {
                 const [restored] = archive.splice(index, 1);
@@ -975,6 +872,7 @@
         };
 
         window.deleteArchived = function(id) {
+            if (currentRole !== 'admin') return;
             archive = archive.filter(p => p.id !== id);
             saveToCloud();
             renderArchive();
@@ -1000,6 +898,7 @@
         };
 
         window.addBonusPlayer = function() {
+            if (currentRole !== 'admin') return;
             const name = document.getElementById('bonus-player-name').value.trim();
             const num = parseInt(document.getElementById('bonus-player-num').value);
             if (!name || isNaN(num) || num < 1 || num > 59) {
@@ -1018,6 +917,7 @@
         };
 
         window.handleBonusTile = function(num) {
+            if (currentRole !== 'admin') return;
             if (bonusPlayers[num]) {
                 if (confirm(`Remove ${bonusPlayers[num]} from number ${num}?`)) {
                     delete bonusPlayers[num];
@@ -1028,6 +928,7 @@
         };
 
         window.drawBonusBall = function() {
+            if (currentRole !== 'admin') return;
             const winNum = parseInt(document.getElementById('bonus-winning-input').value);
             const resultBox = document.getElementById('bonus-winner-result');
             if (isNaN(winNum) || winNum < 1 || winNum > 59) return;
@@ -1057,6 +958,7 @@
         };
 
         window.addLotteryPlayer = function() {
+            if (currentRole !== 'admin') return;
             const name = document.getElementById('lottery-player-name').value.trim();
             const numsStr = document.getElementById('lottery-player-nums').value.trim();
             if (!name || !numsStr) return;
@@ -1089,19 +991,22 @@
                     return renderBallHTML(n, isMatched);
                 }).join(' ');
 
+                const deleteBtn = currentRole === 'admin' ? `<button onclick="lotteryPlayers.splice(${idx}, 1); saveToCloud(); renderLotteryList();" class="text-red-400 hover:text-red-300 text-xs"><i class="fa-solid fa-trash"></i></button>` : '';
+
                 list.innerHTML += `
                     <div class="p-3 bg-timber-dark rounded-lg border border-gold/30 flex justify-between items-center text-sm">
                         <div>
                             <span class="text-gold font-bold">${p.name}</span>
                             <div class="flex gap-1.5 mt-1.5 flex-wrap items-center">${formattedBalls}</div>
                         </div>
-                        <button onclick="lotteryPlayers.splice(${idx}, 1); saveToCloud(); renderLotteryList();" class="text-red-400 hover:text-red-300 text-xs"><i class="fa-solid fa-trash"></i></button>
+                        ${deleteBtn}
                     </div>
                 `;
             });
         };
 
         window.checkLotteryDraw = function() {
+            if (currentRole !== 'admin') return;
             const inputStr = document.getElementById('lottery-winning-input').value.trim();
             const newNums = inputStr.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
             
@@ -1138,6 +1043,7 @@
         };
 
         window.resetLotteryDraw = function() {
+            if (currentRole !== 'admin') return;
             currentWinningLotteryNums = [];
             saveToCloud();
             document.getElementById('lottery-winning-input').value = '';
@@ -1239,6 +1145,7 @@
         };
 
         window.resetAllData = function() {
+            if (currentRole !== 'admin') return;
             if (confirm('Are you sure you want to reset the cloud database?')) {
                 localStorage.clear();
                 location.reload();
@@ -1251,4 +1158,4 @@
         });
     </script>
 </body>
-    </html>
+</html>
