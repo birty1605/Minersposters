@@ -396,7 +396,7 @@
             </div>
         </section>
 
-        <!-- TV LIVE VIEW TAB (IMMERSIVE FULLSCREEN MODE - MARQUEE + FULLSCREEN FILLING POSTER) -->
+        <!-- TV LIVE VIEW TAB (IMMERSIVE FULLSCREEN MODE - NO SCROLLING) -->
         <section id="tab-tv" class="tab-content hidden absolute inset-0 z-[150] bg-black m-0 p-0 overflow-hidden">
             <div id="tv-fullscreen-wrapper" class="w-screen h-screen bg-black flex flex-col justify-between p-0 m-0 relative overflow-hidden">
                 <div class="absolute top-4 right-4 z-[160] flex gap-2">
@@ -415,9 +415,9 @@
                     </div>
                 </div>
 
-                <!-- FULLSCREEN POSTER CONTENT AREA (FILLING ENTIRE PAGE WITH NO DATE) -->
-                <div class="w-full flex-1 flex flex-col justify-stretch items-center overflow-hidden p-0 m-0">
-                    <div id="tv-full-poster-display" class="w-full h-full rounded-none p-6 md:p-12 flex flex-col justify-between text-center shadow-2xl relative overflow-hidden text-white border-0">
+                <!-- FULLSCREEN POSTER CONTENT AREA (STRICTLY NO SCROLLING / FITS EXACT VIEWPORT) -->
+                <div class="w-full flex-1 flex flex-col justify-between items-center overflow-hidden p-4 md:p-8 m-0 box-border">
+                    <div id="tv-full-poster-display" class="w-full h-full rounded-none p-4 md:p-8 flex flex-col justify-between items-center text-center shadow-2xl relative overflow-hidden text-white border-0">
                     </div>
                 </div>
             </div>
@@ -623,7 +623,7 @@
             events: { title: "WEEKLY PUB QUIZ & DJ", subtitle: "Test your knowledge with our resident quizmaster followed by weekend disco!", date: "Tonight @ 8:30 PM", badge: "£2 ENTRY", icon: "fa-solid fa-compact-disc" },
             drinks: { title: "REAL ALE & CASK SPECIAL", subtitle: "Sample our guest ales brewed locally in Staffordshire. Buy one get one half price on selected pints!", date: "All Weekend", badge: "SPECIAL OFFER", icon: "fa-solid fa-beer-mug-empty" },
             christmas: { title: "CHRISTMAS PARTY NIGHT", subtitle: "Book your festive table now! Traditional roast turkey, mince pies, and mulled wine.", date: "December 20th", badge: "BOOK NOW", icon: "fa-solid fa-tree" },
-            stpatricks: { title: "ST. PATRICKS DAY BASH", subtitle: "Live traditional music, hearty Irish stew, and discounted pints of Guinness all long long!", date: "March 17th", badge: "LIVE MUSIC", icon: "fa-solid fa-clover" },
+            stpatricks: { title: "ST. PATRICKS DAY BASH", subtitle: "Live traditional music, hearty Irish stew, and discounted pints of Guinness all night long!", date: "March 17th", badge: "LIVE MUSIC", icon: "fa-solid fa-clover" },
             halloween: { title: "HALLOWEENS SPOOKTACULAR", subtitle: "Fancy dress competition with prizes for best costume! Spooky cocktails and monster tunes.", date: "October 31st @ 8:00 PM", badge: "FANCY DRESS", icon: "fa-solid fa-ghost" }
         };
 
@@ -1246,32 +1246,32 @@
             if (tvCarouselIndex >= carouselPosters.length) tvCarouselIndex = 0;
             const p = carouselPosters[tvCarouselIndex] || { title: 'THE MINERS ARMS', subtitle: 'Welcome to Brereton community pub.', badge: 'OPEN', theme: 'gold' };
             
-            container.className = 'w-full h-full rounded-none p-6 md:p-12 flex flex-col justify-between text-center shadow-2xl relative overflow-hidden border-0 ' + getThemeClassString(p.theme);
+            container.className = 'w-full h-full rounded-none p-4 md:p-8 flex flex-col justify-between items-center text-center shadow-2xl relative overflow-hidden border-0 ' + getThemeClassString(p.theme);
 
             if (p.isImageUpload) {
                 container.innerHTML = `
-                    <div class="flex-shrink-0 pt-2">
+                    <div class="flex-shrink-0 pt-1">
                         <div class="inline-block border border-gold/60 px-4 py-1 rounded-full text-xs font-cinzel text-gold tracking-widest uppercase mb-1">The Miners Arms Brereton</div>
-                        <h3 class="font-cinzel text-2xl md:text-4xl font-black gold-gradient-text uppercase tracking-wider">${p.title}</h3>
+                        <h3 class="font-cinzel text-2xl md:text-3xl font-black gold-gradient-text uppercase tracking-wider">${p.title}</h3>
                     </div>
-                    <div class="flex-1 my-4 flex items-center justify-center overflow-hidden min-h-0">
-                        <img src="${p.imageSrc}" alt="${p.title}" class="w-full h-full object-contain rounded-xl shadow-2xl">
+                    <div class="flex-1 my-2 flex items-center justify-center overflow-hidden min-h-0 w-full">
+                        <img src="${p.imageSrc}" alt="${p.title}" class="max-w-full max-h-[72vh] object-contain rounded-xl shadow-2xl">
                     </div>
                 `;
             } else {
-                const iconHTML = p.icon ? `<div class="text-gold text-5xl md:text-6xl mb-4 flex-shrink-0"><i class="${p.icon}"></i></div>` : '';
+                const iconHTML = p.icon ? `<div class="text-gold text-4xl md:text-5xl mb-2 flex-shrink-0"><i class="${p.icon}"></i></div>` : '';
                 container.innerHTML = `
-                    <div class="flex-shrink-0 pt-4">
-                        <div class="inline-block border border-gold/60 px-5 py-1.5 rounded-full text-sm font-cinzel text-gold tracking-widest uppercase mb-2">The Miners Arms Brereton</div>
+                    <div class="flex-shrink-0 pt-2">
+                        <div class="inline-block border border-gold/60 px-4 py-1 rounded-full text-xs font-cinzel text-gold tracking-widest uppercase mb-1">The Miners Arms Brereton</div>
                         ${iconHTML}
-                        <h3 class="font-cinzel text-3xl md:text-5xl font-black gold-gradient-text uppercase tracking-wider">${p.title}</h3>
+                        <h3 class="font-cinzel text-2xl md:text-4xl font-black gold-gradient-text uppercase tracking-wider">${p.title}</h3>
                     </div>
-                    <div class="my-auto space-y-6 overflow-y-auto max-h-[70vh] px-6 min-h-0">
-                        <div class="inline-block bg-gold text-white font-cinzel font-bold px-8 py-2.5 rounded-xl text-base md:text-xl shadow-lg uppercase tracking-wider">${p.badge}</div>
-                        <div class="text-stone-100 text-lg md:text-2xl leading-relaxed space-y-3 font-medium">${p.subtitle.replace(/\n/g, '<br>')}</div>
+                    <div class="my-auto space-y-4 overflow-hidden px-4 w-full flex flex-col items-center justify-center">
+                        <div class="inline-block bg-gold text-white font-cinzel font-bold px-6 py-2 rounded-xl text-sm md:text-lg shadow-lg uppercase tracking-wider">${p.badge}</div>
+                        <div class="text-stone-100 text-base md:text-xl leading-relaxed font-medium max-w-4xl">${p.subtitle.replace(/\n/g, '<br>')}</div>
                     </div>
-                    <div class="flex-shrink-0 pb-4">
-                        <p class="text-xs text-stone-400 tracking-widest uppercase">BRERETON COMMUNITY PUB & KITCHEN</p>
+                    <div class="flex-shrink-0 pb-1">
+                        <p class="text-[11px] text-stone-400 tracking-widest uppercase">BRERETON COMMUNITY PUB & KITCHEN</p>
                     </div>
                 `;
             }
