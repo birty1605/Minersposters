@@ -30,6 +30,54 @@
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #1a120b; }
         ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 4px; }
+        
+        /* Lottery Ball Styles */
+        .lottery-ball {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 9999px;
+            font-weight: 700;
+            font-size: 11px;
+            box-shadow: inset -2px -2px 4px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3);
+            color: #1a120b;
+        }
+        .lottery-ball.crossed {
+            position: relative;
+            opacity: 0.5;
+            filter: grayscale(40%);
+        }
+        .lottery-ball.crossed::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: #ef4444;
+            transform: rotate(-45deg);
+        }
+
+        #tv-fullscreen-wrapper:fullscreen {
+            width: 100vw;
+            height: 100vh;
+            overflow-y: auto;
+            background: #000000;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        #tv-fullscreen-wrapper:-webkit-full-screen {
+            width: 100vw;
+            height: 100vh;
+            overflow-y: auto;
+            background: #000000;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
     </style>
 </head>
 <body class="h-full flex flex-col overflow-x-hidden relative">
@@ -79,7 +127,7 @@
                         <option value="christmas">Christmas</option>
                         <option value="stpatricks">St. Patrick's Day</option>
                         <option value="halloween">Halloween</option>
-                        <option value="lottery">Lottery & Games</option>
+                        <option value="lottery">Lottery Results</option>
                     </select>
                 </div>
             </div>
@@ -98,7 +146,7 @@
             <div id="generator-content-area" class="space-y-6">
                 <div class="bg-timber/60 p-6 rounded-2xl border border-gold/20">
                     <h2 class="font-cinzel text-3xl font-bold gold-gradient-text">Pub Poster Studio</h2>
-                    <p class="text-gold/70 text-sm mt-1">Design customized notices using themes and special event templates.</p>
+                    <p class="text-gold/70 text-sm mt-1">Design customized notices using icons, themes, and special event templates.</p>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -122,6 +170,20 @@
                                 <option value="royal">Royal Crimson & Gold</option>
                                 <option value="neon">Neon Pub Dark</option>
                                 <option value="rustic">Rustic Emerald</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider text-gold/80 mb-1">Featured Icon / Graphic</label>
+                            <select id="gen-icon" onchange="updatePosterPreview()" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">
+                                <option value="fa-solid fa-futbol">⚽ Football</option>
+                                <option value="fa-solid fa-football">🏉 Rugby</option>
+                                <option value="fa-solid fa-compact-disc">🕺 Disco / DJ</option>
+                                <option value="fa-solid fa-bullhorn">📢 Bingo</option>
+                                <option value="fa-solid fa-guitar">🎸 Live Music</option>
+                                <option value="fa-solid fa-clover">☘️ St. Patrick's Day</option>
+                                <option value="fa-solid fa-ghost">🎃 Halloween</option>
+                                <option value="fa-solid fa-tree">🎄 Christmas</option>
+                                <option value="fa-solid fa-microphone">🎤 Karaoke</option>
                             </select>
                         </div>
                         <div>
@@ -153,11 +215,12 @@
                         <div class="text-xs uppercase tracking-widest text-gold/60 mb-3"><i class="fa-solid fa-eye mr-1"></i> Live Poster Preview</div>
                         <div id="poster-preview-box" class="w-full max-w-md aspect-[1/1.414] bg-gradient-to-b from-[#2c1e13] via-[#1a120b] to-[#0f0a07] border-4 border-gold rounded-xl p-8 flex flex-col justify-between text-center shadow-2xl relative overflow-hidden">
                             <div>
-                                <div class="inline-block border border-gold/60 px-4 py-1 rounded-full text-xs font-cinzel text-gold tracking-widest uppercase mb-4">The Miners Arms Brereton</div>
+                                <div class="inline-block border border-gold/60 px-4 py-1 rounded-full text-xs font-cinzel text-gold tracking-widest uppercase mb-2">The Miners Arms Brereton</div>
+                                <div class="my-2 text-gold text-3xl"><i id="prev-icon" class="fa-solid fa-futbol"></i></div>
                                 <h2 id="prev-title" class="font-cinzel text-3xl md:text-4xl font-black gold-gradient-text uppercase tracking-wider mb-2">LIVE PREMIER LEAGUE</h2>
                                 <div class="w-24 h-0.5 bg-gold mx-auto my-3"></div>
                             </div>
-                            <div class="my-auto space-y-6">
+                            <div class="my-auto space-y-4">
                                 <div id="prev-badge" class="inline-block bg-gold text-timber-dark font-cinzel font-bold px-6 py-2 rounded-lg text-sm shadow-md uppercase tracking-wider">FREE ENTRY</div>
                                 <p id="prev-subtitle" class="text-gold-light/90 text-sm md:text-base leading-relaxed px-4">Join us this Saturday for live HD matches on our big screens. Special cask ales on tap all day!</p>
                             </div>
@@ -183,7 +246,7 @@
             <div class="bg-timber/60 p-6 rounded-2xl border border-gold/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 class="font-cinzel text-3xl font-bold gold-gradient-text">Pub Lottery & Bonus Ball Suite</h2>
-                    <p class="text-gold/70 text-sm mt-1">Manage players, assign numbers, and sync draws to pub TV displays.</p>
+                    <p class="text-gold/70 text-sm mt-1">Manage players, assign numbers, and sync results automatically to pub displays.</p>
                 </div>
                 <div class="flex gap-2">
                     <button onclick="switchGameSubTab('bonus')" id="btn-sub-bonus" class="px-4 py-2 rounded-lg font-medium text-sm bg-gold text-timber-dark transition-all">Bonus Ball</button>
@@ -206,13 +269,13 @@
                                 <label class="block text-xs uppercase tracking-wider text-gold/80 mb-1">Select Number (1 - 59)</label>
                                 <input type="number" id="bonus-player-num" min="1" max="59" placeholder="e.g. 7" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">
                             </div>
-                            <button onclick="addBonusPlayer()" class="w-full bg-gold hover:bg-gold-dark text-timber-dark font-bold py-2.5 px-4 rounded-lg shadow transition-all admin-action-btn">Assign Number</button>
+                            <button onclick="addBonusPlayer()" class="w-full bg-gold hover:bg-gold-dark text-timber-dark font-bold py-2.5 px-4 rounded-lg shadow transition-all">Assign Number</button>
                         </div>
                         <div class="border-t border-gold/20 pt-4 mt-4 space-y-2">
                             <h4 class="font-cinzel text-sm text-gold font-bold">Simulate Bonus Draw</h4>
                             <div class="flex gap-2">
                                 <input type="number" id="bonus-winning-input" min="1" max="59" placeholder="Winning #" class="w-1/2 bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2 text-sm focus:outline-none">
-                                <button onclick="drawBonusBall()" class="w-1/2 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 rounded-lg text-sm shadow transition-all admin-action-btn">Announce Winner</button>
+                                <button onclick="drawBonusBall()" class="w-1/2 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 rounded-lg text-sm shadow transition-all">Announce Winner</button>
                             </div>
                             <div id="bonus-winner-result" class="p-3 bg-timber-dark rounded-lg text-xs text-gold-light border border-gold/30 mt-2 hidden"></div>
                         </div>
@@ -242,14 +305,14 @@
                                 <label class="block text-xs uppercase tracking-wider text-gold/80 mb-1">Pick 6 Numbers (1-49, comma separated)</label>
                                 <input type="text" id="lottery-player-nums" placeholder="e.g. 4, 12, 19, 27, 33, 42" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">
                             </div>
-                            <button onclick="addLotteryPlayer()" class="w-full bg-gold hover:bg-gold-dark text-timber-dark font-bold py-2.5 px-4 rounded-lg shadow transition-all admin-action-btn">Save Ticket</button>
+                            <button onclick="addLotteryPlayer()" class="w-full bg-gold hover:bg-gold-dark text-timber-dark font-bold py-2.5 px-4 rounded-lg shadow transition-all">Save Ticket</button>
                         </div>
                         <div class="border-t border-gold/20 pt-4 mt-4 space-y-3">
                             <h4 class="font-cinzel text-sm text-gold font-bold">Input Winning Numbers</h4>
                             <input type="text" id="lottery-winning-input" placeholder="e.g. 4, 12, 19, 27, 33, 42" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">
                             <div class="flex gap-2">
-                                <button onclick="checkLotteryDraw()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 rounded-lg text-sm shadow transition-all admin-action-btn">Mark Off Winners</button>
-                                <button onclick="resetLotteryDraw()" class="bg-timber-light hover:bg-timber text-gold px-3 py-2 rounded-lg text-xs border border-gold/30 admin-action-btn" title="Keep players, clear winning numbers">Refresh Draw</button>
+                                <button onclick="checkLotteryDraw()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 rounded-lg text-sm shadow transition-all">Mark Off Winners</button>
+                                <button onclick="resetLotteryDraw()" class="bg-timber-light hover:bg-timber text-gold px-3 py-2 rounded-lg text-xs border border-gold/30" title="Keep players, clear winning numbers">Refresh Draw</button>
                             </div>
                             <div id="lottery-draw-result" class="p-3 bg-timber-dark rounded-lg text-xs text-gold-light border border-gold/30 mt-2 hidden"></div>
                         </div>
@@ -265,9 +328,11 @@
             </div>
         </section>
 
-        <!-- TV LIVE VIEW TAB (FULL SCREEN CAPABLE) -->
+        <!-- TV LIVE VIEW TAB (WITH EDIT MODE & FULLSCREEN) -->
         <section id="tab-tv" class="tab-content hidden space-y-6">
-            <div id="tv-fullscreen-wrapper" class="bg-black/90 border-2 border-gold rounded-2xl p-6 md:p-10 shadow-2xl space-y-8 relative overflow-hidden">
+            <div id="tv-fullscreen-wrapper" class="bg-black/95 border-2 border-gold rounded-2xl p-6 md:p-10 shadow-2xl space-y-8 relative overflow-hidden">
+                
+                <!-- Live View Header & Fullscreen Button -->
                 <div class="flex flex-col md:flex-row justify-between items-center border-b border-gold/30 pb-6 gap-4">
                     <div class="flex items-center space-x-4">
                         <div class="w-14 h-14 rounded-full border-2 border-gold flex items-center justify-center bg-timber-dark text-gold shadow-lg">
@@ -275,7 +340,7 @@
                         </div>
                         <div>
                             <h2 class="font-cinzel text-3xl font-bold gold-gradient-text">The Miners Arms - Live TV Feed</h2>
-                            <p class="text-xs text-gold/70 tracking-widest uppercase">Connected to Pub Display Monitors #1, #2 & Main Lounge</p>
+                            <p class="text-xs text-gold/70 tracking-widest uppercase">Connected to Pub Display Monitors & Mobile Feeds</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-4">
@@ -289,10 +354,21 @@
                     </div>
                 </div>
 
-                <!-- Scrolling Ticker Bar -->
-                <div class="bg-timber-dark border border-gold/40 rounded-xl p-3 overflow-hidden shadow-inner">
-                    <div class="whitespace-nowrap animate-marquee text-gold font-cinzel text-sm tracking-wider">
-                        <span id="tv-live-ticker-display">🍺 Welcome to The Miners Arms Brereton! • Tonight: Pub Quiz @ 8:30 PM • Real Ale Guest Cask: Staffordshire Gold 4.2% • Live Premier League Saturday!</span>
+                <!-- Ticker Edit Mode & Display Bar -->
+                <div class="bg-timber/80 border border-gold/40 rounded-xl p-4 space-y-3 shadow-inner">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-cinzel text-gold font-bold uppercase tracking-wider"><i class="fa-solid fa-pen-to-square mr-1"></i> Live Ticker Edit Mode</span>
+                        <span class="text-[10px] text-gold/60">Updates broadcast instantly to all screens</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="tv-edit-ticker-input" placeholder="Type scrolling marquee message..." class="flex-1 bg-timber-dark border border-gold/40 text-gold-light rounded-lg px-3 py-2 text-sm focus:outline-none">
+                        <button onclick="updateTvTickerFeed()" class="bg-gold hover:bg-gold-dark text-timber-dark font-bold px-5 py-2 rounded-lg text-sm shadow transition-all">Broadcast Ticker</button>
+                    </div>
+                    <!-- Scrolling Marquee Output -->
+                    <div class="bg-timber-dark border border-gold/30 rounded-lg p-2.5 overflow-hidden mt-2">
+                        <div class="whitespace-nowrap animate-marquee text-gold font-cinzel text-sm tracking-wider">
+                            <span id="tv-live-ticker-display">🍺 Welcome to The Miners Arms Brereton! • Tonight: Pub Quiz @ 8:30 PM • Real Ale Guest Cask: Staffordshire Gold 4.2% • Live Premier League Saturday!</span>
+                        </div>
                     </div>
                 </div>
 
@@ -393,10 +469,10 @@
     <script>
         // State & LocalStorage Persistence
         let posters = JSON.parse(localStorage.getItem('miners_posters')) || [
-            { id: 1, category: 'sports', theme: 'gold', title: 'LIVE PREMIER LEAGUE', subtitle: 'Join us this Saturday for live HD matches on our big screens. Special cask ales on tap all day!', date: 'Saturday @ 3:00 PM', badge: 'FREE ENTRY' },
-            { id: 2, category: 'events', theme: 'gold', title: 'WEEKLY PUB QUIZ', subtitle: 'Test your knowledge with our resident quizmaster. Cash prizes & bar tabs up for grabs!', date: 'Tonight @ 8:30 PM', badge: '£2 ENTRY' },
-            { id: 3, category: 'christmas', theme: 'royal', title: 'CHRISTMAS PARTY NIGHT', subtitle: 'Book your festive table now! Traditional roast turkey, mince pies, and mulled wine.', date: 'December 20th', badge: 'BOOK NOW' },
-            { id: 4, category: 'stpatricks', theme: 'rustic', title: 'ST. PATRICKS DAY BASH', subtitle: 'Live traditional music, hearty Irish stew, and discounted pints of Guinness all night long!', date: 'March 17th', badge: 'LIVE MUSIC' }
+            { id: 1, category: 'sports', theme: 'gold', icon: 'fa-solid fa-futbol', title: 'LIVE PREMIER LEAGUE', subtitle: 'Join us this Saturday for live HD matches on our big screens. Special cask ales on tap all day!', date: 'Saturday @ 3:00 PM', badge: 'FREE ENTRY' },
+            { id: 2, category: 'events', theme: 'gold', icon: 'fa-solid fa-compact-disc', title: 'WEEKLY PUB QUIZ & DJ', subtitle: 'Test your knowledge with our resident quizmaster followed by weekend disco!', date: 'Tonight @ 8:30 PM', badge: '£2 ENTRY' },
+            { id: 3, category: 'christmas', theme: 'royal', icon: 'fa-solid fa-tree', title: 'CHRISTMAS PARTY NIGHT', subtitle: 'Book your festive table now! Traditional roast turkey, mince pies, and mulled wine.', date: 'December 20th', badge: 'BOOK NOW' },
+            { id: 4, category: 'stpatricks', theme: 'rustic', icon: 'fa-solid fa-clover', title: 'ST. PATRICKS DAY BASH', subtitle: 'Live traditional music, hearty Irish stew, and discounted pints of Guinness all night long!', date: 'March 17th', badge: 'LIVE MUSIC' }
         ];
 
         let archive = JSON.parse(localStorage.getItem('miners_archive')) || [];
@@ -416,7 +492,19 @@
             localStorage.setItem('miners_bonus_winner', currentBonusWinnerAnnouncement);
         }
 
-        // Admin Auth State Enforcement
+        // Color generator for lottery balls based on number range
+        function getBallColorStyle(n) {
+            if (n <= 10) return 'background: radial-gradient(circle at 35% 35%, #f87171, #dc2626); color: white;'; // Red
+            if (n <= 20) return 'background: radial-gradient(circle at 35% 35%, #38bdf8, #0284c7); color: white;'; // Blue
+            if (n <= 30) return 'background: radial-gradient(circle at 35% 35%, #facc15, #ca8a04); color: #1a120b;'; // Yellow/Gold
+            if (n <= 40) return 'background: radial-gradient(circle at 35% 35%, #a855f7, #7e22ce); color: white;'; // Purple
+            return 'background: radial-gradient(circle at 35% 35%, #4ade80, #16a34a); color: white;'; // Green
+        }
+
+        function renderBallHTML(n, isCrossed = false) {
+            return `<span class="lottery-ball ${isCrossed ? 'crossed' : ''}" style="${getBallColorStyle(n)}">${n}</span>`;
+        }
+
         function updateAdminStateUI() {
             const navLabel = document.getElementById('admin-nav-label');
             const genLock = document.getElementById('generator-lock-notice');
@@ -475,33 +563,39 @@
             const subInput = document.getElementById('gen-subtitle');
             const badgeInput = document.getElementById('gen-badge');
             const themeInput = document.getElementById('gen-theme');
+            const iconInput = document.getElementById('gen-icon');
 
             if (cat === 'christmas') {
                 titleInput.value = 'CHRISTMAS PARTY NIGHT';
                 subInput.value = 'Join us for our annual festive celebration! Traditional roast dinners, mince pies, and mulled wine.';
                 badgeInput.value = 'BOOK NOW';
                 themeInput.value = 'royal';
+                iconInput.value = 'fa-solid fa-tree';
             } else if (cat === 'stpatricks') {
                 titleInput.value = 'ST. PATRICKS DAY CELEBRATION';
                 subInput.value = 'Guinness flowing, live traditional folk music, and craic all evening!';
                 badgeInput.value = 'SLÁINTE';
                 themeInput.value = 'rustic';
+                iconInput.value = 'fa-solid fa-clover';
             } else if (cat === 'halloween') {
                 titleInput.value = 'HALLOWEEN SPOOKTACULAR';
                 subInput.value = 'Fancy dress competition, spooky cocktails, and haunting tunes in the lounge.';
                 badgeInput.value = 'PRIZES';
                 themeInput.value = 'neon';
+                iconInput.value = 'fa-solid fa-ghost';
             } else if (cat === 'sports') {
                 titleInput.value = 'LIVE SPORTS ON BIG SCREENS';
                 subInput.value = 'Catch all the Premier League and international fixtures in HD with cold pints on tap.';
                 badgeInput.value = 'HD SCREENS';
                 themeInput.value = 'gold';
+                iconInput.value = 'fa-solid fa-futbol';
             }
             updatePosterPreview();
         };
 
         window.updatePosterPreview = function() {
             const theme = document.getElementById('gen-theme').value;
+            const iconClass = document.getElementById('gen-icon').value;
             const box = document.getElementById('poster-preview-box');
             
             if (theme === 'royal') {
@@ -514,6 +608,7 @@
                 box.className = 'w-full max-w-md aspect-[1/1.414] bg-gradient-to-b from-[#2c1e13] via-[#1a120b] to-[#0f0a07] border-4 border-gold rounded-xl p-8 flex flex-col justify-between text-center shadow-2xl relative overflow-hidden';
             }
 
+            document.getElementById('prev-icon').className = iconClass;
             document.getElementById('prev-title').innerText = document.getElementById('gen-title').value || 'TITLE';
             document.getElementById('prev-subtitle').innerText = document.getElementById('gen-subtitle').value || '';
             document.getElementById('prev-date').innerText = document.getElementById('gen-date').value || '';
@@ -529,6 +624,7 @@
                 id: Date.now(),
                 category: document.getElementById('gen-category').value,
                 theme: document.getElementById('gen-theme').value,
+                icon: document.getElementById('gen-icon').value,
                 title: document.getElementById('gen-title').value,
                 subtitle: document.getElementById('gen-subtitle').value,
                 date: document.getElementById('gen-date').value,
@@ -545,17 +641,30 @@
             if (!grid) return;
             grid.innerHTML = '';
 
-            // Auto-generate lottery poster if lottery filter or all is selected
             let displayList = [...posters];
+            
+            // Auto-generate detailed lottery results poster including player names and colorful crossed-off balls
             if (currentWinningLotteryNums.length > 0) {
+                let playerResultsHTML = lotteryPlayers.map(p => {
+                    let ballsHTML = p.nums.map(n => {
+                        const isMatched = currentWinningLotteryNums.includes(n);
+                        return renderBallHTML(n, !isMatched); // Crossed off if not matched
+                    }).join(' ');
+                    let matchedCount = p.nums.filter(n => currentWinningLotteryNums.includes(n)).length;
+                    return `<div class="mb-1 text-xs"><strong>${p.name}:</strong> ${ballsHTML} ${matchedCount > 0 ? `<span class="text-emerald-400 font-bold ml-1">(${matchedCount} matched!)</span>` : ''}</div>`;
+                }).join('');
+
+                let winningBallsDisplay = currentWinningLotteryNums.map(n => renderBallHTML(n)).join(' ');
+
                 displayList.unshift({
                     id: 'lottery-auto',
                     category: 'lottery',
                     theme: 'royal',
+                    icon: 'fa-solid fa-ticket',
                     title: 'LATEST LOTTERY RESULTS',
-                    subtitle: `Winning Numbers: ${currentWinningLotteryNums.join(', ')}. Check your tickets in the pub lounge!`,
+                    subtitle: `Winning Numbers: ${winningBallsDisplay}\n\nRegistered Entries & Ball Status:\n${playerResultsHTML}`,
                     date: 'Drawn Today',
-                    badge: 'JACKPOT'
+                    badge: 'JACKPOT DRAW'
                 });
             }
 
@@ -566,6 +675,7 @@
             }
 
             filtered.forEach(p => {
+                const iconHTML = p.icon ? `<div class="text-gold text-2xl mb-2"><i class="${p.icon}"></i></div>` : '';
                 grid.innerHTML += `
                     <div onclick="openPosterModal('${p.id}')" class="bg-timber/50 border border-gold/30 rounded-xl p-6 flex flex-col justify-between cursor-pointer hover:border-gold transition-all transform hover:-translate-y-1 shadow-xl">
                         <div>
@@ -573,8 +683,9 @@
                                 <span class="text-xs font-cinzel text-gold px-2.5 py-1 rounded-full border border-gold/40 uppercase">${p.category}</span>
                                 <span class="text-xs bg-gold text-timber-dark font-bold px-2 py-0.5 rounded">${p.badge}</span>
                             </div>
+                            ${iconHTML}
                             <h3 class="font-cinzel text-xl font-bold gold-gradient-text mb-2">${p.title}</h3>
-                            <p class="text-gold-light/80 text-sm line-clamp-3">${p.subtitle}</p>
+                            <div class="text-gold-light/80 text-sm line-clamp-4 space-y-1">${p.subtitle.replace(/\n/g, '<br>')}</div>
                         </div>
                         <div class="border-t border-gold/20 pt-3 mt-4 flex justify-between items-center text-xs text-gold/70">
                             <span><i class="fa-regular fa-clock mr-1"></i>${p.date}</span>
@@ -586,12 +697,14 @@
         };
 
         window.openPosterModal = function(id) {
-            const p = posters.find(item => item.id == id) || archive.find(item => item.id == id) || { title: 'LATEST LOTTERY RESULTS', badge: 'JACKPOT', subtitle: `Winning Numbers: ${currentWinningLotteryNums.join(', ')}`, date: 'Today' };
+            const p = posters.find(item => item.id == id) || archive.find(item => item.id == id) || { title: 'LATEST LOTTERY RESULTS', badge: 'JACKPOT', icon: 'fa-solid fa-ticket', subtitle: `Winning Numbers: ${currentWinningLotteryNums.join(', ')}`, date: 'Today' };
+            const iconHTML = p.icon ? `<div class="text-gold text-3xl mb-2"><i class="${p.icon}"></i></div>` : '';
             document.getElementById('modal-content').innerHTML = `
                 <div class="inline-block border border-gold/60 px-4 py-1 rounded-full text-xs font-cinzel text-gold tracking-widest uppercase mb-2">The Miners Arms Brereton</div>
+                ${iconHTML}
                 <h3 class="font-cinzel text-2xl font-bold gold-gradient-text uppercase">${p.title}</h3>
                 <div class="inline-block bg-gold text-timber-dark font-bold px-4 py-1 rounded text-xs uppercase my-2">${p.badge}</div>
-                <p class="text-gold-light text-sm leading-relaxed">${p.subtitle}</p>
+                <div class="text-gold-light text-sm leading-relaxed space-y-2">${p.subtitle.replace(/\n/g, '<br>')}</div>
                 <div class="text-gold font-bold text-sm pt-2 border-t border-gold/30">${p.date}</div>
             `;
             document.getElementById('poster-modal').classList.remove('hidden');
@@ -764,16 +877,16 @@
             }
 
             lotteryPlayers.forEach((p, idx) => {
-                let formattedNums = p.nums.map(n => {
+                let formattedBalls = p.nums.map(n => {
                     const isMatched = currentWinningLotteryNums.includes(n);
-                    return `<span class="px-1.5 py-0.5 rounded text-xs ${isMatched ? 'bg-emerald-500 text-timber-dark font-bold' : 'bg-timber border border-gold/30 text-gold-light'}">${n}</span>`;
+                    return renderBallHTML(n, !isMatched);
                 }).join(' ');
 
                 list.innerHTML += `
                     <div class="p-3 bg-timber-dark rounded-lg border border-gold/30 flex justify-between items-center text-sm">
                         <div>
                             <span class="text-gold font-bold">${p.name}</span>
-                            <div class="flex gap-1 mt-1 flex-wrap">${formattedNums}</div>
+                            <div class="flex gap-1.5 mt-1.5 flex-wrap items-center">${formattedBalls}</div>
                         </div>
                         ${isAdminLoggedIn ? `<button onclick="lotteryPlayers.splice(${idx}, 1); saveToStorage(); renderLotteryList();" class="text-red-400 hover:text-red-300 text-xs"><i class="fa-solid fa-trash"></i></button>` : ''}
                     </div>
@@ -798,14 +911,15 @@
             renderLotteryList();
             renderTvFeed();
             
-            let resultsHTML = `🎲 <strong>Winning Numbers:</strong> ${currentWinningLotteryNums.join(', ')}<br><hr class="border-gold/20 my-1">`;
+            let winningBallsStr = currentWinningLotteryNums.map(n => renderBallHTML(n)).join(' ');
+            let resultsHTML = `🎲 <strong>Winning Numbers:</strong><div class="flex gap-1 mt-1">${winningBallsStr}</div><hr class="border-gold/20 my-2">`;
             let winnerFound = false;
 
             lotteryPlayers.forEach(p => {
                 const matches = p.nums.filter(n => currentWinningLotteryNums.includes(n));
                 if (matches.length > 0) {
                     winnerFound = true;
-                    resultsHTML += `• <strong>${p.name}</strong> matched ${matches.length} number(s): [${matches.join(', ')}]<br>`;
+                    resultsHTML += `• <strong>${p.name}</strong> matched ${matches.length} number(s)!<br>`;
                 }
             });
 
@@ -832,13 +946,21 @@
             const container = document.getElementById('tv-full-poster-display');
             if (!container) return;
 
-            // Gather all posters including auto-generated lottery poster if available
             let carouselPosters = [...posters];
             if (currentWinningLotteryNums.length > 0) {
+                let playerResultsText = lotteryPlayers.map(p => {
+                    let matched = p.nums.filter(n => currentWinningLotteryNums.includes(n));
+                    let ballsStr = p.nums.map(n => renderBallHTML(n, !currentWinningLotteryNums.includes(n))).join(' ');
+                    return `${p.name}: ${ballsStr} ${matched.length > 0 ? `(Matches: ${matched.length})` : ''}`;
+                }).join('\n');
+
+                let winningBallsStr = currentWinningLotteryNums.map(n => renderBallHTML(n)).join(' ');
+
                 carouselPosters.unshift({
+                    icon: 'fa-solid fa-ticket',
                     title: 'LATEST LOTTERY RESULTS',
                     badge: 'JACKPOT DRAW',
-                    subtitle: `Winning Numbers: ${currentWinningLotteryNums.join(', ')}`,
+                    subtitle: `Winning Numbers:\n${winningBallsStr}\n\n${playerResultsText}`,
                     date: 'Drawn Live Today'
                 });
             }
@@ -847,32 +969,33 @@
             const p = carouselPosters[tvCarouselIndex] || { title: 'THE MINERS ARMS', subtitle: 'Welcome to Brereton community pub.', badge: 'OPEN', date: 'Daily' };
             
             document.getElementById('tv-poster-counter').innerText = `Displaying ${tvCarouselIndex + 1} of ${carouselPosters.length}`;
+            const iconHTML = p.icon ? `<div class="text-gold text-3xl mb-1"><i class="${p.icon}"></i></div>` : '';
 
             container.innerHTML = `
                 <div>
-                    <div class="inline-block border border-gold/60 px-4 py-1 rounded-full text-xs font-cinzel text-gold tracking-widest uppercase mb-2">The Miners Arms Brereton</div>
-                    <h3 class="font-cinzel text-2xl md:text-3xl font-black gold-gradient-text uppercase tracking-wider mb-2">${p.title}</h3>
-                    <div class="w-20 h-0.5 bg-gold mx-auto my-2"></div>
+                    <div class="inline-block border border-gold/60 px-4 py-1 rounded-full text-xs font-cinzel text-gold tracking-widest uppercase mb-1">The Miners Arms Brereton</div>
+                    ${iconHTML}
+                    <h3 class="font-cinzel text-xl md:text-2xl font-black gold-gradient-text uppercase tracking-wider mb-1">${p.title}</h3>
+                    <div class="w-16 h-0.5 bg-gold mx-auto my-1"></div>
                 </div>
-                <div class="my-auto space-y-4">
-                    <div class="inline-block bg-gold text-timber-dark font-cinzel font-bold px-6 py-2 rounded-lg text-sm shadow-md uppercase tracking-wider">${p.badge}</div>
-                    <p class="text-gold-light/90 text-sm md:text-base leading-relaxed px-4">${p.subtitle}</p>
+                <div class="my-auto space-y-3">
+                    <div class="inline-block bg-gold text-timber-dark font-cinzel font-bold px-5 py-1.5 rounded-lg text-xs shadow-md uppercase tracking-wider">${p.badge}</div>
+                    <div class="text-gold-light/90 text-xs md:text-sm leading-relaxed px-2 space-y-1">${p.subtitle.replace(/\n/g, '<br>')}</div>
                 </div>
-                <div class="border-t border-gold/30 pt-3 mt-auto">
-                    <div class="text-gold font-cinzel font-bold text-base">${p.date}</div>
+                <div class="border-t border-gold/30 pt-2 mt-auto">
+                    <div class="text-gold font-cinzel font-bold text-sm">${p.date}</div>
                 </div>
             `;
 
-            // Update Bonus Ball Winner on TV
             const bonusContainer = document.getElementById('tv-live-bonus-winner');
             if (bonusContainer) {
-                bonusContainer.innerHTML = currentBonusWinnerAnnouncement ? `<p class="text-amber-300 font-bold text-base">${currentBonusWinnerAnnouncement}</p>` : `<p class="text-gold/60 text-xs italic">Awaiting bonus ball draw announcement...</p>`;
+                bonusContainer.innerHTML = currentBonusWinnerAnnouncement ? `<p class="text-amber-300 font-bold text-sm">${currentBonusWinnerAnnouncement}</p>` : `<p class="text-gold/60 text-xs italic">Awaiting bonus ball draw announcement...</p>`;
             }
 
-            // Update Lottery Status on TV
             const lotteryContainer = document.getElementById('tv-live-lottery-status');
             if (lotteryContainer) {
-                lotteryContainer.innerHTML = currentWinningLotteryNums.length > 0 ? `<p class="text-emerald-400 font-bold text-sm">Winning Numbers: ${currentWinningLotteryNums.join(', ')}</p>` : `<p class="text-gold/60 italic">No winning numbers drawn yet.</p>`;
+                let winningBallsStr = currentWinningLotteryNums.length > 0 ? currentWinningLotteryNums.map(n => renderBallHTML(n)).join(' ') : 'None';
+                lotteryContainer.innerHTML = currentWinningLotteryNums.length > 0 ? `<div class="flex items-center justify-center gap-1 flex-wrap"><span class="text-emerald-400 font-bold text-xs mr-1">Winning:</span>${winningBallsStr}</div>` : `<p class="text-gold/60 italic">No winning numbers drawn yet.</p>`;
             }
         };
 
@@ -884,14 +1007,29 @@
             }
         }, 7000);
 
+        window.updateTvTickerFeed = function() {
+            const val = document.getElementById('tv-edit-ticker-input').value.trim();
+            if (val) {
+                document.getElementById('tv-live-ticker-display').innerText = val;
+                alert('Marquee ticker updated successfully!');
+                document.getElementById('tv-edit-ticker-input').value = '';
+            }
+        };
+
         window.toggleTvFullScreen = function() {
             const elem = document.getElementById('tv-fullscreen-wrapper');
-            if (!document.fullscreenElement) {
-                elem.requestFullscreen().catch(err => {
-                    alert(`Error attempting to enable fullscreen: ${err.message}`);
-                });
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen().catch(err => alert(err.message));
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                }
             } else {
-                document.exitFullscreen();
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
             }
         };
 
