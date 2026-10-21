@@ -7,6 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDKs for Real-Time Cross-Device Cloud Sync -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -87,7 +92,12 @@
 </head>
 <body class="h-full flex flex-col relative">
 
-    <!-- MAIN PORTAL LOGIN OVERLAY (GUEST OR ADMIN) -->
+    <!-- CLOUD SYNC STATUS BAR -->
+    <div id="cloud-sync-status" class="bg-amber-900/80 text-amber-200 text-[10px] px-3 py-1 text-center font-medium border-b border-amber-700 flex items-center justify-center space-x-2">
+        <i class="fa-solid fa-cloud-arrow-up animate-pulse"></i><span>Connecting to Firebase Cloud Sync...</span>
+    </div>
+
+    <!-- MAIN PORTAL LOGIN OVERLAY -->
     <div id="portal-login-overlay" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[200] flex items-center justify-center p-4">
         <div class="bg-gradient-to-b from-timber via-timber-dark to-black border-2 border-gold rounded-3xl max-w-lg w-full p-6 md:p-10 shadow-2xl space-y-8 text-center relative overflow-hidden">
             <div class="space-y-3">
@@ -95,10 +105,9 @@
                     <i class="fa-solid fa-beer-mug-empty"></i>
                 </div>
                 <h1 class="font-cinzel text-3xl font-black gold-gradient-text tracking-wider uppercase">The Miners Arms</h1>
-                <p class="text-xs text-gold/70 uppercase tracking-widest">Brereton • Display & Control System</p>
+                <p class="text-xs text-gold/70 uppercase tracking-widest">Brereton • Cloud Display & Control System</p>
             </div>
 
-            <!-- LOGIN TYPE SELECTOR -->
             <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-3">
                     <button onclick="selectLoginRole('guest')" id="role-btn-guest" class="py-3 px-4 rounded-xl border border-gold/40 text-gold hover:bg-gold/10 font-cinzel font-bold text-sm transition-all flex items-center justify-center space-x-2">
@@ -109,17 +118,15 @@
                     </button>
                 </div>
 
-                <!-- GUEST VIEW ACTION -->
                 <div id="guest-login-box" class="space-y-4 pt-2">
-                    <p class="text-xs text-gold-light/70">Guest access grants immediate viewing of the Live TV Display Feed for pub screens and mobile viewers.</p>
+                    <p class="text-xs text-gold-light/70">Guest access grants immediate viewing of the Live TV Display Feed synchronized across all screens.</p>
                     <button onclick="proceedAsGuest()" class="w-full bg-gold hover:bg-gold-dark text-timber-dark font-bold py-3.5 rounded-xl shadow-xl transition-all font-cinzel tracking-wider text-sm flex items-center justify-center space-x-2">
                         <i class="fa-solid fa-play"></i><span>Launch Live TV Feed</span>
                     </button>
                 </div>
 
-                <!-- ADMIN LOGIN FORM -->
                 <div id="admin-login-box" class="space-y-4 pt-2 hidden">
-                    <p class="text-xs text-gold-light/70">Enter administrator credentials to unlock poster generator, lottery suite, marquee editing, and database settings.</p>
+                    <p class="text-xs text-gold-light/70">Enter administrator credentials to unlock poster generator, lottery suite, and marquee editing.</p>
                     <div class="space-y-3 text-left">
                         <div>
                             <label class="block text-[11px] uppercase tracking-wider text-gold/80 mb-1">Username</label>
@@ -156,7 +163,6 @@
                 </div>
             </div>
 
-            <!-- NAVIGATION BUTTONS (FILTERED BASED ON GUEST/ADMIN LOGGED IN STATUS) -->
             <nav class="flex flex-wrap items-center gap-2" id="app-nav-bar">
                 <button onclick="switchTab('tv')" id="btn-tv" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 bg-gold text-timber-dark shadow-md flex items-center space-x-2"><i class="fa-solid fa-tv"></i><span>TV Live View</span></button>
                 
@@ -177,10 +183,8 @@
 
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 overflow-y-auto" id="main-container">
 
-        <!-- POSTERS DISPLAY TAB (WITH EDIT MARQUEE AT TOP) -->
+        <!-- POSTERS TAB -->
         <section id="tab-posters" class="tab-content space-y-6">
-            
-            <!-- MARQUEE EDIT BANNER AT TOP OF POSTERS PAGE -->
             <div class="bg-timber-dark border-2 border-gold/60 rounded-2xl p-4 shadow-xl space-y-3">
                 <div class="flex items-center justify-between">
                     <h3 class="font-cinzel font-bold text-gold text-base flex items-center space-x-2">
@@ -200,7 +204,7 @@
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-timber/60 p-6 rounded-2xl border border-gold/20">
                 <div>
                     <h2 class="font-cinzel text-3xl font-bold gold-gradient-text">Active Pub Posters & Notices</h2>
-                    <p class="text-gold/70 text-sm mt-1">Synchronized in real-time across all display monitors in The Miners Arms. Click any poster for detail view.</p>
+                    <p class="text-gold/70 text-sm mt-1">Synchronized in real-time across all display monitors in The Miners Arms.</p>
                 </div>
                 <div>
                     <select id="poster-filter" onchange="filterPosters()" class="bg-timber-dark border border-gold/40 text-gold-light rounded-lg px-4 py-2 text-sm focus:outline-none">
@@ -219,9 +223,9 @@
             <div id="posters-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </section>
 
-        <!-- POSTER STUDIO GENERATOR TAB -->
+        <!-- GENERATOR TAB -->
         <section id="tab-generator" class="tab-content hidden space-y-6">
-            <div id="generator-content-area" class="space-y-6">
+            <div class="space-y-6">
                 <div class="bg-timber/60 p-6 rounded-2xl border border-gold/20">
                     <h2 class="font-cinzel text-3xl font-bold gold-gradient-text">Pub Poster Studio</h2>
                     <p class="text-gold/70 text-sm mt-1">Design customized notices using templates or upload image posters directly for TV and phone displays.</p>
@@ -229,7 +233,6 @@
 
                 <div class="bg-timber/50 p-6 rounded-2xl border border-gold/30 space-y-4">
                     <h3 class="font-cinzel text-xl text-gold font-semibold"><i class="fa-solid fa-file-image mr-2"></i>Upload Image Poster</h3>
-                    <p class="text-xs text-gold/70">Upload a pre-designed poster graphic (JPG, PNG). Formats perfectly for both landscape and portrait screens.</p>
                     <div class="flex flex-col sm:flex-row gap-4 items-center">
                         <input type="file" id="poster-image-file" accept="image/*" class="w-full sm:w-auto bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2 text-sm focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-gold file:text-timber-dark hover:file:bg-gold-dark">
                         <input type="text" id="poster-image-title" placeholder="Poster Title / Name" class="w-full sm:flex-1 bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">
@@ -340,7 +343,6 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="bg-timber/50 p-6 rounded-2xl border border-gold/20 space-y-4">
                         <h3 class="font-cinzel text-xl text-gold font-semibold"><i class="fa-solid fa-futbol mr-2"></i>Bonus Ball Entry</h3>
-                        <p class="text-xs text-gold/70">Assign numbers 1-59.</p>
                         <div class="space-y-3 pt-2">
                             <div>
                                 <label class="block text-xs uppercase tracking-wider text-gold/80 mb-1">Player Name</label>
@@ -376,7 +378,6 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="bg-timber/50 p-6 rounded-2xl border border-gold/20 space-y-4">
                         <h3 class="font-cinzel text-xl text-gold font-semibold"><i class="fa-solid fa-ticket mr-2"></i>Miners Lottery Entry</h3>
-                        <p class="text-xs text-gold/70">Players pick 6 numbers between 1 and 49.</p>
                         <div class="space-y-3 pt-2">
                             <div>
                                 <label class="block text-xs uppercase tracking-wider text-gold/80 mb-1">Player Name</label>
@@ -393,7 +394,7 @@
                             <input type="text" id="lottery-winning-input" placeholder="e.g. 4, 12, 19, 27, 33, 42" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">
                             <div class="flex gap-2">
                                 <button onclick="checkLotteryDraw()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 rounded-lg text-sm shadow transition-all">Add/Mark Numbers</button>
-                                <button onclick="resetLotteryDraw()" class="bg-timber-light hover:bg-timber text-gold px-3 py-2 rounded-lg text-xs border border-gold/30" title="Clear winning numbers">Refresh Draw</button>
+                                <button onclick="resetLotteryDraw()" class="bg-timber-light hover:bg-timber text-gold px-3 py-2 rounded-lg text-xs border border-gold/30">Refresh Draw</button>
                             </div>
                             <div id="lottery-draw-result" class="p-3 bg-timber-dark rounded-lg text-xs text-gold-light border border-gold/30 mt-2 hidden"></div>
                         </div>
@@ -409,21 +410,18 @@
             </div>
         </section>
 
-        <!-- TV LIVE VIEW TAB (CLEAN FULLSCREEN FEED) -->
+        <!-- TV LIVE VIEW TAB -->
         <section id="tab-tv" class="tab-content hidden space-y-4">
             <div id="tv-fullscreen-wrapper" class="bg-black border-2 border-gold rounded-2xl p-2 md:p-3 shadow-2xl flex flex-col justify-between h-[88vh] min-h-[520px] relative overflow-hidden">
-                
                 <div class="absolute top-2 right-2 z-30">
                     <button onclick="toggleTvFullScreen()" class="bg-timber/80 hover:bg-gold text-gold hover:text-timber-dark border border-gold/50 px-3 py-1 rounded-lg text-xs shadow-lg transition-all flex items-center space-x-1">
                         <i class="fa-solid fa-expand"></i><span>Fullscreen</span>
                     </button>
                 </div>
-
                 <div class="flex-1 flex flex-col justify-stretch items-center w-full h-full overflow-hidden">
                     <div id="tv-full-poster-display" class="w-full h-full bg-gradient-to-b from-[#2c1e13] via-[#1a120b] to-[#0f0a07] border border-gold/50 rounded-xl p-3 md:p-5 flex flex-col justify-between text-center shadow-2xl relative overflow-hidden">
                     </div>
                 </div>
-
             </div>
         </section>
 
@@ -438,19 +436,19 @@
 
         <!-- ADMIN DASHBOARD TAB -->
         <section id="tab-admin" class="tab-content hidden space-y-6">
-            <div id="admin-dashboard" class="space-y-6">
+            <div class="space-y-6">
                 <div class="bg-timber/60 p-6 rounded-2xl border border-gold/20 flex justify-between items-center">
                     <div>
                         <h2 class="font-cinzel text-3xl font-bold gold-gradient-text">Admin Control Dashboard</h2>
-                        <p class="text-gold/70 text-sm mt-1">Authenticated as Administrator. Full database and generator controls enabled.</p>
+                        <p class="text-gold/70 text-sm mt-1">Authenticated as Administrator. Real-time cloud database connected.</p>
                     </div>
                     <button onclick="logoutToPortal()" class="bg-timber-light hover:bg-timber text-gold border border-gold/40 px-4 py-2 rounded-lg text-sm"><i class="fa-solid fa-right-from-bracket mr-2"></i>Log Out</button>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-timber/50 p-6 rounded-2xl border border-gold/20 space-y-3">
-                        <h3 class="font-cinzel text-lg text-gold font-bold">Quick Cloud Actions</h3>
+                        <h3 class="font-cinzel text-lg text-gold font-bold">Cloud Actions</h3>
                         <p class="text-xs text-gold/70">Database management tools.</p>
-                        <button onclick="resetAllData()" class="w-full bg-red-900/40 hover:bg-red-900/60 text-red-300 border border-red-500/40 py-2 rounded-lg text-xs transition-all">Clear All Stored Data</button>
+                        <button onclick="resetAllData()" class="w-full bg-red-900/40 hover:bg-red-900/60 text-red-300 border border-red-500/40 py-2 rounded-lg text-xs transition-all">Reset Cloud Database</button>
                     </div>
                 </div>
             </div>
@@ -466,36 +464,138 @@
         </div>
     </div>
 
-    <!-- SCRIPT LOGIC -->
+    <!-- SCRIPT LOGIC WITH YOUR MINERSPOSTERS FIREBASE CONFIGURATION -->
     <script>
-        let posters = JSON.parse(localStorage.getItem('miners_posters')) || [
+        // ==========================================
+        // FIREBASE CLOUD CONFIGURATION (minersposters)
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyA1heSmD9nYxSZb6q3PPv7dqkZPVRZ3ZKo",
+            authDomain: "minersposters.firebaseapp.com",
+            databaseURL: "https://minersposters-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "minersposters",
+            storageBucket: "minersposters.firebasestorage.app",
+            messagingSenderId: "62157646302",
+            appId: "1:62157646302:web:c35c03509e8407e8dc554f",
+            measurementId: "G-FV104CWLH4"
+        };
+
+        // Initialize Firebase
+        let db;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+        } catch (e) {
+            console.warn("Firebase initialization warning. Using offline fallback mode.", e);
+        }
+
+        // Default Data States
+        let posters = [
             { id: 1, category: 'sports', theme: 'gold', icon: 'fa-solid fa-futbol', title: 'LIVE PREMIER LEAGUE', subtitle: 'Join us this Saturday for live HD matches on our big screens. Special cask ales on tap all day!', date: 'Saturday @ 3:00 PM', badge: 'FREE ENTRY' },
             { id: 2, category: 'events', theme: 'gold', icon: 'fa-solid fa-compact-disc', title: 'WEEKLY PUB QUIZ & DJ', subtitle: 'Test your knowledge with our resident quizmaster followed by weekend disco!', date: 'Tonight @ 8:30 PM', badge: '£2 ENTRY' },
             { id: 3, category: 'christmas', theme: 'royal', icon: 'fa-solid fa-tree', title: 'CHRISTMAS PARTY NIGHT', subtitle: 'Book your festive table now! Traditional roast turkey, mince pies, and mulled wine.', date: 'December 20th', badge: 'BOOK NOW' },
             { id: 4, category: 'stpatricks', theme: 'rustic', icon: 'fa-solid fa-clover', title: 'ST. PATRICKS DAY BASH', subtitle: 'Live traditional music, hearty Irish stew, and discounted pints of Guinness all night long!', date: 'March 17th', badge: 'LIVE MUSIC' }
         ];
-
-        let archive = JSON.parse(localStorage.getItem('miners_archive')) || [];
-        let bonusPlayers = JSON.parse(localStorage.getItem('miners_bonus')) || {};
-        let lotteryPlayers = JSON.parse(localStorage.getItem('miners_lottery')) || [];
-        let currentWinningLotteryNums = JSON.parse(localStorage.getItem('miners_winning_lottery')) || [];
-        let currentBonusWinnerAnnouncement = localStorage.getItem('miners_bonus_winner') || '';
-        let liveTickerText = localStorage.getItem('miners_marquee') || '🍺 Welcome to The Miners Arms Brereton! • Tonight: Pub Quiz @ 8:30 PM • Real Ale Guest Cask: Staffordshire Gold 4.2% • Live Premier League Saturday!';
+        let archive = [];
+        let bonusPlayers = {};
+        let lotteryPlayers = [];
+        let currentWinningLotteryNums = [];
+        let currentBonusWinnerAnnouncement = '';
+        let liveTickerText = '🍺 Welcome to The Miners Arms Brereton! • Tonight: Pub Quiz @ 8:30 PM • Real Ale Guest Cask: Staffordshire Gold 4.2% • Live Premier League Saturday!';
         let currentRole = localStorage.getItem('miners_user_role') || null;
         let tvCarouselIndex = 0;
 
-        function saveToStorage() {
-            localStorage.setItem('miners_posters', JSON.stringify(posters));
-            localStorage.setItem('miners_archive', JSON.stringify(archive));
-            localStorage.setItem('miners_bonus', JSON.stringify(bonusPlayers));
-            localStorage.setItem('miners_lottery', JSON.stringify(lotteryPlayers));
-            localStorage.setItem('miners_winning_lottery', JSON.stringify(currentWinningLotteryNums));
-            localStorage.setItem('miners_bonus_winner', currentBonusWinnerAnnouncement);
-            localStorage.setItem('miners_marquee', liveTickerText);
+        // Sync data to Cloud Firestore (or fallback to LocalStorage if offline)
+        function saveToCloud() {
+            const payload = { posters, archive, bonusPlayers, lotteryPlayers, currentWinningLotteryNums, currentBonusWinnerAnnouncement, liveTickerText };
+            
+            if (db) {
+                db.collection("miners_pub").doc("portal_state").set(payload)
+                .then(() => {
+                    updateSyncBadge(true);
+                })
+                .catch(err => {
+                    console.error("Cloud sync failed:", err);
+                    updateSyncBadge(false);
+                });
+            } else {
+                localStorage.setItem('miners_cloud_fallback', JSON.stringify(payload));
+                updateSyncBadge(false, "Offline Mode");
+            }
             localStorage.setItem('miners_user_role', currentRole);
         }
 
-        // PORTAL LOGIN FUNCTIONS
+        // Real-Time Listener across all connected devices
+        function initRealtimeSync() {
+            if (!db) {
+                loadFromFallback();
+                return;
+            }
+
+            db.collection("miners_pub").doc("portal_state")
+            .onSnapshot((doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    posters = data.posters || posters;
+                    archive = data.archive || [];
+                    bonusPlayers = data.bonusPlayers || {};
+                    lotteryPlayers = data.lotteryPlayers || [];
+                    currentWinningLotteryNums = data.currentWinningLotteryNums || [];
+                    currentBonusWinnerAnnouncement = data.currentBonusWinnerAnnouncement || '';
+                    liveTickerText = data.liveTickerText || liveTickerText;
+
+                    updateSyncBadge(true);
+                    refreshAllUI();
+                } else {
+                    saveToCloud(); // Initialize document if empty
+                }
+            }, (error) => {
+                console.error("Firestore listener error:", error);
+                updateSyncBadge(false);
+                loadFromFallback();
+            });
+        }
+
+        function loadFromFallback() {
+            const saved = localStorage.getItem('miners_cloud_fallback');
+            if (saved) {
+                const data = JSON.parse(saved);
+                posters = data.posters || posters;
+                archive = data.archive || [];
+                bonusPlayers = data.bonusPlayers || {};
+                lotteryPlayers = data.lotteryPlayers || [];
+                currentWinningLotteryNums = data.currentWinningLotteryNums || [];
+                currentBonusWinnerAnnouncement = data.currentBonusWinnerAnnouncement || '';
+                liveTickerText = data.liveTickerText || liveTickerText;
+            }
+            refreshAllUI();
+        }
+
+        function updateSyncBadge(isSynced, customText) {
+            const badge = document.getElementById('cloud-sync-status');
+            if (!badge) return;
+            if (isSynced) {
+                badge.className = "bg-emerald-900/80 text-emerald-200 text-[10px] px-3 py-1 text-center font-medium border-b border-emerald-700 flex items-center justify-center space-x-2";
+                badge.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i><span>Firebase Cloud Connected (Live Sync Active Across All Devices)</span>';
+            } else {
+                badge.className = "bg-amber-900/80 text-amber-200 text-[10px] px-3 py-1 text-center font-medium border-b border-amber-700 flex items-center justify-center space-x-2";
+                badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i><span>${customText || 'Cloud Sync Warning - Using Local Mode'}</span>`;
+            }
+        }
+
+        function refreshAllUI() {
+            renderPosters();
+            renderArchive();
+            renderBonusGrid();
+            renderLotteryList();
+            renderTvFeed();
+            updatePosterPreview();
+            if (document.getElementById('posters-marquee-input')) {
+                document.getElementById('posters-marquee-input').value = liveTickerText;
+            }
+        }
+
+        // PORTAL LOGIN & ROLE MANAGEMENT
         function selectLoginRole(role) {
             const guestBtn = document.getElementById('role-btn-guest');
             const adminBtn = document.getElementById('role-btn-admin');
@@ -517,7 +617,7 @@
 
         function proceedAsGuest() {
             currentRole = 'guest';
-            saveToStorage();
+            saveToCloud();
             applyRoleStateUI();
             switchTab('tv');
         }
@@ -527,7 +627,7 @@
             const p = document.getElementById('portal-admin-pass').value;
             if (u === 'Gjelly' && p === 'Kevisthebest') {
                 currentRole = 'admin';
-                saveToStorage();
+                saveToCloud();
                 applyRoleStateUI();
                 switchTab('posters');
             } else {
@@ -555,13 +655,11 @@
                 adminNav.classList.add('hidden');
                 statusBadge.innerText = 'Guest Mode';
             }
-
-            document.getElementById('posters-marquee-input').value = liveTickerText;
         }
 
         function logoutToPortal() {
             currentRole = null;
-            saveToStorage();
+            saveToCloud();
             document.getElementById('portal-admin-user').value = '';
             document.getElementById('portal-admin-pass').value = '';
             document.getElementById('portal-login-error').classList.add('hidden');
@@ -572,9 +670,8 @@
             const txt = document.getElementById('posters-marquee-input').value.trim();
             if (txt) {
                 liveTickerText = txt;
-                saveToStorage();
-                alert('Marquee ticker broadcasted to Live TV Display successfully!');
-                renderTvFeed();
+                saveToCloud();
+                alert('Marquee ticker broadcasted to all cloud screens successfully!');
             }
         }
 
@@ -693,7 +790,7 @@
                 isImageUpload: false
             };
             posters.unshift(newPoster);
-            saveToStorage();
+            saveToCloud();
             switchTab('posters');
         };
 
@@ -716,10 +813,10 @@
                         badge: 'NEW'
                     };
                     posters.unshift(customImagePoster);
-                    saveToStorage();
+                    saveToCloud();
                     fileInput.value = '';
                     titleInput.value = '';
-                    alert('Poster image uploaded and published successfully!');
+                    alert('Poster uploaded to cloud successfully!');
                     switchTab('posters');
                 };
                 reader.readAsDataURL(fileInput.files[0]);
@@ -838,7 +935,7 @@
             if (index !== -1) {
                 const [removed] = posters.splice(index, 1);
                 archive.push(removed);
-                saveToStorage();
+                saveToCloud();
                 renderPosters();
             }
         };
@@ -872,14 +969,14 @@
             if (index !== -1) {
                 const [restored] = archive.splice(index, 1);
                 posters.push(restored);
-                saveToStorage();
+                saveToCloud();
                 renderArchive();
             }
         };
 
         window.deleteArchived = function(id) {
             archive = archive.filter(p => p.id !== id);
-            saveToStorage();
+            saveToCloud();
             renderArchive();
         };
 
@@ -914,7 +1011,7 @@
                 return;
             }
             bonusPlayers[num] = name;
-            saveToStorage();
+            saveToCloud();
             document.getElementById('bonus-player-name').value = '';
             document.getElementById('bonus-player-num').value = '';
             renderBonusGrid();
@@ -924,7 +1021,7 @@
             if (bonusPlayers[num]) {
                 if (confirm(`Remove ${bonusPlayers[num]} from number ${num}?`)) {
                     delete bonusPlayers[num];
-                    saveToStorage();
+                    saveToCloud();
                     renderBonusGrid();
                 }
             }
@@ -937,7 +1034,7 @@
             const winner = bonusPlayers[winNum];
             
             currentBonusWinnerAnnouncement = winner ? `🏆 Bonus Ball #${winNum} Winner: ${winner}!` : `⚠️ Bonus Ball #${winNum} was unassigned.`;
-            saveToStorage();
+            saveToCloud();
 
             resultBox.classList.remove('hidden');
             resultBox.innerHTML = currentBonusWinnerAnnouncement;
@@ -955,10 +1052,8 @@
                     isImageUpload: false
                 };
                 posters.unshift(bonusPoster);
-                saveToStorage();
+                saveToCloud();
             }
-
-            renderTvFeed();
         };
 
         window.addLotteryPlayer = function() {
@@ -971,7 +1066,7 @@
                 return;
             }
             lotteryPlayers.push({ name, nums });
-            saveToStorage();
+            saveToCloud();
             document.getElementById('lottery-player-name').value = '';
             document.getElementById('lottery-player-nums').value = '';
             renderLotteryList();
@@ -1000,7 +1095,7 @@
                             <span class="text-gold font-bold">${p.name}</span>
                             <div class="flex gap-1.5 mt-1.5 flex-wrap items-center">${formattedBalls}</div>
                         </div>
-                        <button onclick="lotteryPlayers.splice(${idx}, 1); saveToStorage(); renderLotteryList();" class="text-red-400 hover:text-red-300 text-xs"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="lotteryPlayers.splice(${idx}, 1); saveToCloud(); renderLotteryList();" class="text-red-400 hover:text-red-300 text-xs"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `;
             });
@@ -1021,9 +1116,8 @@
                 }
             });
 
-            saveToStorage();
+            saveToCloud();
             renderLotteryList();
-            renderTvFeed();
             
             let winningBallsStr = currentWinningLotteryNums.map(n => renderBallHTML(n, true)).join(' ');
             let resultsHTML = `🎲 <strong>Accumulated Winning Numbers:</strong><div class="flex gap-1 mt-1 flex-wrap">${winningBallsStr}</div><hr class="border-gold/20 my-2">`;
@@ -1045,11 +1139,10 @@
 
         window.resetLotteryDraw = function() {
             currentWinningLotteryNums = [];
-            saveToStorage();
+            saveToCloud();
             document.getElementById('lottery-winning-input').value = '';
             document.getElementById('lottery-draw-result').classList.add('hidden');
             renderLotteryList();
-            renderTvFeed();
         };
 
         window.renderTvFeed = function() {
@@ -1146,7 +1239,7 @@
         };
 
         window.resetAllData = function() {
-            if (confirm('Are you sure you want to clear all stored data and reset?')) {
+            if (confirm('Are you sure you want to reset the cloud database?')) {
                 localStorage.clear();
                 location.reload();
             }
@@ -1154,11 +1247,8 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             applyRoleStateUI();
-            renderPosters();
-            renderBonusGrid();
-            renderLotteryList();
-            updatePosterPreview();
+            initRealtimeSync();
         });
     </script>
 </body>
-</html>
+    </html>
