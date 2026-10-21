@@ -31,29 +31,35 @@
         ::-webkit-scrollbar-track { background: #1a120b; }
         ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 4px; }
         
-        /* Lottery Ball Styles */
+        /* Vibrant & Dimmable Lottery Ball Styles */
         .lottery-ball {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             border-radius: 9999px;
-            font-weight: 700;
-            font-size: 11px;
-            box-shadow: inset -2px -2px 4px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3);
-            color: #1a120b;
+            font-weight: 800;
+            font-size: 13px;
+            box-shadow: inset -3px -3px 6px rgba(0,0,0,0.4), 0 3px 6px rgba(0,0,0,0.5);
+            color: #ffffff;
+            transition: all 0.3s ease;
         }
-        .lottery-ball.crossed {
+        .lottery-ball.active-win {
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.8), inset -3px -3px 6px rgba(0,0,0,0.4);
+            transform: scale(1.08);
+        }
+        .lottery-ball.dull-crossed {
             position: relative;
-            opacity: 0.5;
-            filter: grayscale(40%);
+            opacity: 0.35;
+            filter: grayscale(70%);
+            box-shadow: none;
         }
-        .lottery-ball.crossed::after {
+        .lottery-ball.dull-crossed::after {
             content: '';
             position: absolute;
             width: 100%;
-            height: 2px;
+            height: 2.5px;
             background: #ef4444;
             transform: rotate(-45deg);
         }
@@ -308,11 +314,11 @@
                             <button onclick="addLotteryPlayer()" class="w-full bg-gold hover:bg-gold-dark text-timber-dark font-bold py-2.5 px-4 rounded-lg shadow transition-all">Save Ticket</button>
                         </div>
                         <div class="border-t border-gold/20 pt-4 mt-4 space-y-3">
-                            <h4 class="font-cinzel text-sm text-gold font-bold">Input Winning Numbers</h4>
+                            <h4 class="font-cinzel text-sm text-gold font-bold">Accumulate Winning Numbers</h4>
                             <input type="text" id="lottery-winning-input" placeholder="e.g. 4, 12, 19, 27, 33, 42" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">
                             <div class="flex gap-2">
-                                <button onclick="checkLotteryDraw()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 rounded-lg text-sm shadow transition-all">Mark Off Winners</button>
-                                <button onclick="resetLotteryDraw()" class="bg-timber-light hover:bg-timber text-gold px-3 py-2 rounded-lg text-xs border border-gold/30" title="Keep players, clear winning numbers">Refresh Draw</button>
+                                <button onclick="checkLotteryDraw()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 rounded-lg text-sm shadow transition-all">Add/Mark Numbers</button>
+                                <button onclick="resetLotteryDraw()" class="bg-timber-light hover:bg-timber text-gold px-3 py-2 rounded-lg text-xs border border-gold/30" title="Clear winning numbers">Refresh Draw</button>
                             </div>
                             <div id="lottery-draw-result" class="p-3 bg-timber-dark rounded-lg text-xs text-gold-light border border-gold/30 mt-2 hidden"></div>
                         </div>
@@ -364,16 +370,10 @@
                         <input type="text" id="tv-edit-ticker-input" placeholder="Type scrolling marquee message..." class="flex-1 bg-timber-dark border border-gold/40 text-gold-light rounded-lg px-3 py-2 text-sm focus:outline-none">
                         <button onclick="updateTvTickerFeed()" class="bg-gold hover:bg-gold-dark text-timber-dark font-bold px-5 py-2 rounded-lg text-sm shadow transition-all">Broadcast Ticker</button>
                     </div>
-                    <!-- Scrolling Marquee Output -->
-                    <div class="bg-timber-dark border border-gold/30 rounded-lg p-2.5 overflow-hidden mt-2">
-                        <div class="whitespace-nowrap animate-marquee text-gold font-cinzel text-sm tracking-wider">
-                            <span id="tv-live-ticker-display">🍺 Welcome to The Miners Arms Brereton! • Tonight: Pub Quiz @ 8:30 PM • Real Ale Guest Cask: Staffordshire Gold 4.2% • Live Premier League Saturday!</span>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Live Carousel of Full Posters -->
+                    <!-- Live Carousel of Full Posters with Marquee at the Top -->
                     <div class="lg:col-span-2 bg-timber/60 p-6 rounded-xl border border-gold/30 flex flex-col justify-between">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="font-cinzel text-xl text-gold font-semibold"><i class="fa-solid fa-image mr-2"></i>Live Poster Rotation Feed</h3>
@@ -480,6 +480,7 @@
         let lotteryPlayers = JSON.parse(localStorage.getItem('miners_lottery')) || [];
         let currentWinningLotteryNums = JSON.parse(localStorage.getItem('miners_winning_lottery')) || [];
         let currentBonusWinnerAnnouncement = localStorage.getItem('miners_bonus_winner') || '';
+        let liveTickerText = localStorage.getItem('miners_marquee') || '🍺 Welcome to The Miners Arms Brereton! • Tonight: Pub Quiz @ 8:30 PM • Real Ale Guest Cask: Staffordshire Gold 4.2% • Live Premier League Saturday!';
         let isAdminLoggedIn = localStorage.getItem('miners_admin_auth') === 'true';
         let tvCarouselIndex = 0;
 
@@ -490,19 +491,21 @@
             localStorage.setItem('miners_lottery', JSON.stringify(lotteryPlayers));
             localStorage.setItem('miners_winning_lottery', JSON.stringify(currentWinningLotteryNums));
             localStorage.setItem('miners_bonus_winner', currentBonusWinnerAnnouncement);
+            localStorage.setItem('miners_marquee', liveTickerText);
         }
 
-        // Color generator for lottery balls based on number range
-        function getBallColorStyle(n) {
-            if (n <= 10) return 'background: radial-gradient(circle at 35% 35%, #f87171, #dc2626); color: white;'; // Red
-            if (n <= 20) return 'background: radial-gradient(circle at 35% 35%, #38bdf8, #0284c7); color: white;'; // Blue
-            if (n <= 30) return 'background: radial-gradient(circle at 35% 35%, #facc15, #ca8a04); color: #1a120b;'; // Yellow/Gold
-            if (n <= 40) return 'background: radial-gradient(circle at 35% 35%, #a855f7, #7e22ce); color: white;'; // Purple
-            return 'background: radial-gradient(circle at 35% 35%, #4ade80, #16a34a); color: white;'; // Green
+        // Vibrant color generator for lottery balls
+        function getBrightBallColorStyle(n) {
+            if (n <= 10) return 'background: radial-gradient(circle at 30% 30%, #fca5a5, #dc2626);'; // Bright Red
+            if (n <= 20) return 'background: radial-gradient(circle at 30% 30%, #7dd3fc, #0284c7);'; // Bright Blue
+            if (n <= 30) return 'background: radial-gradient(circle at 30% 30%, #fde047, #ca8a04);'; // Bright Yellow
+            if (n <= 40) return 'background: radial-gradient(circle at 30% 30%, #c084fc, #7e22ce);'; // Bright Purple
+            return 'background: radial-gradient(circle at 30% 30%, #86efac, #16a34a);'; // Bright Green
         }
 
-        function renderBallHTML(n, isCrossed = false) {
-            return `<span class="lottery-ball ${isCrossed ? 'crossed' : ''}" style="${getBallColorStyle(n)}">${n}</span>`;
+        function renderBallHTML(n, isWinningMatch = true) {
+            const statusClass = isWinningMatch ? 'active-win' : 'dull-crossed';
+            return `<span class="lottery-ball ${statusClass}" style="${getBrightBallColorStyle(n)}">${n}</span>`;
         }
 
         function updateAdminStateUI() {
@@ -643,18 +646,11 @@
 
             let displayList = [...posters];
             
-            // Auto-generate detailed lottery results poster including player names and colorful crossed-off balls
             if (currentWinningLotteryNums.length > 0) {
-                let playerResultsHTML = lotteryPlayers.map(p => {
-                    let ballsHTML = p.nums.map(n => {
-                        const isMatched = currentWinningLotteryNums.includes(n);
-                        return renderBallHTML(n, !isMatched); // Crossed off if not matched
-                    }).join(' ');
-                    let matchedCount = p.nums.filter(n => currentWinningLotteryNums.includes(n)).length;
-                    return `<div class="mb-1 text-xs"><strong>${p.name}:</strong> ${ballsHTML} ${matchedCount > 0 ? `<span class="text-emerald-400 font-bold ml-1">(${matchedCount} matched!)</span>` : ''}</div>`;
-                }).join('');
-
-                let winningBallsDisplay = currentWinningLotteryNums.map(n => renderBallHTML(n)).join(' ');
+                let playerResultsText = lotteryPlayers.map(p => {
+                    let matched = p.nums.filter(n => currentWinningLotteryNums.includes(n));
+                    return `${p.name}: [${p.nums.join(', ')}] ${matched.length > 0 ? `(Matches: ${matched.length})` : ''}`;
+                }).join(' • ');
 
                 displayList.unshift({
                     id: 'lottery-auto',
@@ -662,18 +658,13 @@
                     theme: 'royal',
                     icon: 'fa-solid fa-ticket',
                     title: 'LATEST LOTTERY RESULTS',
-                    subtitle: `Winning Numbers: ${winningBallsDisplay}\n\nRegistered Entries & Ball Status:\n${playerResultsHTML}`,
+                    subtitle: `Winning Numbers: ${currentWinningLotteryNums.join(', ')}.\n\nEntries:\n${playerResultsText}`,
                     date: 'Drawn Today',
                     badge: 'JACKPOT DRAW'
                 });
             }
 
             const filtered = displayList.filter(p => filter === 'all' || p.category === filter);
-            if (filtered.length === 0) {
-                grid.innerHTML = '<div class="col-span-full text-center py-12 text-gold/50">No posters found in this category.</div>';
-                return;
-            }
-
             filtered.forEach(p => {
                 const iconHTML = p.icon ? `<div class="text-gold text-2xl mb-2"><i class="${p.icon}"></i></div>` : '';
                 grid.innerHTML += `
@@ -844,7 +835,7 @@
             renderTvFeed();
         };
 
-        // Lottery Logic
+        // Lottery Logic with Cumulative Savings
         window.addLotteryPlayer = function() {
             if (!isAdminLoggedIn) {
                 alert('Admin authorization required to add tickets.');
@@ -879,7 +870,7 @@
             lotteryPlayers.forEach((p, idx) => {
                 let formattedBalls = p.nums.map(n => {
                     const isMatched = currentWinningLotteryNums.includes(n);
-                    return renderBallHTML(n, !isMatched);
+                    return renderBallHTML(n, isMatched);
                 }).join(' ');
 
                 list.innerHTML += `
@@ -900,19 +891,26 @@
                 return;
             }
             const inputStr = document.getElementById('lottery-winning-input').value.trim();
-            currentWinningLotteryNums = inputStr.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
+            const newNums = inputStr.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
             
-            if (currentWinningLotteryNums.length === 0) {
+            if (newNums.length === 0) {
                 alert('Enter valid winning numbers.');
                 return;
             }
+
+            // Accumulate numbers without duplicates
+            newNums.forEach(n => {
+                if (!currentWinningLotteryNums.includes(n)) {
+                    currentWinningLotteryNums.push(n);
+                }
+            });
 
             saveToStorage();
             renderLotteryList();
             renderTvFeed();
             
-            let winningBallsStr = currentWinningLotteryNums.map(n => renderBallHTML(n)).join(' ');
-            let resultsHTML = `🎲 <strong>Winning Numbers:</strong><div class="flex gap-1 mt-1">${winningBallsStr}</div><hr class="border-gold/20 my-2">`;
+            let winningBallsStr = currentWinningLotteryNums.map(n => renderBallHTML(n, true)).join(' ');
+            let resultsHTML = `🎲 <strong>Accumulated Winning Numbers:</strong><div class="flex gap-1 mt-1 flex-wrap">${winningBallsStr}</div><hr class="border-gold/20 my-2">`;
             let winnerFound = false;
 
             lotteryPlayers.forEach(p => {
@@ -925,7 +923,8 @@
 
             const resBox = document.getElementById('lottery-draw-result');
             resBox.classList.remove('hidden');
-            resBox.innerHTML = winnerFound ? resultsHTML : `🎲 Winning numbers checked. No player matches found this draw.`;
+            resBox.innerHTML = winnerFound ? resultsHTML : `🎲 Numbers added. No player matches found yet.`;
+            document.getElementById('lottery-winning-input').value = '';
         };
 
         window.resetLotteryDraw = function() {
@@ -941,7 +940,7 @@
             renderTvFeed();
         };
 
-        // TV Feed Carousel & Fullscreen Mode
+        // TV Feed Carousel & Fullscreen Mode (Marquee at top of poster)
         window.renderTvFeed = function() {
             const container = document.getElementById('tv-full-poster-display');
             if (!container) return;
@@ -950,11 +949,11 @@
             if (currentWinningLotteryNums.length > 0) {
                 let playerResultsText = lotteryPlayers.map(p => {
                     let matched = p.nums.filter(n => currentWinningLotteryNums.includes(n));
-                    let ballsStr = p.nums.map(n => renderBallHTML(n, !currentWinningLotteryNums.includes(n))).join(' ');
+                    let ballsStr = p.nums.map(n => renderBallHTML(n, currentWinningLotteryNums.includes(n))).join(' ');
                     return `${p.name}: ${ballsStr} ${matched.length > 0 ? `(Matches: ${matched.length})` : ''}`;
                 }).join('\n');
 
-                let winningBallsStr = currentWinningLotteryNums.map(n => renderBallHTML(n)).join(' ');
+                let winningBallsStr = currentWinningLotteryNums.map(n => renderBallHTML(n, true)).join(' ');
 
                 carouselPosters.unshift({
                     icon: 'fa-solid fa-ticket',
@@ -969,21 +968,27 @@
             const p = carouselPosters[tvCarouselIndex] || { title: 'THE MINERS ARMS', subtitle: 'Welcome to Brereton community pub.', badge: 'OPEN', date: 'Daily' };
             
             document.getElementById('tv-poster-counter').innerText = `Displaying ${tvCarouselIndex + 1} of ${carouselPosters.length}`;
-            const iconHTML = p.icon ? `<div class="text-gold text-3xl mb-1"><i class="${p.icon}"></i></div>` : '';
+            const iconHTML = p.icon ? `<div class="text-gold text-2xl mb-1"><i class="${p.icon}"></i></div>` : '';
 
             container.innerHTML = `
-                <div>
-                    <div class="inline-block border border-gold/60 px-4 py-1 rounded-full text-xs font-cinzel text-gold tracking-widest uppercase mb-1">The Miners Arms Brereton</div>
-                    ${iconHTML}
-                    <h3 class="font-cinzel text-xl md:text-2xl font-black gold-gradient-text uppercase tracking-wider mb-1">${p.title}</h3>
-                    <div class="w-16 h-0.5 bg-gold mx-auto my-1"></div>
+                <!-- Marquee ticker at the top of the live poster -->
+                <div class="bg-timber-dark/90 border border-gold/40 rounded-lg p-2 overflow-hidden mb-2">
+                    <div class="whitespace-nowrap animate-marquee text-gold font-cinzel text-xs tracking-wider">
+                        <span>${liveTickerText}</span>
+                    </div>
                 </div>
-                <div class="my-auto space-y-3">
-                    <div class="inline-block bg-gold text-timber-dark font-cinzel font-bold px-5 py-1.5 rounded-lg text-xs shadow-md uppercase tracking-wider">${p.badge}</div>
-                    <div class="text-gold-light/90 text-xs md:text-sm leading-relaxed px-2 space-y-1">${p.subtitle.replace(/\n/g, '<br>')}</div>
+
+                <div>
+                    <div class="inline-block border border-gold/60 px-3 py-0.5 rounded-full text-[10px] font-cinzel text-gold tracking-widest uppercase mb-1">The Miners Arms Brereton</div>
+                    ${iconHTML}
+                    <h3 class="font-cinzel text-lg md:text-xl font-black gold-gradient-text uppercase tracking-wider mb-1">${p.title}</h3>
+                </div>
+                <div class="my-auto space-y-2">
+                    <div class="inline-block bg-gold text-timber-dark font-cinzel font-bold px-4 py-1 rounded-md text-xs shadow-md uppercase tracking-wider">${p.badge}</div>
+                    <div class="text-gold-light/90 text-xs leading-relaxed px-2 space-y-1">${p.subtitle.replace(/\n/g, '<br>')}</div>
                 </div>
                 <div class="border-t border-gold/30 pt-2 mt-auto">
-                    <div class="text-gold font-cinzel font-bold text-sm">${p.date}</div>
+                    <div class="text-gold font-cinzel font-bold text-xs">${p.date}</div>
                 </div>
             `;
 
@@ -994,7 +999,7 @@
 
             const lotteryContainer = document.getElementById('tv-live-lottery-status');
             if (lotteryContainer) {
-                let winningBallsStr = currentWinningLotteryNums.length > 0 ? currentWinningLotteryNums.map(n => renderBallHTML(n)).join(' ') : 'None';
+                let winningBallsStr = currentWinningLotteryNums.length > 0 ? currentWinningLotteryNums.map(n => renderBallHTML(n, true)).join(' ') : 'None';
                 lotteryContainer.innerHTML = currentWinningLotteryNums.length > 0 ? `<div class="flex items-center justify-center gap-1 flex-wrap"><span class="text-emerald-400 font-bold text-xs mr-1">Winning:</span>${winningBallsStr}</div>` : `<p class="text-gold/60 italic">No winning numbers drawn yet.</p>`;
             }
         };
@@ -1010,9 +1015,11 @@
         window.updateTvTickerFeed = function() {
             const val = document.getElementById('tv-edit-ticker-input').value.trim();
             if (val) {
-                document.getElementById('tv-live-ticker-display').innerText = val;
+                liveTickerText = val;
+                saveToStorage();
                 alert('Marquee ticker updated successfully!');
                 document.getElementById('tv-edit-ticker-input').value = '';
+                renderTvFeed();
             }
         };
 
@@ -1077,4 +1084,4 @@
         });
     </script>
 </body>
-</html>
+                                </html>
