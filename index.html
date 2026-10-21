@@ -94,22 +94,22 @@
             </div>
 
             <nav class="flex flex-wrap items-center gap-2">
-                <button onclick="switchTab('posters')" id="btn-posters" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 bg-gold text-timber-dark shadow-md flex items-center space-x-2">
+                <button id="btn-posters" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 bg-gold text-timber-dark shadow-md flex items-center space-x-2">
                     <i class="fa-solid fa-image"></i><span>Posters</span>
                 </button>
-                <button onclick="switchTab('generator')" id="btn-generator" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 text-gold-light hover:bg-timber-light flex items-center space-x-2">
+                <button id="btn-generator" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 text-gold-light hover:bg-timber-light flex items-center space-x-2">
                     <i class="fa-solid fa-wand-magic-sparkles"></i><span>Generator</span>
                 </button>
-                <button onclick="switchTab('games')" id="btn-games" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 text-gold-light hover:bg-timber-light flex items-center space-x-2">
+                <button id="btn-games" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 text-gold-light hover:bg-timber-light flex items-center space-x-2">
                     <i class="fa-solid fa-ticket"></i><span>Lottery & Bonus</span>
                 </button>
-                <button onclick="switchTab('tv')" id="btn-tv" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 text-gold-light hover:bg-timber-light flex items-center space-x-2">
+                <button id="btn-tv" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 text-gold-light hover:bg-timber-light flex items-center space-x-2">
                     <i class="fa-solid fa-tv"></i><span>TV Live View</span>
                 </button>
-                <button onclick="switchTab('archive')" id="btn-archive" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 text-gold-light hover:bg-timber-light flex items-center space-x-2">
+                <button id="btn-archive" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 text-gold-light hover:bg-timber-light flex items-center space-x-2">
                     <i class="fa-solid fa-box-archive"></i><span>Archive</span>
                 </button>
-                <button onclick="switchTab('admin')" id="btn-admin" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 text-gold-light hover:bg-timber-light flex items-center space-x-2">
+                <button id="btn-admin" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 text-gold-light hover:bg-timber-light flex items-center space-x-2">
                     <i class="fa-solid fa-shield-halved"></i><span>Admin</span>
                 </button>
             </nav>
@@ -126,7 +126,7 @@
                     <p class="text-gold/70 text-sm mt-1">Synchronized in real-time across all display monitors in The Miners Arms. Click any poster for detail view.</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <select id="poster-filter" onchange="filterPosters()" class="bg-timber-dark border border-gold/40 text-gold-light rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-gold">
+                    <select id="poster-filter" class="bg-timber-dark border border-gold/40 text-gold-light rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-gold">
                         <option value="all">All Categories</option>
                         <option value="events">Events & Music</option>
                         <option value="sports">Live Sports</option>
@@ -149,4 +149,67 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-1 bg-timber/5
+                <div class="lg:col-span-1 bg-timber/50 p-6 rounded-2xl border border-gold/20 space-y-4">
+                    <h3 class="font-cinzel text-xl text-gold font-semibold">Template Settings</h3>
+                    
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-gold/80 mb-1">Template Style / Category</label>
+                        <select id="gen-category" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">
+                            <option value="sports">Live Sports</option>
+                            <option value="events">Events & Music</option>
+                            <option value="drinks">Drinks & Specials</option>
+                            <option value="games">Pub Games</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-gold/80 mb-1">Main Headline</label>
+                        <input type="text" id="gen-title" value="LIVE PREMIER LEAGUE" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-gold/80 mb-1">Subtitle / Details</label>
+                        <textarea id="gen-subtitle" rows="3" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">Join us this Saturday for live HD matches on our big screens. Special cask ales on tap all day!</textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider text-gold/80 mb-1">Date & Time</label>
+                            <input type="text" id="gen-date" value="Saturday @ 3:00 PM" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider text-gold/80 mb-1">Badge</label>
+                            <input type="text" id="gen-badge" value="FREE ENTRY" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex gap-3">
+                        <button id="btn-save-poster" class="flex-1 bg-gold hover:bg-gold-dark text-timber-dark font-bold py-2.5 px-4 rounded-lg shadow transition-all flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-cloud-arrow-up"></i><span>Publish to Live Displays</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 flex flex-col items-center justify-center bg-black/40 p-6 rounded-2xl border border-gold/30">
+                    <div class="text-xs uppercase tracking-widest text-gold/60 mb-3"><i class="fa-solid fa-eye mr-1"></i> Live Poster Preview</div>
+                    
+                    <div id="poster-preview-box" class="w-full max-w-md aspect-[1/1.414] bg-gradient-to-b from-[#2c1e13] via-[#1a120b] to-[#0f0a07] border-4 border-gold rounded-xl p-8 flex flex-col justify-between text-center shadow-2xl relative overflow-hidden">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
+                            <svg class="w-64 h-64 text-gold" viewBox="0 0 100 100" fill="currentColor">
+                                <path d="M15 20 L85 80 M85 20 L15 80" stroke="#d4af37" stroke-width="4" stroke-linecap="round"/>
+                                <path d="M30 45 Q50 20 70 45 L75 60 Q50 65 25 60 Z" fill="#d4af37"/>
+                            </svg>
+                        </div>
+                        
+                        <div>
+                            <div class="inline-block border border-gold/60 px-4 py-1 rounded-full text-xs font-cinzel text-gold tracking-widest uppercase mb-4">The Miners Arms Brereton</div>
+                            <h2 id="prev-title" class="font-cinzel text-3xl md:text-4xl font-black gold-gradient-text uppercase tracking-wider mb-2">LIVE PREMIER LEAGUE</h2>
+                            <div class="w-24 h-0.5 bg-gold mx-auto my-3"></div>
+                        </div>
+
+                        <div class="my-auto space-y-6">
+                            <div id="prev-badge" class="inline-block bg-gold text-timber-dark font-cinzel font-bold px-6 py-2 rounded-lg text-sm shadow-md uppercase tracking-wider">FREE ENTRY</div>
+                            <p id="prev-subtitle" class="text-gold-light/90 text-sm md:text-base leading-relaxed px-4">Join us this Saturday for live HD matches on our big screens. Special cask ales on tap all day!</p>
+                        </div>
+
+                        <div class="border-t border-gold/30 pt-4 mt-auto">
