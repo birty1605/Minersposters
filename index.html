@@ -12,6 +12,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
+    <!-- Cloudinary Upload Widget SDK -->
+    <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -229,15 +232,16 @@
             <div class="space-y-6">
                 <div class="bg-timber/60 p-6 rounded-2xl border border-gold/20">
                     <h2 class="font-cinzel text-3xl font-bold gold-gradient-text">Pub Poster Studio</h2>
-                    <p class="text-gold/70 text-sm mt-1">Design customized notices using templates or upload image posters directly for TV and phone displays.</p>
+                    <p class="text-gold/70 text-sm mt-1">Design customized notices using templates or upload image posters directly via Cloudinary for TV and phone displays.</p>
                 </div>
 
                 <div class="bg-timber/50 p-6 rounded-2xl border border-gold/30 space-y-4">
-                    <h3 class="font-cinzel text-xl text-gold font-semibold"><i class="fa-solid fa-file-image mr-2"></i>Upload Image Poster</h3>
+                    <h3 class="font-cinzel text-xl text-gold font-semibold"><i class="fa-solid fa-file-image mr-2"></i>Upload Image Poster via Cloudinary</h3>
                     <div class="flex flex-col sm:flex-row gap-4 items-center">
-                        <input type="file" id="poster-image-file" accept="image/*" class="w-full sm:w-auto bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2 text-sm focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-gold file:text-timber-dark hover:file:bg-gold-dark">
-                        <input type="text" id="poster-image-title" placeholder="Poster Title / Name" class="w-full sm:flex-1 bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">
-                        <button onclick="uploadImagePoster()" class="w-full sm:w-auto bg-gold hover:bg-gold-dark text-timber-dark font-bold px-6 py-2.5 rounded-lg text-sm shadow transition-all whitespace-nowrap">Upload & Publish</button>
+                        <input type="text" id="poster-image-title" placeholder="Poster Title / Name" class="w-full sm:flex-1 bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-3 text-sm focus:outline-none">
+                        <button onclick="openCloudinaryUploadWidget()" class="w-full sm:w-auto bg-gold hover:bg-gold-dark text-timber-dark font-bold px-6 py-3 rounded-lg text-sm shadow transition-all whitespace-nowrap flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-cloud-arrow-up"></i><span>Select & Upload Image</span>
+                        </button>
                     </div>
                 </div>
 
@@ -465,7 +469,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT LOGIC WITH ROLE RESTRICTIONS -->
+    <!-- SCRIPT LOGIC WITH CLOUDINARY INTEGRATION -->
     <script>
         // ==========================================
         // FIREBASE CLOUD CONFIGURATION (minersposters)
@@ -479,6 +483,15 @@
             messagingSenderId: "62157646302",
             appId: "1:62157646302:web:c35c03509e8407e8dc554f",
             measurementId: "G-FV104CWLH4"
+        };
+
+        // ==========================================
+        // CLOUDINARY CONFIGURATION
+        // ==========================================
+        const cloudinaryConfig = {
+            cloudName: "vju0scal",
+            apiKey: "221183453535983",
+            uploadPreset: "Minersposters"
         };
 
         let db;
@@ -588,6 +601,54 @@
             if (document.getElementById('posters-marquee-input')) {
                 document.getElementById('posters-marquee-input').value = liveTickerText;
             }
+        }
+
+        // ==========================================
+        // CLOUDINARY UPLOAD WIDGET INTEGRATION
+        // ==========================================
+        function openCloudinaryUploadWidget() {
+            if (currentRole !== 'admin') {
+                alert('Administrator access required to upload images.');
+                return;
+            }
+            
+            const titleInput = document.getElementById('poster-image-title').value.trim();
+            const posterTitle = titleInput || 'Miners Notice ' + new Date().toLocaleDateString();
+
+            const myWidget = cloudinary.createUploadWidget({
+                cloudName: cloudinaryConfig.cloudName,
+                uploadPreset: cloudinaryConfig.uploadPreset,
+                apiKey: cloudinaryConfig.apiKey,
+                folder: 'Minersposters',
+                sources: ['local', 'url', 'camera'],
+                cropping: false,
+                multiple: false,
+                clientAllowedFormats: ['image']
+            }, (error, result) => {
+                if (!error && result && result.event === "success") {
+                    const secureUrl = result.info.secure_url;
+                    
+                    const newPoster = {
+                        id: Date.now(),
+                        category: 'custom',
+                        theme: 'gold',
+                        title: posterTitle,
+                        subtitle: 'Custom uploaded image notice for display screens.',
+                        date: new Date().toLocaleDateString(),
+                        badge: 'SPECIAL',
+                        isImageUpload: true,
+                        imageSrc: secureUrl
+                    };
+
+                    posters.unshift(newPoster);
+                    saveToCloud();
+                    renderPosters();
+                    document.getElementById('poster-image-title').value = '';
+                    alert('Image uploaded successfully via Cloudinary and published to live screens!');
+                }
+            });
+
+            myWidget.open();
         }
 
         function selectLoginRole(role) {
