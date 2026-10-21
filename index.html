@@ -396,19 +396,28 @@
             </div>
         </section>
 
-        <!-- TV LIVE VIEW TAB (IMMERSIVE FULLSCREEN MODE) -->
+        <!-- TV LIVE VIEW TAB (IMMERSIVE FULLSCREEN MODE - ONLY MARQUEE + FULLSCREEN POSTER) -->
         <section id="tab-tv" class="tab-content hidden absolute inset-0 z-[150] bg-black m-0 p-0 overflow-hidden">
-            <div id="tv-fullscreen-wrapper" class="w-screen h-screen bg-black flex flex-col justify-between p-2 md:p-4 relative overflow-hidden">
-                <div class="absolute top-4 right-4 z-[160]">
+            <div id="tv-fullscreen-wrapper" class="w-screen h-screen bg-black flex flex-col justify-between p-0 m-0 relative overflow-hidden">
+                <div class="absolute top-4 right-4 z-[160] flex gap-2">
                     <button onclick="toggleTvFullScreen()" class="bg-stone-900/80 hover:bg-gold text-gold hover:text-white border border-gold/50 px-3 py-1.5 rounded-lg text-xs shadow-lg transition-all flex items-center space-x-1">
                         <i class="fa-solid fa-expand"></i><span>Fullscreen</span>[cite: 1]
                     </button>
-                    <button onclick="switchTab('posters')" class="ml-2 bg-stone-900/80 hover:bg-red-600 text-stone-300 hover:text-white border border-stone-700 px-3 py-1.5 rounded-lg text-xs shadow-lg transition-all">
+                    <button onclick="switchTab('posters')" class="bg-stone-900/80 hover:bg-red-600 text-stone-300 hover:text-white border border-stone-700 px-3 py-1.5 rounded-lg text-xs shadow-lg transition-all">
                         <i class="fa-solid fa-xmark"></i><span>Exit Live View</span>
                     </button>
                 </div>
-                <div class="w-full h-full flex flex-col justify-stretch items-center overflow-hidden">
-                    <div id="tv-full-poster-display" class="w-full h-full rounded-2xl p-4 md:p-8 flex flex-col justify-between text-center shadow-2xl relative overflow-hidden text-white">
+                
+                <!-- TOP MARQUEE BANNER -->
+                <div class="w-full bg-black/80 border-b border-gold/40 py-2 px-4 overflow-hidden flex-shrink-0 z-[155]">
+                    <div class="whitespace-nowrap animate-marquee text-gold font-cinzel text-sm md:text-base tracking-wider font-bold">
+                        <span id="tv-marquee-text"></span>
+                    </div>
+                </div>
+
+                <!-- FULLSCREEN POSTER CONTENT AREA -->
+                <div class="w-full flex-1 flex flex-col justify-stretch items-center overflow-hidden p-2 md:p-4">
+                    <div id="tv-full-poster-display" class="w-full h-full rounded-xl p-4 md:p-8 flex flex-col justify-between text-center shadow-2xl relative overflow-hidden text-white">
                     </div>
                 </div>
             </div>
@@ -435,7 +444,7 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-3">
-                        <h3 class="font-cinzel text-lg text-stone-900 font-bold">Cloud Actions</h3>[cite: 1]
+                        <h3 class="font-cinzel text-lg font-bold text-stone-900">Cloud Actions</h3>[cite: 1]
                         <p class="text-xs text-stone-600">Database management tools.</p>[cite: 1]
                         <button onclick="resetAllData()" class="w-full bg-red-50 hover:bg-red-100 text-red-700 border border-red-300 py-2 rounded-lg text-xs transition-all font-medium">Reset Cloud Database</button>[cite: 1]
                     </div>
@@ -584,6 +593,10 @@
             updatePosterPreview();
             if (document.getElementById('posters-marquee-input')) {
                 document.getElementById('posters-marquee-input').value = liveTickerText;
+            }
+            const marqueeSpan = document.getElementById('tv-marquee-text');
+            if (marqueeSpan) {
+                marqueeSpan.innerText = liveTickerText;
             }
         }
 
@@ -810,6 +823,8 @@
             if (txt) {
                 liveTickerText = txt;
                 saveToCloud();
+                const marqueeSpan = document.getElementById('tv-marquee-text');
+                if (marqueeSpan) marqueeSpan.innerText = liveTickerText;
                 alert('Marquee ticker broadcasted to all cloud screens successfully!');
             }
         }
@@ -850,7 +865,11 @@
 
             if (tabId === 'posters') renderPosters();
             if (tabId === 'archive') renderArchive();
-            if (tabId === 'tv') renderTvFeed();
+            if (tabId === 'tv') {
+                const marqueeSpan = document.getElementById('tv-marquee-text');
+                if (marqueeSpan) marqueeSpan.innerText = liveTickerText;
+                renderTvFeed();
+            }
         };
 
         window.switchGameSubTab = function(subId) {
@@ -1201,6 +1220,9 @@
             const container = document.getElementById('tv-full-poster-display');
             if (!container) return;
 
+            const marqueeSpan = document.getElementById('tv-marquee-text');
+            if (marqueeSpan) marqueeSpan.innerText = liveTickerText;
+
             let carouselPosters = [...posters];
             if (currentWinningLotteryNums.length > 0) {
                 let playerResultsText = lotteryPlayers.map(p => {
@@ -1225,15 +1247,10 @@
             if (tvCarouselIndex >= carouselPosters.length) tvCarouselIndex = 0;
             const p = carouselPosters[tvCarouselIndex] || { title: 'THE MINERS ARMS', subtitle: 'Welcome to Brereton community pub.', badge: 'OPEN', date: 'Daily', theme: 'gold' };
             
-            container.className = 'w-full h-full rounded-2xl p-4 md:p-8 flex flex-col justify-between text-center shadow-2xl relative overflow-hidden ' + getThemeClassString(p.theme);
+            container.className = 'w-full h-full rounded-xl p-4 md:p-8 flex flex-col justify-between text-center shadow-2xl relative overflow-hidden ' + getThemeClassString(p.theme);
 
             if (p.isImageUpload) {
                 container.innerHTML = `
-                    <div class="bg-black/60 border border-gold/40 rounded-lg p-2 overflow-hidden mb-2 flex-shrink-0 shadow-lg">
-                        <div class="whitespace-nowrap animate-marquee text-gold font-cinzel text-sm md:text-base tracking-wider font-bold">
-                            <span>${liveTickerText}</span>
-                        </div>
-                    </div>
                     <div class="flex-shrink-0">
                         <div class="inline-block border border-gold/60 px-4 py-1 rounded-full text-xs font-cinzel text-gold tracking-widest uppercase mb-1">The Miners Arms Brereton</div>
                         <h3 class="font-cinzel text-xl md:text-3xl font-black gold-gradient-text uppercase tracking-wider">${p.title}</h3>
@@ -1248,11 +1265,6 @@
             } else {
                 const iconHTML = p.icon ? `<div class="text-gold text-4xl md:text-5xl mb-2 flex-shrink-0"><i class="${p.icon}"></i></div>` : '';
                 container.innerHTML = `
-                    <div class="bg-black/60 border border-gold/40 rounded-lg p-2 overflow-hidden mb-2 flex-shrink-0 shadow-lg">
-                        <div class="whitespace-nowrap animate-marquee text-gold font-cinzel text-sm md:text-base tracking-wider font-bold">
-                            <span>${liveTickerText}</span>
-                        </div>
-                    </div>
                     <div class="flex-shrink-0">
                         <div class="inline-block border border-gold/60 px-4 py-1 rounded-full text-xs font-cinzel text-gold tracking-widest uppercase mb-1">The Miners Arms Brereton</div>
                         ${iconHTML}
