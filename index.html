@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Miners Arms Brereton - Poster & Display System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        timber: {
+                            dark: '#1a120b',
+                            DEFAULT: '#2c1e13',
+                            light: '#3d291a',
+                        },
+                        gold: {
+                            light: '#f3e5ab',
+                            DEFAULT: '#d4af37',
+                            dark: '#aa8c2c',
+                            metallic: '#ffd700'
+                        },
+                        pub: {
+                            cream: '#f9f6f0',
+                            charcoal: '#121212',
+                        }
+                    },
+                    fontFamily: {
+                        cinzel: ['Cinzel', 'serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #121212;
+            color: #f9f6f0;
+        }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #f3e5ab 0%, #d4af37 50%, #aa8c2c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .wood-texture {
+            background-color: #2c1e13;
+            background-image: radial-gradient(circle at 50% 50%, rgba(61, 41, 26, 0.6) 0%, rgba(26, 18, 11, 0.9) 100%);
+        }
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+            display: inline-block;
+            animation: marquee 30s linear infinite;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a120b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d4af37;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #f3e5ab;
+        }
+    </style>
+
+    <script>
+        window.switchTab = function(tabId) {
+            document.querySelectorAll('.tab-content').forEach(function(el) { el.classList.add('hidden'); });
+            document.querySelectorAll('.tab-btn').forEach(function(el) {
+                el.classList.remove('bg-gold', 'text-timber-dark', 'shadow-md');
+                el.classList.add('text-gold-light', 'hover:bg-timber-light');
+            });
+
+            var targetTab = document.getElementById('tab-' + tabId);
+            if (targetTab) targetTab.classList.remove('hidden');
+            var activeBtn = document.getElementById('btn-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-gold', 'text-timber-dark', 'shadow-md');
+                activeBtn.classList.remove('text-gold-light', 'hover:bg-timber-light');
+            }
+        };
+
+        window.switchGameSubTab = function(sub) {
+            var subBonus = document.getElementById('game-sub-bonus');
+            var subLottery = document.getElementById('game-sub-lottery');
+            var btnBonus = document.getElementById('btn-sub-bonus');
+            var btnLottery = document.getElementById('btn-sub-lottery');
+
+            if (sub === 'bonus') {
+                if (subBonus) subBonus.classList.remove('hidden');
+                if (subLottery) subLottery.classList.add('hidden');
+                if (btnBonus) btnBonus.className = "px-4 py-2 rounded-lg font-medium text-sm bg-gold text-timber-dark transition-all";
+                if (btnLottery) btnLottery.className = "px-4 py-2 rounded-lg font-medium text-sm bg-timber-light text-gold transition-all";
+            } else {
+                if (subBonus) subBonus.classList.add('hidden');
+                if (subLottery) subLottery.classList.remove('hidden');
+                if (btnLottery) btnLottery.className = "px-4 py-2 rounded-lg font-medium text-sm bg-gold text-timber-dark transition-all";
+                if (btnBonus) btnBonus.className = "px-4 py-2 rounded-lg font-medium text-sm bg-timber-light text-gold transition-all";
+            }
+        };
+
+        window.closePosterModal = function() {
+            var modal = document.getElementById('poster-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        };
+
+        window.closeTvFullScreen = function() {
+            var modal = document.getElementById('tv-fullscreen-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+            if (document.fullscreenElement && document.exitFullscreen) {
+                document.exitFullscreen().catch(function() {});
+            }
+        };
+    </script>
+</head>
+<body class="h-full flex flex-col overflow-x-hidden relative">
+
+    <header class="wood-texture border-b border-gold/30 sticky top-0 z-40 px-4 py-3 shadow-md">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 rounded-full border-2 border-gold flex items-center justify-center bg-timber-dark text-gold shadow-lg relative overflow-hidden group">
+                    <svg class="w-8 h-8 text-gold" viewBox="0 0 100 100" fill="currentColor">
+                        <path d="M15 20 L85 80 M85 20 L15 80" stroke="#d4af37" stroke-width="6" stroke-linecap="round"/>
+                        <path d="M30 45 Q50 20 70 45 L75 60 Q50 65 25 60 Z" fill="#d4af37"/>
+                        <circle cx="50" cy="45" r="6" fill="#1a120b"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-cinzel font-bold text-xl md:text-2xl gold-gradient-text tracking-wider">The Miners Arms</h1>
+                    <p class="text-xs text-gold/80 tracking-widest uppercase">Brereton • Cloud Connected</p>
+                </div>
+            </div>
+
+            <nav class="flex flex-wrap items-center gap-2">
+                <button onclick="switchTab('posters')" id="btn-posters" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 bg-gold text-timber-dark shadow-md flex items-center space-x-2">
+                    <i class="fa-solid fa-image"></i><span>Posters</span>
+                </button>
+                <button onclick="switchTab('generator')" id="btn-generator" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 text-gold-light hover:bg-timber-light flex items-center space-x-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i><span>Generator</span>
+                </button>
+                <button onclick="switchTab('games')" id="btn-games" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 text-gold-light hover:bg-timber-light flex items-center space-x-2">
+                    <i class="fa-solid fa-ticket"></i><span>Lottery & Bonus</span>
+                </button>
+                <button onclick="switchTab('tv')" id="btn-tv" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 text-gold-light hover:bg-timber-light flex items-center space-x-2">
+                    <i class="fa-solid fa-tv"></i><span>TV Live View</span>
+                </button>
+                <button onclick="switchTab('archive')" id="btn-archive" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 text-gold-light hover:bg-timber-light flex items-center space-x-2">
+                    <i class="fa-solid fa-box-archive"></i><span>Archive</span>
+                </button>
+                <button onclick="switchTab('admin')" id="btn-admin" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 text-gold-light hover:bg-timber-light flex items-center space-x-2">
+                    <i class="fa-solid fa-shield-halved"></i><span>Admin</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 overflow-y-auto">
+
+        <!-- POSTERS DISPLAY TAB -->
+        <section id="tab-posters" class="tab-content space-y-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-timber/60 p-6 rounded-2xl border border-gold/20">
+                <div>
+                    <h2 class="font-cinzel text-3xl font-bold gold-gradient-text">Active Pub Posters & Notices</h2>
+                    <p class="text-gold/70 text-sm mt-1">Synchronized in real-time across all display monitors in The Miners Arms. Click any poster for detail view.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <select id="poster-filter" onchange="filterPosters()" class="bg-timber-dark border border-gold/40 text-gold-light rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-gold">
+                        <option value="all">All Categories</option>
+                        <option value="events">Events & Music</option>
+                        <option value="sports">Live Sports</option>
+                        <option value="drinks">Drinks & Specials</option>
+                        <option value="games">Pub Games</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="posters-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dynamic Posters Generated Here -->
+            </div>
+        </section>
+
+        <!-- POSTER STUDIO GENERATOR TAB -->
+        <section id="tab-generator" class="tab-content hidden space-y-6">
+            <div class="bg-timber/60 p-6 rounded-2xl border border-gold/20">
+                <h2 class="font-cinzel text-3xl font-bold gold-gradient-text">Pub Poster Studio</h2>
+                <p class="text-gold/70 text-sm mt-1">Design customized notices using authentic Miners Arms templates and push directly to TVs.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1 bg-timber/50 p-6 rounded-2xl border border-gold/20 space-y-4">
+                    <h3 class="font-cinzel text-xl text-gold font-semibold">Template Settings</h3>
+                    
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-gold/80 mb-1">Template Style</label>
+                        <select id="gen-template" onchange="updatePosterPreview()" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">
+                            <option value="sports">Live Sports Night</option>
+                            <option value="karaoke">Karaoke & Disco Weekend</option>
+                            <option value="real-ale">Real Ale & Quiz Night</option>
+                            <option value="sunday-roast">Traditional Sunday Roast</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-gold/80 mb-1">Main Headline</label>
+                        <input type="text" id="gen-title" value="LIVE PREMIER LEAGUE" oninput="updatePosterPreview()" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-gold/80 mb-1">Subtitle / Details</label>
+                        <textarea id="gen-subtitle" rows="3" oninput="updatePosterPreview()" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">Join us this Saturday for live HD matches on our big screens. Special cask ales on tap all day!</textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider text-gold/80 mb-1">Date & Time</label>
+                            <input type="text" id="gen-date" value="Saturday @ 3:00 PM" oninput="updatePosterPreview()" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider text-gold/80 mb-1">Badge</label>
+                            <input type="text" id="gen-badge" value="FREE ENTRY" oninput="updatePosterPreview()" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex gap-3">
+                        <button onclick="saveGeneratedPoster()" class="flex-1 bg-gold hover:bg-gold-dark text-timber-dark font-bold py-2.5 px-4 rounded-lg shadow transition-all flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-cloud-arrow-up"></i><span>Publish to Live Displays</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 flex flex-col items-center justify-center bg-black/40 p-6 rounded-2xl border border-gold/30">
+                    <div class="text-xs uppercase tracking-widest text-gold/60 mb-3"><i class="fa-solid fa-eye mr-1"></i> Live Poster Preview</div>
+                    
+                    <div id="poster-preview-box" class="w-full max-w-md aspect-[1/1.414] bg-gradient-to-b from-[#2c1e13] via-[#1a120b] to-[#0f0a07] border-4 border-gold rounded-xl p-8 flex flex-col justify-between text-center shadow-2xl relative overflow-hidden">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
+                            <svg class="w-64 h-64 text-gold" viewBox="0 0 100 100" fill="currentColor">
+                                <path d="M15 20 L85 80 M85 20 L15 80" stroke="#d4af37" stroke-width="4" stroke-linecap="round"/>
+                                <path d="M30 45 Q50 20 70 45 L75 60 Q50 65 25 60 Z" fill="#d4af37"/>
+                            </svg>
+                        </div>
+                        
+                        <div>
+                            <div class="inline-block border border-gold/60 px-4 py-1 rounded-full text-xs font-cinzel text-gold tracking-widest uppercase mb-4">The Miners Arms Brereton</div>
+                            <h2 id="prev-title" class="font-cinzel text-3xl md:text-4xl font-black gold-gradient-text uppercase tracking-wider mb-2">LIVE PREMIER LEAGUE</h2>
+                            <div class="w-24 h-0.5 bg-gold mx-auto my-3"></div>
+                        </div>
+
+                        <div class="my-auto space-y-6">
+                            <div id="prev-badge" class="inline-block bg-gold text-timber-dark font-cinzel font-bold px-6 py-2 rounded-lg text-sm shadow-md uppercase tracking-wider">FREE ENTRY</div>
+                            <p id="prev-subtitle" class="text-gold-light/90 text-sm md:text-base leading-relaxed px-4">Join us this Saturday for live HD matches on our big screens. Special cask ales on tap all day!</p>
+                        </div>
+
+                        <div class="border-t border-gold/30 pt-4 mt-auto">
+                            <div id="prev-date" class="text-gold font-cinzel font-bold text-lg mb-1">Saturday @ 3:00 PM</div>
+                            <p class="text-xs text-gold/60 tracking-widest">BRERETON COMMUNITY PUB & KITCHEN</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GAMES AND LOTTERY TAB -->
+        <section id="tab-games" class="tab-content hidden space-y-8">
+            <div class="bg-timber/60 p-6 rounded-2xl border border-gold/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="font-cinzel text-3xl font-bold gold-gradient-text">Pub Lottery & Bonus Ball Suite</h2>
+                    <p class="text-gold/70 text-sm mt-1">Manage players, assign numbers, check draws, and auto-generate winner announcements.</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="switchGameSubTab('bonus')" id="btn-sub-bonus" class="px-4 py-2 rounded-lg font-medium text-sm bg-gold text-timber-dark transition-all">Bonus Ball</button>
+                    <button onclick="switchGameSubTab('lottery')" id="btn-sub-lottery" class="px-4 py-2 rounded-lg font-medium text-sm bg-timber-light text-gold transition-all">Pub Lottery</button>
+                </div>
+            </div>
+
+            <!-- BONUS BALL SECTION -->
+            <div id="game-sub-bonus" class="space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-timber/50 p-6 rounded-2xl border border-gold/20 space-y-4">
+                        <h3 class="font-cinzel text-xl text-gold font-semibold"><i class="fa-solid fa-futbol mr-2"></i>Bonus Ball Entry</h3>
+                        <p class="text-xs text-gold/70">Assign numbers 1-59. Click any assigned tile to remove a player.</p>
+                        
+                        <div class="space-y-3 pt-2">
+                            <div>
+                                <label class="block text-xs uppercase tracking-wider text-gold/80 mb-1">Player Name</label>
+                                <input type="text" id="bonus-player-name" placeholder="Enter player name" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase tracking-wider text-gold/80 mb-1">Select Number (1 - 59)</label>
+                                <input type="number" id="bonus-player-num" min="1" max="59" placeholder="e.g. 7" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">
+                            </div>
+                            <button onclick="addBonusPlayer()" class="w-full bg-gold hover:bg-gold-dark text-timber-dark font-bold py-2.5 px-4 rounded-lg shadow transition-all">
+                                Assign Number & Sync Cloud
+                            </button>
+                        </div>
+
+                        <div class="border-t border-gold/20 pt-4 mt-4 space-y-2">
+                            <h4 class="font-cinzel text-sm text-gold font-bold">Simulate Bonus Draw</h4>
+                            <div class="flex gap-2">
+                                <input type="number" id="bonus-winning-input" min="1" max="59" placeholder="Winning #" class="w-1/2 bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2 text-sm focus:outline-none">
+                                <button onclick="drawBonusBall()" class="w-1/2 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 rounded-lg text-sm shadow transition-all">
+                                    Announce Winner
+                                </button>
+                            </div>
+                            <div id="bonus-winner-result" class="p-3 bg-timber-dark rounded-lg text-xs text-gold-light border border-gold/30 mt-2 hidden"></div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 bg-timber/50 p-6 rounded-2xl border border-gold/20 flex flex-col">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-cinzel text-xl text-gold font-semibold">Bonus Ball Grid (1 - 59)</h3>
+                            <span id="bonus-count" class="text-xs bg-gold/20 text-gold px-3 py-1 rounded-full border border-gold/30">0 / 59 Assigned</span>
+                        </div>
+                        <div id="bonus-grid" class="grid grid-cols-6 sm:grid-cols-10 gap-2 overflow-y-auto max-h-[450px] p-2">
+                            <!-- Dynamic Bonus Ball Grid -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LOTTERY SECTION -->
+            <div id="game-sub-lottery" class="space-y-6 hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-timber/50 p-6 rounded-2xl border border-gold/20 space-y-4">
+                        <h3 class="font-cinzel text-xl text-gold font-semibold"><i class="fa-solid fa-ticket mr-2"></i>Miners Lottery Entry</h3>
+                        <p class="text-xs text-gold/70">Players pick 6 numbers between 1 and 49.</p>
+                        
+                        <div class="space-y-3 pt-2">
+                            <div>
+                                <label class="block text-xs uppercase tracking-wider text-gold/80 mb-1">Player Name</label>
+                                <input type="text" id="lottery-player-name" placeholder="Enter player name" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase tracking-wider text-gold/80 mb-1">Pick 6 Numbers (Comma separated, 1-49)</label>
+                                <input type="text" id="lottery-player-nums" placeholder="e.g. 4, 12, 19, 27, 33, 42" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-2.5 text-sm focus:outline-none">
+                            </div>
+                            <button onclick="addLotteryPlayer()" class="w-full bg-gold hover:bg-gold-dark text-timber-dark font-bold py-2.5 px-4 rounded-lg shadow transition-all">
+                                Save Ticket to Cloud
+                            </button>
+                        </div>
+
+                        <div class="border-t border-gold/20 pt-4 mt-4 space-y-2">
+                            <h4 class="font-cinzel text-sm text-gold font-bold">Run Lottery Draw</h4>
+                            <div class="flex gap-2">
+                                <button onclick="runLotteryDraw()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 rounded-lg text-sm shadow transition-all">
+                                    <i class="fa-solid fa-dice mr-1"></i> Draw 6 Winning Numbers
+                                </button>
+                            </div>
+                            <div id="lottery-draw-result" class="p-3 bg-timber-dark rounded-lg text-xs text-gold-light border border-gold/30 mt-2 hidden"></div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 bg-timber/50 p-6 rounded-2xl border border-gold/20 flex flex-col">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-cinzel text-xl text-gold font-semibold">Active Lottery Tickets</h3>
+                            <span id="lottery-count" class="text-xs bg-gold/20 text-gold px-3 py-1 rounded-full border border-gold/30">0 Entries</span>
+                        </div>
+                        <div id="lottery-players-list" class="space-y-3 overflow-y-auto max-h-[450px] pr-2">
+                            <!-- Dynamic Lottery List -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TV DISPLAY CONTROLS TAB -->
+        <section id="tab-tv" class="tab-content hidden space-y-6">
+            <div class="bg-timber/60 p-6 rounded-2xl border border-gold/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="font-cinzel text-3xl font-bold gold-gradient-text">TV Live View & Display Feed</h2>
+                    <p class="text-gold/70 text-sm mt-1">Manage scrolling marquee tickers and launch dedicated full-screen TV displays for monitors in the pub.</p>
+                </div>
+                <button onclick="openTvFullScreen()" class="bg-gold hover:bg-gold-dark text-timber-dark font-bold px-6 py-3 rounded-xl text-sm shadow-xl flex items-center space-x-2 transition-all transform hover:scale-105">
+                    <i class="fa-solid fa-tv text-lg"></i><span>Launch Full Screen TV Display</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-timber/50 p-6 rounded-2xl border border-gold/20 space-y-4">
+                    <h3 class="font-cinzel text-xl text-gold font-semibold">Live Ticker Message Control</h3>
+                    <p class="text-xs text-gold/70">Updates broadcast instantly to all connected TV screens.</p>
+                    <div>
+                        <textarea id="tv-ticker-input" rows="3" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-3 text-sm focus:outline-none">🍺 Welcome to The Miners Arms Brereton! • Tonight: Pub Quiz @ 8:30 PM • Real Ale Guest Cask: Staffordshire Gold 4.2% • Live Premier League Saturday!</textarea>
+                    </div>
+                    <button onclick="updateTvTicker()" class="w-full bg-gold hover:bg-gold-dark text-timber-dark font-bold py-2.5 rounded-lg text-sm shadow transition-all">
+                        Broadcast Ticker Update
+                    </button>
+                </div>
+
+                <div class="bg-timber/50 p-6 rounded-2xl border border-gold/20 space-y-4">
+                    <h3 class="font-cinzel text-xl text-gold font-semibold">Big Screen Sports Schedule</h3>
+                    <div class="space-y-3 text-sm">
+                        <div class="p-3 bg-timber-dark rounded-lg border border-gold/20 flex justify-between items-center">
+                            <div>
+                                <span class="text-gold font-bold">12:30 PM</span> - Premier League
+                                <p class="text-xs text-gold/70">Arsenal vs Tottenham (Screen 1 & 2)</p>
+                            </div>
+                            <span class="text-xs bg-emerald-900/50 text-emerald-400 px-2 py-1 rounded border border-emerald-500/30">Live Soon</span>
+                        </div>
+                        <div class="p-3 bg-timber-dark rounded-lg border border-gold/20 flex justify-between items-center">
+                            <div>
+                                <span class="text-gold font-bold">5:30 PM</span> - Rugby Union Six Nations
+                                <p class="text-xs text-gold/70">England vs Ireland (Main Lounge)</p>
+                            </div>
+                            <span class="text-xs bg-blue-900/50 text-blue-400 px-2 py-1 rounded border border-blue-500/30">Scheduled</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ARCHIVE TAB -->
+        <section id="tab-archive" class="tab-content hidden space-y-6">
+            <div class="bg-timber/60 p-6 rounded-2xl border border-gold/20">
+                <h2 class="font-cinzel text-3xl font-bold gold-gradient-text">Poster Archive & Cloud Storage</h2>
+                <p class="text-gold/70 text-sm mt-1">Restore previous notices back to live display rotation or delete permanently.</p>
+            </div>
+
+            <div id="archive-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Archive List -->
+            </div>
+        </section>
+
+        <!-- ADMIN TAB -->
+        <section id="tab-admin" class="tab-content hidden space-y-6">
+            <div id="admin-login-card" class="max-w-md mx-auto bg-timber/80 p-8 rounded-2xl border border-gold/40 shadow-2xl space-y-6 my-12">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-timber-dark border-2 border-gold rounded-full flex items-center justify-center mx-auto mb-3 text-gold text-2xl shadow-lg">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h2 class="font-cinzel text-2xl font-bold gold-gradient-text">Admin Login</h2>
+                    <p class="text-xs text-gold/70 mt-1">Username: Gjelly / Password: Kevisthebest</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-gold/80 mb-1">Username</label>
+                        <input type="text" id="admin-user" placeholder="Username" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-3 text-sm focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-gold/80 mb-1">Password</label>
+                        <input type="password" id="admin-pass" placeholder="Password" class="w-full bg-timber-dark border border-gold/40 text-gold-light rounded-lg p-3 text-sm focus:outline-none">
+                    </div>
+                    <button onclick="attemptAdminLogin()" class="w-full bg-gold hover:bg-gold-dark text-timber-dark font-bold py-3 rounded-lg shadow-lg transition-all">
+                        Login to Admin Portal
+                    </button>
+                    <div id="login-error" class="text-red-400 text-xs text-center hidden">Invalid credentials. Use Gjelly / Kevisthebest</div>
+                </div>
+            </div>
+
+            <div id="admin-dashboard" class="hidden space-y-6">
+                <div class="bg-timber/60 p-6 rounded-2xl border border-gold/20 flex justify-between items-center">
+                    <div>
+                        <h2 class="font-cinzel text-3xl font-bold gold-gradient-text">Admin Control Dashboard</h2>
+                        <p class="text-gold/70 text-sm mt-1">Authenticated as Administrator. Full database controls active.</p>
+                    </div>
+                    <button onclick="adminLogout()" class="bg-timber-light hover:bg-timber text-gold border border-gold/40 px-4 py-2 rounded-lg text-sm">
+                        <i class="fa-solid fa-right-from-bracket mr-2"></i>Log Out
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-timber/50 p-6 rounded-2xl border border-gold/20 space-y-3">
+                        <h3 class="font-cinzel text-lg text-gold font-bold">Quick Cloud Actions</h3>
+                        <p class="text-xs text-gold/70">Database management tools.</p>
+                        <button onclick="seedInitialData()" class="w-full bg-gold/20 hover:bg-gold/30 text-gold border border-gold/40 py-2 rounded-lg text-xs transition-all">
+                            Reset Sample Posters
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FIXED POSTER DETAIL MODAL -->
+    <div id="poster-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
+        <div class="bg-gradient-to-b from-timber via-timber-dark to-black border-2 border-gold rounded-2xl max-w-lg w-full p-6 md:p-8 relative shadow-2xl space-y-6 pointer-events-auto">
+            <button onclick="closePosterModal()" class="absolute top-4 right-4 text-gold hover:text-white text-xl transition-colors w-8 h-8 flex items-center justify-center rounded-full bg-timber-dark border border-gold/40">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="text-center space-y-4">
+                <span id="modal-badge" class="inline-block bg-gold text-timber-dark font-cinzel font-bold px-4 py-1 rounded-full text-xs uppercase tracking-widest">badge</span>
+                <h3 id="modal-title" class="font-cinzel text-3xl md:text-4xl font-bold gold-gradient-text uppercase">Title</h3>
+                <div class="w-20 h-0.5 bg-gold mx-auto"></div>
+                <p id="modal-subtitle" class="text-gold-light/90 text-base leading-relaxed px-2">Subtitle details go here...</p>
+                <div id="modal-date" class="text-gold font-cinzel font-bold text-xl pt-2"><i class="fa-regular fa-clock mr-2"></i>Date</div>
+            </div>
+            <div class="flex gap-3 pt-4 border-t border-gold/20">
+                <button onclick="closePosterModal()" class="flex-1 bg-timber-light hover:bg-timber text-gold border border-gold/40 py-2.5 rounded-xl font-medium text-sm transition-all">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIXED FULLSCREEN TV DISPLAY OVERLAY -->
+    <div id="tv-fullscreen-modal" class="fixed inset-0 bg-[#0f0a07] z-[120] hidden flex-col justify-between p-8 select-none">
+        <div class="flex justify-between items-center border-b border-gold/30 pb-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full border border-gold flex items-center justify-center text-gold">
+                    <svg class="w-6 h-6 text-gold" viewBox="0 0 100 100" fill="currentColor">
+                        <path d="M15 20 L85 80 M85 20 L15 80" stroke="#d4af37" stroke-width="6" stroke-linecap="round"/>
+                        <path d="M30 45 Q50 20 70 45 L75 60 Q50 65 25 60 Z" fill="#d4af37"/>
+                    </svg>
+                </div>
+                <h1 class="font-cinzel font-bold text-2xl gold-gradient-text tracking-wider">The Miners Arms Brereton - Live TV Display</h1>
+            </div>
+            <button onclick="closeTvFullScreen()" class="bg-timber-light hover:bg-timber text-gold border border-gold/40 px-4 py-2 rounded-lg text-sm flex items-center space-x-2">
+                <i class="fa-solid fa-xmark"></i><span>Exit Full Screen</span>
+            </button>
+        </div>
+
+        <div id="tv-carousel-container" class="my-auto text-center space-y-6 max-w-4xl mx-auto transition-all duration-700">
+            <span class="inline-block bg-gold/20 border border-gold text-gold px-6 py-1.5 rounded-full font-cinzel text-sm uppercase tracking-widest">Featured Notice</span>
+            <h2 id="tv-display-title" class="font-cinzel text-5xl md:text-6xl font-black gold-gradient-text uppercase tracking-wider">Live Premier League Matchday</h2>
+            <p id="tv-display-desc" class="text-xl text-gold-light/90 max-w-2xl mx-auto">Arsenal vs Tottenham live on big screens with surround sound. Special guest cask on tap!</p>
+            <div id="tv-display-date" class="text-gold font-cinzel text-3xl font-bold pt-4">Kickoff @ 12:30 PM • Free Entry</div>
+        </div>
+
+        <div class="bg-timber-dark border-t border-gold/40 py-3 px-4 rounded-xl overflow-hidden whitespace-nowrap relative">
+            <div id="tv-ticker-display" class="inline-block text-gold text-sm tracking-wide font-medium animate-marquee">
+                🍺 Welcome to The Miners Arms Brereton! • Tonight: Pub Quiz @ 8:30 PM • Real Ale Guest Cask: Staffordshire Gold 4.2% • Live Premier League Saturday!
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'minersposters-app';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyA1heSmD9nYxSZb6q3PPv7dqkZPVRZ3ZKo",
+            authDomain: "minersposters.firebaseapp.com",
+            databaseURL: "https://minersposters-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "minersposters",
+            storageBucket: "minersposters.firebasestorage.app",
+            messagingSenderId: "62157646302",
+            appId: "1:62157646302:web:c35c03509e8407e8dc554f",
+            measurementId: "G-FV104CWLH4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let currentUser = null;
+        let activeTab = 'posters';
+        let gameSubTab = 'bonus';
+        let isAdminLoggedIn = localStorage.getItem('miners_admin_auth') === 'true';
+        let tvCarouselInterval = null;
+
+        const postersCol = collection(db, 'artifacts', appId, 'public', 'data', 'posters');
+        const archiveCol = collection(db, 'artifacts', appId, 'public', 'data', 'archive');
+        const bonusCol = collection(db, 'artifacts', appId, 'public', 'data', 'bonus_ball');
+        const lotteryCol = collection(db, 'artifacts', appId, 'public', 'data', 'lottery_tickets');
+        const settingsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'pub_settings');
+
+        let postersList = [];
+        let archiveList = [];
+        let bonusBallData = {};
+        let lotteryData = [];
+        let tvTickerText = "🍺 Welcome to The Miners Arms Brereton! • Tonight: Pub Quiz @ 8:30 PM • Real Ale Guest Cask: Staffordshire Gold 4.2% • Live Premier League Saturday!";
+
+        // Helper to prevent HTML injection or string quote breaks
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        window.switchTab = function(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('bg-gold', 'text-timber-dark', 'shadow-md');
+                el.classList.add('text-gold-light', 'hover:bg-timber-light');
+            });
+
+            const targetTab = document.getElementById('tab-' + tabId);
+            if (targetTab) targetTab.classList.remove('hidden');
+            const activeBtn = document.getElementById('btn-' + tabId);
+            if(activeBtn) {
+                activeBtn.classList.add('bg-gold', 'text-timber-dark', 'shadow-md');
+                activeBtn.classList.remove('text-gold-light', 'hover:bg-timber-light');
+            }
+            activeTab = tabId;
+        };
+
+        window.switchGameSubTab = function(sub) {
+            gameSubTab = sub;
+            const subBonus = document.getElementById('game-sub-bonus');
+            const subLottery = document.getElementById('game-sub-lottery');
+            const btnBonus = document.getElementById('btn-sub-bonus');
+            const btnLottery = document.getElementById('btn-sub-lottery');
+
+            if(sub === 'bonus') {
+                if (subBonus) subBonus.classList.remove('hidden');
+                if (subLottery) subLottery.classList.add('hidden');
+                if (btnBonus) btnBonus.className = "px-4 py-2 rounded-lg font-medium text-sm bg-gold text-timber-dark transition-all";
+                if (btnLottery) btnLottery.className = "px-4 py-2 rounded-lg font-medium text-sm bg-timber-light text-gold transition-all";
+            } else {
+                if (subBonus) subBonus.classList.add('hidden');
+                if (subLottery) subLottery.classList.remove('hidden');
+                if (btnLottery) btnLottery.className = "px-4 py-2 rounded-lg font-medium text-sm bg-gold text-timber-dark transition-all";
+                if (btnBonus) btnBonus.className = "px-4 py-2 rounded-lg font-medium text-sm bg-timber-light text-gold transition-all";
+            }
+        };
+
+        // FIXED: Explicitly handle modal open/close & display flex reset
+        window.openPosterModal = function(title, subtitle, date, badge) {
+            const modal = document.getElementById('poster-modal');
+            if(!modal) return;
+            document.getElementById('modal-title').innerText = title || '';
+            document.getElementById('modal-subtitle').innerText = subtitle || '';
+            document.getElementById('modal-date').innerText = date || '';
+            document.getElementById('modal-badge').innerText = badge || '';
+            
+            modal.classList.
