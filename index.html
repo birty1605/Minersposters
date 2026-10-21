@@ -469,7 +469,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT LOGIC WITH CLOUDINARY & PUBLISH FIX -->
+    <!-- SCRIPT LOGIC WITH CLOUDINARY & REFRESH FIX -->
     <script>
         // ==========================================
         // FIREBASE CLOUD CONFIGURATION (minersposters)
@@ -688,6 +688,7 @@
             posters.unshift(newPoster);
             saveToCloud();
             renderPosters();
+            renderTvFeed();
             switchTab('posters');
             alert('Poster successfully published to live screens and posters view!');
         };
@@ -732,6 +733,7 @@
                     posters.unshift(newPoster);
                     saveToCloud();
                     renderPosters();
+                    renderTvFeed();
                     switchTab('posters');
                     document.getElementById('poster-image-title').value = '';
                     alert('Image uploaded successfully via Cloudinary and published to live screens!');
@@ -1309,4 +1311,4 @@
         });
     </script>
 </body>
-    </html>
+</html>
