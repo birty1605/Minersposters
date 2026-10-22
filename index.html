@@ -35,21 +35,22 @@
         /* LG webOS Smart TV Navigation & Button Focus Styles */
         button, a, select, input, textarea, [role="button"], [tabindex="0"] { 
             cursor: pointer !important; 
-            -webkit-tap-highlight-color: rgba(245, 158, 11, 0.6) !important; 
+            -webkit-tap-highlight-color: rgba(245, 158, 11, 0.8) !important; 
             touch-action: manipulation !important;
             user-select: none;
             -webkit-user-select: none;
-            outline: none !important;
         }
 
         /* High-Visibility TV Focus Highlight for D-Pad Remote Control */
         button:focus, a:focus, select:focus, input:focus, textarea:focus, [tabindex="0"]:focus, .tv-focusable:focus { 
-            outline: 5px solid #f59e0b !important; 
-            outline-offset: 3px !important;
-            box-shadow: 0 0 25px rgba(245, 158, 11, 0.9) !important;
-            transform: scale(1.03) !important;
-            z-index: 100 !important;
-            transition: all 0.1s ease-in-out !important;
+            outline: 6px solid #f59e0b !important; 
+            outline-offset: 4px !important;
+            box-shadow: 0 0 30px rgba(245, 158, 11, 1) !important;
+            transform: scale(1.04) !important;
+            z-index: 999 !important;
+            background-color: #4d331e !important;
+            color: #ffffff !important;
+            transition: transform 0.1s ease-in-out !important;
         }
 
         .lottery-ball {
@@ -105,32 +106,30 @@
                 <p class="text-xs text-stone-400">Pub Staff / Manager? Login below for editing privileges.</p>
                 
                 <div class="grid grid-cols-2 gap-3">
-                    <button type="button" tabindex="0" data-action="select-role-guest" id="role-btn-guest" class="tv-focusable py-3 px-4 rounded-xl border border-stone-700 bg-stone-800 text-stone-300 font-bold text-xs uppercase tracking-wider">
+                    <button type="button" tabindex="0" data-action="select-role-guest" id="role-btn-guest" class="tv-focusable py-3 px-4 rounded-xl border border-amber-500 bg-amber-600 text-white font-bold text-xs uppercase tracking-wider shadow-md">
                         Guest View
                     </button>
-                    <button type="button" tabindex="0" data-action="select-role-admin" id="role-btn-admin" class="tv-focusable py-3 px-4 rounded-xl border border-amber-600/50 bg-amber-950/40 text-amber-300 font-bold text-xs uppercase tracking-wider">
+                    <button type="button" tabindex="0" data-action="select-role-admin" id="role-btn-admin" class="tv-focusable py-3 px-4 rounded-xl border border-stone-700 bg-stone-800 text-stone-300 font-bold text-xs uppercase tracking-wider">
                         Admin Login
                     </button>
                 </div>
 
-                <form id="admin-login-form" onsubmit="event.preventDefault(); attemptPortalAdminLogin();" class="hidden">
-                    <div id="admin-login-box" class="space-y-4 pt-2 text-left">
-                        <div class="space-y-3">
-                            <div>
-                                <label class="block text-[11px] uppercase tracking-wider text-stone-400 mb-1">Username</label>
-                                <input type="text" id="portal-admin-user" tabindex="0" placeholder="Enter admin username" class="tv-focusable w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] uppercase tracking-wider text-stone-400 mb-1">Password</label>
-                                <input type="password" id="portal-admin-pass" tabindex="0" placeholder="Enter password" class="tv-focusable w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
-                            </div>
+                <div id="admin-login-box" class="space-y-4 pt-2 text-left hidden">
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-[11px] uppercase tracking-wider text-stone-400 mb-1">Username</label>
+                            <input type="text" id="portal-admin-user" tabindex="0" placeholder="Enter admin username" class="tv-focusable w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
                         </div>
-                        <button type="submit" tabindex="0" data-action="attempt-admin-login" class="tv-focusable w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3.5 rounded-xl shadow-lg font-cinzel text-sm flex items-center justify-center space-x-2">
-                            <i class="fa-solid fa-key"></i><span>Authenticate Manager Access</span>
-                        </button>
-                        <div id="portal-login-error" class="text-red-400 text-xs text-center font-bold hidden">Invalid credentials. Access denied.</div>
+                        <div>
+                            <label class="block text-[11px] uppercase tracking-wider text-stone-400 mb-1">Password</label>
+                            <input type="password" id="portal-admin-pass" tabindex="0" placeholder="Enter password" class="tv-focusable w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
+                        </div>
                     </div>
-                </form>
+                    <button type="button" tabindex="0" data-action="attempt-admin-login" class="tv-focusable w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3.5 rounded-xl shadow-lg font-cinzel text-sm flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-key"></i><span>Authenticate Manager Access</span>
+                    </button>
+                    <div id="portal-login-error" class="text-red-400 text-xs text-center font-bold hidden">Invalid credentials. Access denied.</div>
+                </div>
             </div>
         </div>
     </div>
@@ -487,8 +486,8 @@
         var currentBonusWinnerAnnouncement = '';
         var liveTickerText = '🍺 Welcome to The Miners Arms Brereton! • Tonight: Pub Quiz @ 8:30 PM • Real Ale Guest Cask: Staffordshire Gold 4.2% • Live Premier League Saturday!';
         
-        // STRICT ROLE ENFORCEMENT: DEFAULT UNAUTHENTICATED (GUEST VIEW ONLY)
-        var currentRole = 'guest'; 
+        // STRICT ROLE ISOLATION: DEFAULT TO GUEST SESSION (NO AUTO-ADMIN)
+        var currentRole = sessionStorage.getItem('miners_user_role') === 'admin' ? 'admin' : 'guest';
         var tvCarouselIndex = 0;
 
         function xhrRequest(method, url, data, callback) {
@@ -765,21 +764,22 @@
         function selectLoginRole(role) {
             var guestBtn = document.getElementById('role-btn-guest');
             var adminBtn = document.getElementById('role-btn-admin');
-            var adminForm = document.getElementById('admin-login-form');
+            var adminBox = document.getElementById('admin-login-box');
 
             if (role === 'guest') {
                 guestBtn.className = 'tv-focusable py-3 px-4 rounded-xl border border-amber-500 bg-amber-600 text-white font-bold text-xs uppercase tracking-wider shadow-md';
                 adminBtn.className = 'tv-focusable py-3 px-4 rounded-xl border border-stone-700 bg-stone-800 text-stone-300 font-bold text-xs uppercase tracking-wider';
-                adminForm.classList.add('hidden');
+                adminBox.classList.add('hidden');
             } else {
                 adminBtn.className = 'tv-focusable py-3 px-4 rounded-xl border border-amber-500 bg-amber-600 text-white font-bold text-xs uppercase tracking-wider shadow-md';
                 guestBtn.className = 'tv-focusable py-3 px-4 rounded-xl border border-stone-700 bg-stone-800 text-stone-300 font-bold text-xs uppercase tracking-wider';
-                adminForm.classList.remove('hidden');
+                adminBox.classList.remove('hidden');
             }
         }
 
         function proceedAsGuest() {
             currentRole = 'guest';
+            sessionStorage.removeItem('miners_user_role');
             applyRoleStateUI();
             switchTab('tv');
         }
@@ -791,11 +791,13 @@
             // STRICT CREDENTIAL CHECKING FOR ADMIN PRIVILEGES
             if (u === 'Gjelly' && p === 'Kevisthebest') {
                 currentRole = 'admin';
+                sessionStorage.setItem('miners_user_role', 'admin');
                 document.getElementById('portal-login-error').classList.add('hidden');
                 applyRoleStateUI();
                 switchTab('posters');
             } else {
                 currentRole = 'guest';
+                sessionStorage.removeItem('miners_user_role');
                 document.getElementById('portal-login-error').classList.remove('hidden');
             }
         }
@@ -812,7 +814,6 @@
                 if (adminMarqueeBox) adminMarqueeBox.classList.remove('hidden');
                 statusBadge.innerText = 'Admin (Logout)';
             } else {
-                // GUEST ACCESS: HIDE ALL SENSITIVE ADMIN NAV OPTIONS AND CONTROLS
                 overlay.classList.add('hidden');
                 adminNav.classList.add('hidden');
                 if (adminMarqueeBox) adminMarqueeBox.classList.add('hidden');
@@ -822,6 +823,7 @@
 
         function logoutToPortal() {
             currentRole = 'guest';
+            sessionStorage.removeItem('miners_user_role');
             document.getElementById('portal-admin-user').value = '';
             document.getElementById('portal-admin-pass').value = '';
             document.getElementById('portal-login-error').classList.add('hidden');
@@ -934,12 +936,12 @@
 
             var filtered = displayList.filter(function(p) { return filter === 'all' || p.category === filter; });
             filtered.forEach(function(p) {
-                var archiveBtn = currentRole === 'admin' ? '<button type="button" tabindex="0" data-action="archive-poster" data-id="' + p.id + '" class="tv-focusable text-red-400 hover:text-red-300 p-1"><i class="fa-solid fa-box-archive"></i></button>' : '';
+                var archiveBtn = currentRole === 'admin' ? '<button type="button" tabindex="0" data-action="archive-poster" data-id="' + p.id + '" class="tv-focusable text-red-400 hover:text-red-300 p-2"><i class="fa-solid fa-box-archive"></i></button>' : '';
                 
                 if (p.isImageUpload) {
                     grid.innerHTML += `
-                        <button type="button" tabindex="0" data-action="open-modal" data-id="${p.id}" class="tv-focusable w-full text-left bg-stone-900 border border-stone-800 rounded-2xl p-4 flex flex-col justify-between hover:border-amber-500 transition-all shadow-lg">
-                            <div>
+                        <div class="bg-stone-900 border border-stone-800 rounded-2xl p-4 flex flex-col justify-between shadow-lg">
+                            <button type="button" tabindex="0" data-action="open-modal" data-id="${p.id}" class="tv-focusable w-full text-left focus:outline-none">
                                 <div class="flex justify-between items-center mb-2">
                                     <span class="text-xs font-cinzel text-amber-300 bg-amber-950 px-3 py-1 rounded-full border border-amber-800 uppercase font-bold">Custom Upload</span>
                                     <span class="text-xs bg-amber-600 text-white font-bold px-2.5 py-0.5 rounded-lg">${p.badge}</span>
@@ -948,18 +950,18 @@
                                 <div class="w-full aspect-[4/3] rounded-xl overflow-hidden border border-stone-800 bg-stone-950">
                                     <img src="${p.imageSrc}" alt="${p.title}" class="w-full h-full object-contain">
                                 </div>
-                            </div>
+                            </button>
                             <div class="border-t border-stone-800 pt-3 mt-3 flex justify-between items-center text-xs text-stone-400 w-full">
                                 <span><i class="fa-regular fa-clock mr-1 text-amber-400"></i>${p.date}</span>
                                 ${archiveBtn}
                             </div>
-                        </button>
+                        </div>
                     `;
                 } else {
                     var iconHTML = p.icon ? '<div class="text-amber-400 text-2xl mb-2"><i class="' + p.icon + '"></i></div>' : '';
                     grid.innerHTML += `
-                        <button type="button" tabindex="0" data-action="open-modal" data-id="${p.id}" class="tv-focusable w-full text-left bg-stone-900 border border-stone-800 rounded-2xl p-6 flex flex-col justify-between hover:border-amber-500 transition-all shadow-lg">
-                            <div>
+                        <div class="bg-stone-900 border border-stone-800 rounded-2xl p-6 flex flex-col justify-between shadow-lg">
+                            <button type="button" tabindex="0" data-action="open-modal" data-id="${p.id}" class="tv-focusable w-full text-left focus:outline-none">
                                 <div class="flex justify-between items-center mb-3">
                                     <span class="text-xs font-cinzel text-amber-300 bg-amber-950 px-3 py-1 rounded-full border border-amber-800 uppercase font-bold">${p.category}</span>
                                     <span class="text-xs bg-amber-600 text-white font-bold px-2.5 py-0.5 rounded-lg">${p.badge}</span>
@@ -967,12 +969,12 @@
                                 ${iconHTML}
                                 <h3 class="font-cinzel text-xl font-bold text-white mb-2">${p.title}</h3>
                                 <div class="text-stone-300 text-sm line-clamp-4 space-y-1">${p.subtitle.replace(/\n/g, '<br>')}</div>
-                            </div>
+                            </button>
                             <div class="border-t border-stone-800 pt-3 mt-4 flex justify-between items-center text-xs text-stone-400 w-full">
                                 <span><i class="fa-regular fa-clock mr-1 text-amber-400"></i>${p.date}</span>
                                 ${p.id !== 'lottery-auto' ? archiveBtn : ''}
                             </div>
-                        </button>
+                        </div>
                     `;
                 }
             });
@@ -1006,6 +1008,12 @@
             var modal = document.getElementById('poster-modal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
+            
+            // Focus close button inside modal for TV remote accessibility
+            setTimeout(function() {
+                var closeBtn = modal.querySelector('[data-action="close-modal"]');
+                if (closeBtn) closeBtn.focus();
+            }, 100);
         }
 
         function closePosterModal() {
@@ -1043,7 +1051,7 @@
                         </div>
                         <div class="mt-4 flex justify-between items-center">
                             <button type="button" tabindex="0" data-action="restore-poster" data-id="${p.id}" class="tv-focusable text-xs bg-amber-950 text-amber-300 px-3 py-1.5 rounded-xl border border-amber-800 font-bold">Restore</button>
-                            <button type="button" tabindex="0" data-action="delete-archived" data-id="${p.id}" class="tv-focusable text-xs text-red-400 hover:text-red-300 p-1"><i class="fa-solid fa-trash"></i></button>
+                            <button type="button" tabindex="0" data-action="delete-archived" data-id="${p.id}" class="tv-focusable text-xs text-red-400 hover:text-red-300 p-2"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </div>
                 `;
@@ -1181,7 +1189,7 @@
                     return renderBallHTML(n, isMatched);
                 }).join(' ');
 
-                var deleteBtn = currentRole === 'admin' ? '<button type="button" tabindex="0" data-action="delete-lottery-player" data-idx="' + idx + '" class="tv-focusable text-red-400 hover:text-red-300 text-xs p-1"><i class="fa-solid fa-trash"></i></button>' : '';
+                var deleteBtn = currentRole === 'admin' ? '<button type="button" tabindex="0" data-action="delete-lottery-player" data-idx="' + idx + '" class="tv-focusable text-red-400 hover:text-red-300 text-xs p-2"><i class="fa-solid fa-trash"></i></button>' : '';
 
                 list.innerHTML += `
                     <div class="p-3.5 bg-stone-950 rounded-xl border border-stone-800 flex justify-between items-center text-sm">
@@ -1339,7 +1347,7 @@
             }
         }
 
-        // UNIVERSAL EVENT DISPATCHER FOR ALL TV REMOTES (D-PAD AND POINTER)
+        // ROBUST EVENT DISPATCHER FOR ALL LG WEBOS REMOTE CONTROLS & D-PADS
         function triggerAction(actionTarget) {
             if (!actionTarget) return;
             var action = actionTarget.getAttribute('data-action');
@@ -1382,30 +1390,43 @@
             applyRoleStateUI();
             initRealtimeSync();
 
-            // Set initial programmatic focus on launch button for standard TV remotes
+            // Focus primary launch button on load for instant D-Pad recognition
             setTimeout(function() {
                 var launchBtn = document.getElementById('btn-tv-launch-primary');
                 if (launchBtn) launchBtn.focus();
             }, 300);
 
-            // 1. Mouse & Magic Remote Pointer Clicks
+            // Universal Click Listener
             document.addEventListener('click', function(e) {
                 var target = e.target ? e.target.closest('[data-action]') : null;
                 if (target) triggerAction(target);
             }, true);
 
-            // 2. Touch / WebKit Synthetic Tap
+            // Universal Touch Listener
             document.addEventListener('touchend', function(e) {
                 var target = e.target ? e.target.closest('[data-action]') : null;
-                if (target) triggerAction(target);
+                if (target) {
+                    e.preventDefault();
+                    triggerAction(target);
+                }
             }, true);
 
-            // 3. Standard LG webOS D-Pad Remote OK/Enter Button Interceptor (KeyCodes 13, 32, 1025)
+            // LG webOS Remote D-Pad / OK Key Interceptor (Captures Enter=13, Space=32, OK=1025, webOS specific codes)
             document.addEventListener('keydown', function(e) {
                 var code = e.keyCode || e.which;
                 if (code === 13 || code === 32 || code === 1025 || e.key === 'Enter') {
                     var activeEl = document.activeElement;
-                    if (activeEl && activeEl.tagName !== 'INPUT' && activeEl.tagName !== 'TEXTAREA') {
+                    if (activeEl) {
+                        if (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA') {
+                            if (code === 13) {
+                                // If inside login form inputs, trigger login or default action
+                                if (activeEl.id.includes('admin')) {
+                                    attemptPortalAdminLogin();
+                                }
+                            }
+                            return; // Allow typing inside input fields
+                        }
+                        
                         var target = activeEl.closest('[data-action]');
                         if (target) {
                             e.preventDefault();
