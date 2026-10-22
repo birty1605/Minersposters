@@ -7,10 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Firebase SDKs for Real-Time Cross-Device Cloud Sync -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
     <!-- Cloudinary Upload Widget SDK -->
     <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
@@ -76,7 +72,7 @@
 
     <!-- CLOUD SYNC STATUS BAR -->
     <div id="cloud-sync-status" class="bg-amber-100 text-amber-900 text-[10px] px-3 py-1 text-center font-medium border-b border-amber-200 flex items-center justify-center space-x-2">
-        <i class="fa-solid fa-cloud-arrow-up animate-pulse"></i><span>Connecting to Firebase Cloud Sync...</span>
+        <i class="fa-solid fa-cloud-arrow-up animate-pulse"></i><span>Connecting to Firebase Cloud Sync (XHR REST Mode)...</span>
     </div>
 
     <!-- MAIN PORTAL LOGIN OVERLAY -->
@@ -416,7 +412,7 @@
 
                 <!-- FULLSCREEN POSTER CONTENT AREA (STRICTLY FITTED TO SCREEN, NO SCROLLING, ENTIRE POSTER VISIBLE) -->
                 <div class="w-full flex-1 flex flex-col justify-center items-center overflow-hidden p-2 md:p-6 m-0 box-border">
-                    <div id="tv-full-poster-display" class="w-full max-w-5xl h-full max-h-[88vh] rounded-2xl p-6 md:p-10 flex flex-col justify-between items-center text-center shadow-2xl relative overflow-hidden text-white border-4 border-gold">
+                    <div id="tv-full-poster-display" class="w-full max-w-5xl h-full max-h-[85vh] rounded-2xl p-6 md:p-10 flex flex-col justify-between items-center text-center shadow-2xl relative overflow-hidden text-white border-4 border-gold">
                     </div>
                 </div>
             </div>
@@ -437,7 +433,7 @@
                 <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex justify-between items-center">
                     <div>
                         <h2 class="font-cinzel text-3xl font-bold text-stone-900">Admin Control Dashboard</h2>
-                        <p class="text-stone-600 text-sm mt-1">Authenticated as Administrator. Real-time cloud database connected.</p>
+                        <p class="text-stone-600 text-sm mt-1">Authenticated as Administrator. Real-time XHR REST cloud database connected.</p>
                     </div>
                     <button onclick="logoutToPortal()" class="bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-300 px-4 py-2 rounded-lg text-sm"><i class="fa-solid fa-right-from-bracket mr-2"></i>Log Out</button>
                 </div>
@@ -461,21 +457,12 @@
         </div>
     </div>
 
-    <!-- SCRIPT LOGIC -->
+    <!-- SCRIPT LOGIC (XHR REST API BACKEND ENGINE FOR SMART TV COMPATIBILITY) -->
     <script>
         // ==========================================
         // FIREBASE CLOUD CONFIGURATION (minersposters)
         // ==========================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyA1heSmD9nYxSZb6q3PPv7dqkZPVRZ3ZKo",
-            authDomain: "minersposters.firebaseapp.com",
-            databaseURL: "https://minersposters-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "minersposters",
-            storageBucket: "minersposters.firebasestorage.app",
-            messagingSenderId: "62157646302",
-            appId: "1:62157646302:web:c35c03509e8407e8dc554f",
-            measurementId: "G-FV104CWLH4"
-        };
+        const PROJECT_ID = "minersposters";
 
         // ==========================================
         // CLOUDINARY CONFIGURATION
@@ -485,14 +472,6 @@
             apiKey: "221183453535983",
             uploadPreset: "Minersposters"
         };
-
-        let db;
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.firestore();
-        } catch (e) {
-            console.warn("Firebase initialization warning. Using offline fallback mode.", e);
-        }
 
         let posters = [
             { id: 1, category: 'sports', theme: 'gold', icon: 'fa-solid fa-futbol', title: 'LIVE PREMIER LEAGUE', subtitle: 'Join us this Saturday for live HD matches on our big screens. Special cask ales on tap all day!', date: 'Saturday @ 3:00 PM', badge: 'FREE ENTRY' },
@@ -508,34 +487,94 @@
         let liveTickerText = '🍺 Welcome to The Miners Arms Brereton! • Tonight: Pub Quiz @ 8:30 PM • Real Ale Guest Cask: Staffordshire Gold 4.2% • Live Premier League Saturday!';
         let currentRole = localStorage.getItem('miners_user_role') || null;
         let tvCarouselIndex = 0;
+        let pollInterval = null;
+
+        // Universal XHR wrapper for Firestore REST API requests (Smart TV compatible)
+        function xhrRequest(method, url, data, callback) {
+            var xhr = new XMLHttpRequest();
+            xhr.open(method, url, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try {
+                            var json = xhr.responseText ? JSON.parse(xhr.responseText) : {};
+                            callback(null, json);
+                        } catch (e) {
+                            callback(null, {});
+                        }
+                    } else {
+                        callback(new Error('HTTP Status: ' + xhr.status));
+                    }
+                }
+            };
+            if (data && typeof data === 'object' && !(data instanceof FormData)) {
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(JSON.stringify(data));
+            } else {
+                xhr.send(data);
+            }
+        }
 
         function saveToCloud() {
             const payload = { posters, archive, bonusPlayers, lotteryPlayers, currentWinningLotteryNums, currentBonusWinnerAnnouncement, liveTickerText };
             
-            if (db) {
-                db.collection("miners_pub").doc("portal_state").set(payload)
-                .then(() => { updateSyncBadge(true); })
-                .catch(err => {
-                    console.error("Cloud sync failed:", err);
-                    updateSyncBadge(false);
-                });
-            } else {
-                localStorage.setItem('miners_cloud_fallback', JSON.stringify(payload));
-                updateSyncBadge(false, "Offline Mode");
-            }
+            const url = 'https://firestore.googleapis.com/v1/projects/' + PROJECT_ID + '/databases/(default)/documents/miners_pub/portal_state';
+            
+            // Format for Firestore REST API document structure
+            const firestoreBody = {
+                fields: {
+                    dataJson: { stringValue: JSON.stringify(payload) }
+                }
+            };
+
+            xhrRequest('PATCH', url + '?updateMask.fieldPaths=dataJson', firestoreBody, function(err) {
+                if (!err) {
+                    updateSyncBadge(true);
+                } else {
+                    // Fallback to POST if document doesn't exist yet
+                    xhrRequest('POST', 'https://firestore.googleapis.com/v1/projects/' + PROJECT_ID + '/databases/(default)/documents/miners_pub?documentId=portal_state', firestoreBody, function(errPost) {
+                        if (!errPost) {
+                            updateSyncBadge(true);
+                        } else {
+                            localStorage.setItem('miners_cloud_fallback', JSON.stringify(payload));
+                            updateSyncBadge(false, "Offline Local Mode");
+                        }
+                    });
+                }
+            });
             localStorage.setItem('miners_user_role', currentRole);
         }
 
         function initRealtimeSync() {
-            if (!db) {
-                loadFromFallback();
-                return;
-            }
+            const url = 'https://firestore.googleapis.com/v1/projects/' + PROJECT_ID + '/databases/(default)/documents/miners_pub/portal_state';
+            
+            xhrRequest('GET', url, null, function(err, data) {
+                if (!err && data && data.fields && data.fields.dataJson) {
+                    try {
+                        const parsed = JSON.parse(data.fields.dataJson.stringValue);
+                        posters = parsed.posters || posters;
+                        archive = parsed.archive || [];
+                        bonusPlayers = parsed.bonusPlayers || {};
+                        lotteryPlayers = parsed.lotteryPlayers || [];
+                        currentWinningLotteryNums = parsed.currentWinningLotteryNums || [];
+                        currentBonusWinnerAnnouncement = parsed.currentBonusWinnerAnnouncement || '';
+                        liveTickerText = parsed.liveTickerText || liveTickerText;
+                        updateSyncBadge(true);
+                        refreshAllUI();
+                    } catch (e) {
+                        console.error("Parse error:", e);
+                    }
+                } else {
+                    loadFromFallback();
+                }
+            });
+        }
 
-            db.collection("miners_pub").doc("portal_state")
-            .onSnapshot((doc) => {
-                if (doc.exists) {
-                    const data = doc.data();
+        function loadFromFallback() {
+            const saved = localStorage.getItem('miners_cloud_fallback');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
                     posters = data.posters || posters;
                     archive = data.archive || [];
                     bonusPlayers = data.bonusPlayers || {};
@@ -543,30 +582,7 @@
                     currentWinningLotteryNums = data.currentWinningLotteryNums || [];
                     currentBonusWinnerAnnouncement = data.currentBonusWinnerAnnouncement || '';
                     liveTickerText = data.liveTickerText || liveTickerText;
-
-                    updateSyncBadge(true);
-                    refreshAllUI();
-                } else {
-                    saveToCloud();
-                }
-            }, (error) => {
-                console.error("Firestore listener error:", error);
-                updateSyncBadge(false);
-                loadFromFallback();
-            });
-        }
-
-        function loadFromFallback() {
-            const saved = localStorage.getItem('miners_cloud_fallback');
-            if (saved) {
-                const data = JSON.parse(saved);
-                posters = data.posters || posters;
-                archive = data.archive || [];
-                bonusPlayers = data.bonusPlayers || {};
-                lotteryPlayers = data.lotteryPlayers || [];
-                currentWinningLotteryNums = data.currentWinningLotteryNums || [];
-                currentBonusWinnerAnnouncement = data.currentBonusWinnerAnnouncement || '';
-                liveTickerText = data.liveTickerText || liveTickerText;
+                } catch(e) {}
             }
             refreshAllUI();
         }
@@ -576,7 +592,7 @@
             if (!badge) return;
             if (isSynced) {
                 badge.className = "bg-emerald-100 text-emerald-800 text-[10px] px-3 py-1 text-center font-medium border-b border-emerald-200 flex items-center justify-center space-x-2";
-                badge.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i><span>Firebase Cloud Connected (Live Sync Active Across All Devices)</span>';
+                badge.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i><span>Firebase Cloud Connected (XHR REST Live Sync Active)</span>';
             } else {
                 badge.className = "bg-amber-100 text-amber-800 text-[10px] px-3 py-1 text-center font-medium border-b border-amber-200 flex items-center justify-center space-x-2";
                 badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i><span>${customText || 'Cloud Sync Warning - Using Local Mode'}</span>`;
@@ -778,7 +794,7 @@
                 applyRoleStateUI();
                 switchTab('posters');
             } else {
-                document.getElementById('portal-login-error').classList.add('hidden');
+                document.getElementById('portal-login-error').classList.remove('hidden');
             }
         }
 
@@ -1254,7 +1270,7 @@
                         <h3 class="font-cinzel text-xl md:text-2xl font-black gold-gradient-text uppercase tracking-wider">${p.title}</h3>
                     </div>
                     <div class="flex-1 my-2 flex items-center justify-center overflow-hidden min-h-0 w-full">
-                        <img src="${p.imageSrc}" alt="${p.title}" class="max-w-full max-h-[65vh] object-contain rounded-xl shadow-2xl">
+                        <img src="${p.imageSrc}" alt="${p.title}" class="max-w-full max-h-[68vh] object-contain rounded-xl shadow-2xl">
                     </div>
                 `;
             } else {
@@ -1282,6 +1298,11 @@
                 renderTvFeed();
             }
         }, 7000);
+
+        // Poll Firestore for live updates every 10 seconds via XHR REST
+        setInterval(() => {
+            initRealtimeSync();
+        }, 10000);
 
         window.toggleTvFullScreen = function() {
             const elem = document.getElementById('tv-fullscreen-wrapper');
