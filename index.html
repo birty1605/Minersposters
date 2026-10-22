@@ -466,7 +466,7 @@
         </div>
     </div>
 
-    <!-- ENGINE CODE: UNIVERSAL EVENT DELEGATOR & LG WEBOS SMART REMOTE COMPATIBILITY -->
+    <!-- ENGINE CODE: UNIVERSAL DELEGATION & LG WEBOS SMART REMOTE TV SUPPORT -->
     <script>
         var PROJECT_ID = "minersposters";
 
@@ -488,7 +488,9 @@
         var currentWinningLotteryNums = [];
         var currentBonusWinnerAnnouncement = '';
         var liveTickerText = '🍺 Welcome to The Miners Arms Brereton! • Tonight: Pub Quiz @ 8:30 PM • Real Ale Guest Cask: Staffordshire Gold 4.2% • Live Premier League Saturday!';
-        var currentRole = localStorage.getItem('miners_user_role') || null;
+        
+        // STRICT ROLE ISOLATION: DEFAULT GUEST VIEW UNLESS STRICTLY AUTHENTICATED AS ADMIN
+        var currentRole = localStorage.getItem('miners_user_role') === 'admin' ? 'admin' : 'guest';
         var tvCarouselIndex = 0;
 
         function xhrRequest(method, url, data, callback) {
@@ -540,8 +542,9 @@
                     });
                 }
             });
-            if (currentRole) {
-                localStorage.setItem('miners_user_role', currentRole);
+            
+            if (currentRole === 'admin') {
+                localStorage.setItem('miners_user_role', 'admin');
             } else {
                 localStorage.removeItem('miners_user_role');
             }
@@ -793,6 +796,8 @@
         function attemptPortalAdminLogin() {
             var u = document.getElementById('portal-admin-user').value;
             var p = document.getElementById('portal-admin-pass').value;
+            
+            // STRICT CREDENTIAL CHECKING BEFORE GRANTING ADMIN PERMISSIONS
             if (u === 'Gjelly' && p === 'Kevisthebest') {
                 currentRole = 'admin';
                 saveToCloud();
@@ -809,19 +814,21 @@
             var adminMarqueeBox = document.getElementById('admin-marquee-box');
             var statusBadge = document.getElementById('login-status-badge');
 
+            // Strictly show modal if role is not set
             if (!currentRole) {
                 overlay.classList.remove('hidden');
                 selectLoginRole('guest');
                 return;
             }
 
-            overlay.classList.add('hidden');
-
             if (currentRole === 'admin') {
+                overlay.classList.add('hidden');
                 adminNav.classList.remove('hidden');
                 if (adminMarqueeBox) adminMarqueeBox.classList.remove('hidden');
                 statusBadge.innerText = 'Admin (Logout)';
             } else {
+                // GUEST ACCESS: HIDE ALL ADMIN NAV OPTIONS AND MARQUEE CONTROLS
+                overlay.classList.add('hidden');
                 adminNav.classList.add('hidden');
                 if (adminMarqueeBox) adminMarqueeBox.classList.add('hidden');
                 statusBadge.innerText = 'Guest Mode';
@@ -830,6 +837,7 @@
 
         function logoutToPortal() {
             currentRole = null;
+            localStorage.removeItem('miners_user_role');
             saveToCloud();
             document.getElementById('portal-admin-user').value = '';
             document.getElementById('portal-admin-pass').value = '';
@@ -1344,7 +1352,7 @@
             }
         }
 
-        // UNIVERSAL DELEGATION ENGINE FOR SMART TVs, POINTERS & REMOTES
+        // UNIVERSAL EVENT DELEGATOR & LG WEBOS REMOTE INPUT INTERCEPTOR
         function handleGlobalUserInteraction(target) {
             if (!target) return;
             var actionTarget = target.closest('[data-action]');
@@ -1390,18 +1398,20 @@
             applyRoleStateUI();
             initRealtimeSync();
 
-            // Unified event delegation for LG webOS Magic Remote pointer clicks
+            // 1. LG webOS Magic Remote pointer clicks
             document.addEventListener('click', function(e) {
                 handleGlobalUserInteraction(e.target);
             }, true);
 
+            // 2. Touch / synthesized pointer events for webOS WebKit
             document.addEventListener('pointerup', function(e) {
                 handleGlobalUserInteraction(e.target);
             }, true);
 
-            // LG webOS D-Pad Remote OK Button support
+            // 3. LG webOS Standard D-Pad Remote Control OK / Enter button press (KeyCodes 13, 32, 1025)
             document.addEventListener('keydown', function(e) {
-                if ((e.key === 'Enter' || e.keyCode === 13) && document.activeElement) {
+                var code = e.keyCode || e.which;
+                if ((code === 13 || code === 32 || code === 1025 || e.key === 'Enter') && document.activeElement) {
                     handleGlobalUserInteraction(document.activeElement);
                 }
             });
