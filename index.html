@@ -62,23 +62,6 @@
 </head>
 <body class="h-full flex flex-col relative bg-stone-950 text-stone-100">
 
-    <!-- GLOBAL ERROR BOX -->
-    <div id="global-error-box" class="hidden fixed top-0 left-0 right-0 z-[300] bg-red-900 border-b-2 border-red-500 text-white p-4 shadow-2xl transition-all">
-        <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
-            <div class="flex items-center space-x-3">
-                <span class="text-2xl">⚠️</span>
-                <div>
-                    <h4 class="font-bold text-sm">System Notice</h4>
-                    <p id="global-error-msg" class="text-xs text-red-200">An unexpected event occurred.</p>
-                </div>
-            </div>
-            <div class="flex gap-2">
-                <button type="button" onclick="location.reload()" class="bg-red-700 hover:bg-red-600 px-3 py-1.5 rounded-lg text-xs font-bold border border-red-400">Reload App</button>
-                <button type="button" onclick="document.getElementById('global-error-box').classList.add('hidden')" class="bg-stone-800 px-3 py-1.5 rounded-lg text-xs">Dismiss</button>
-            </div>
-        </div>
-    </div>
-
     <!-- STATUS BAR -->
     <div id="cloud-sync-status" class="bg-emerald-950/80 text-emerald-300 text-xs px-4 py-1.5 text-center font-medium border-b border-emerald-800/40 flex items-center justify-center space-x-2">
         <span>☁️ The Miners Arms Brereton - Portal & Display System Active</span>
@@ -675,7 +658,7 @@
             document.getElementById('portal-login-error').classList.add('hidden');
             
             var overlay = document.getElementById('portal-login-overlay');
-            if (overlay) overlay.classList.remove('hidden');
+            if (overlay) overlay.classList.add('hidden');
             applyRoleStateUI();
         }
 
@@ -1147,13 +1130,20 @@
                 if (launchBtn) launchBtn.focus();
             }, 300);
 
-            // LG TV Remote & Spatial D-Pad OK Button Keydown & Keyup Handlers
+            // LG TV Remote & Spatial D-Pad OK Button Keydown & Click Dispatcher
             document.addEventListener('keydown', function(e) {
                 var code = e.keyCode || e.which;
                 if (code === 13 || code === 32 || code === 1025 || code === 29443 || e.key === 'Enter') {
                     var active = document.activeElement;
                     if (active && (active.tagName === 'BUTTON' || active.tagName === 'INPUT' || active.tagName === 'SELECT' || active.tagName === 'TEXTAREA')) {
+                        active.focus();
                         active.click();
+                        // Dispatch full synthetic mouse/pointer sequence for webOS compatibility
+                        try {
+                            active.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, view: window }));
+                            active.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true, view: window }));
+                            active.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+                        } catch(err) {}
                         e.preventDefault();
                     }
                 }
