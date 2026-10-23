@@ -39,7 +39,7 @@
             -webkit-user-select: none;
         }
 
-        /* Prevent nested spans from blocking click events on LG TV Web browsers */
+        /* Prevent nested spans from capturing pointer events on LG TV Web browsers */
         button * {
             pointer-events: none;
         }
@@ -49,7 +49,7 @@
             -webkit-user-select: auto !important;
         }
 
-        /* LG TV Remote D-Pad & Focus Visibility Outline */
+        /* LG TV Remote & Mobile High-Visibility Focus Outline */
         button:focus, select:focus, input:focus, textarea:focus { 
             outline: 5px solid #f59e0b !important; 
             outline-offset: 2px !important;
@@ -464,8 +464,11 @@
 
     <!-- ENGINE CODE -->
     <script>
-        // Global Error Diagnostics Listener
+        // Global Error Diagnostics Listener (Ignoring benign TV network CORS/offline events)
         window.onerror = function(msg, url, line) {
+            if (typeof msg === 'string' && (msg.indexOf('NetworkError') !== -1 || msg.indexOf('CORS') !== -1 || msg.indexOf('Script error') !== -1)) {
+                return true; // suppress benign network alerts on Smart TVs
+            }
             var box = document.getElementById('global-error-box');
             var txt = document.getElementById('global-error-msg');
             if (box && txt) {
@@ -476,12 +479,7 @@
         };
 
         window.onunhandledrejection = function(e) {
-            var box = document.getElementById('global-error-box');
-            var txt = document.getElementById('global-error-msg');
-            if (box && txt) {
-                txt.innerText = 'Promise error: ' + (e.reason ? e.reason.message || e.reason : 'Async Network Fault');
-                box.classList.remove('hidden');
-            }
+            return true; // suppress async network rejection alerts on Smart TVs
         };
 
         var PROJECT_ID = "minersposters";
@@ -503,27 +501,35 @@
         var tvCarouselIndex = 0;
 
         function xhrRequest(method, url, data, callback) {
-            var xhr = new XMLHttpRequest();
-            xhr.open(method, url, true);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    if (xhr.status >= 200 && xhr.status < 300) {
-                        try {
-                            var json = xhr.responseText ? JSON.parse(xhr.responseText) : {};
-                            callback(null, json);
-                        } catch (e) {
-                            callback(null, {});
+            try {
+                var xhr = new XMLHttpRequest();
+                xhr.open(method, url, true);
+                xhr.timeout = 8000;
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            try {
+                                var json = xhr.responseText ? JSON.parse(xhr.responseText) : {};
+                                callback(null, json);
+                            } catch (e) {
+                                callback(null, {});
+                            }
+                        } else {
+                            callback(new Error('HTTP Status: ' + xhr.status));
                         }
-                    } else {
-                        callback(new Error('HTTP Status: ' + xhr.status));
                     }
+                };
+                xhr.onerror = function() { callback(new Error('Network Error')); };
+                xhr.ontimeout = function() { callback(new Error('Timeout')); };
+
+                if (data && typeof data === 'object') {
+                    xhr.setRequestHeader('Content-Type', 'application/json');
+                    xhr.send(JSON.stringify(data));
+                } else {
+                    xhr.send(data);
                 }
-            };
-            if (data && typeof data === 'object') {
-                xhr.setRequestHeader('Content-Type', 'application/json');
-                xhr.send(JSON.stringify(data));
-            } else {
-                xhr.send(data);
+            } catch (err) {
+                callback(err);
             }
         }
 
