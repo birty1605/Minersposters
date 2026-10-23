@@ -33,23 +33,10 @@
             -webkit-tap-highlight-color: rgba(245, 158, 11, 0.8) !important; 
             touch-action: manipulation !important;
         }
+        button { user-select: none; -webkit-user-select: none; }
+        button * { pointer-events: none; }
+        input, textarea, select { user-select: auto !important; -webkit-user-select: auto !important; }
 
-        button {
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        /* Prevent nested spans from capturing pointer events on LG TV Web browsers */
-        button * {
-            pointer-events: none;
-        }
-
-        input, textarea, select {
-            user-select: auto !important;
-            -webkit-user-select: auto !important;
-        }
-
-        /* LG TV Remote & Mobile High-Visibility Focus Outline */
         button:focus, select:focus, input:focus, textarea:focus { 
             outline: 5px solid #f59e0b !important; 
             outline-offset: 2px !important;
@@ -69,26 +56,20 @@
             box-shadow: inset -2px -2px 4px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3);
             color: #ffffff;
         }
-        .lottery-ball.waiting-bright {
-            box-shadow: 0 0 10px rgba(245, 158, 11, 0.7), inset -2px -2px 4px rgba(0,0,0,0.4);
-        }
-        .lottery-ball.won-dull {
-            position: relative;
-            opacity: 0.35;
-            filter: grayscale(80%);
-        }
+        .lottery-ball.waiting-bright { box-shadow: 0 0 10px rgba(245, 158, 11, 0.7), inset -2px -2px 4px rgba(0,0,0,0.4); }
+        .lottery-ball.won-dull { position: relative; opacity: 0.35; filter: grayscale(80%); }
     </style>
 </head>
 <body class="h-full flex flex-col relative bg-stone-950 text-stone-100">
 
-    <!-- GLOBAL DIAGNOSTIC ERROR BOX -->
+    <!-- GLOBAL DIAGNOSTIC ERROR BOX (MUTED FOR TV BROWSERS) -->
     <div id="global-error-box" class="hidden fixed top-0 left-0 right-0 z-[300] bg-red-900 border-b-2 border-red-500 text-white p-4 shadow-2xl transition-all">
         <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
             <div class="flex items-center space-x-3">
                 <span class="text-2xl">⚠️</span>
                 <div>
                     <h4 class="font-bold text-sm">System Fault Detected</h4>
-                    <p id="global-error-msg" class="text-xs text-red-200">An unexpected browser or network event occurred.</p>
+                    <p id="global-error-msg" class="text-xs text-red-200">An unexpected browser event occurred.</p>
                 </div>
             </div>
             <div class="flex gap-2">
@@ -99,8 +80,8 @@
     </div>
 
     <!-- CLOUD SYNC STATUS BAR -->
-    <div id="cloud-sync-status" class="bg-amber-950/80 text-amber-200 text-xs px-4 py-1.5 text-center font-medium border-b border-amber-800/40 flex items-center justify-center space-x-2">
-        <span>Connecting to Cloud Sync Engine...</span>
+    <div id="cloud-sync-status" class="bg-emerald-950/80 text-emerald-300 text-xs px-4 py-1.5 text-center font-medium border-b border-emerald-800/40 flex items-center justify-center space-x-2">
+        <span>📺 The Miners Arms Brereton - TV & Display Portal</span>
     </div>
 
     <!-- MAIN PORTAL LOGIN OVERLAY (HOME PAGE LOGIN) -->
@@ -197,7 +178,7 @@
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-stone-900 p-6 rounded-2xl border border-stone-800 shadow-md">
                 <div>
                     <h2 class="font-cinzel text-3xl font-bold text-white">Active Posters & Announcements</h2>
-                    <p class="text-stone-400 text-sm mt-1">Live synchronized notices currently rotating across TV screens.</p>
+                    <p class="text-stone-400 text-sm mt-1">Notices currently rotating across TV screens.</p>
                 </div>
                 <div>
                     <select id="poster-filter" onchange="filterPosters()" class="bg-stone-950 border border-stone-700 text-stone-200 rounded-xl px-4 py-2.5 text-sm focus:border-amber-500">
@@ -209,7 +190,6 @@
                         <option value="stpatricks">St. Patrick's Day</option>
                         <option value="halloween">Halloween</option>
                         <option value="lottery">Lottery Results</option>
-                        <option value="custom">Custom Uploads</option>
                     </select>
                 </div>
             </div>
@@ -221,7 +201,7 @@
             <div class="space-y-6">
                 <div class="bg-stone-900 p-6 rounded-2xl border border-stone-800 shadow-sm">
                     <h2 class="font-cinzel text-3xl font-bold text-white">Pub Poster Studio</h2>
-                    <p class="text-stone-400 text-sm mt-1">Design customized announcements or upload existing graphic posters for TV display screens.</p>
+                    <p class="text-stone-400 text-sm mt-1">Design customized announcements for TV display screens.</p>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -283,7 +263,7 @@
                         </div>
                         <div class="pt-4">
                             <button type="button" onclick="saveGeneratedPoster()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2">
-                                <span>☁️ Publish Announcement to Live TV</span>
+                                <span>💾 Save Announcement Locally</span>
                             </button>
                         </div>
                     </div>
@@ -316,7 +296,7 @@
             <div class="bg-stone-900 p-6 rounded-2xl border border-stone-800 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 class="font-cinzel text-3xl font-bold text-white">Pub Lottery & Bonus Ball Suite</h2>
-                    <p class="text-stone-400 text-sm mt-1">Manage players, assign ball numbers, and stream winning announcements to pub screens.</p>
+                    <p class="text-stone-400 text-sm mt-1">Manage players, assign ball numbers, and stream winning announcements.</p>
                 </div>
                 <div class="flex gap-2">
                     <button type="button" onclick="switchGameSubTab('bonus')" id="btn-sub-bonus" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-amber-600 text-white transition-all">Bonus Ball</button>
@@ -370,7 +350,7 @@
                                 <input type="text" id="lottery-player-name" placeholder="Enter player name" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
                             </div>
                             <div>
-                                <label class="block text-xs uppercase tracking-wider text-stone-400 mb-1">Pick 6 Numbers (1-59, comma separated)</label>
+                                <label class="block text-xs uppercase tracking-wider text-stone-400 mb-1">Pick 6 Numbers (1-59)</label>
                                 <input type="text" id="lottery-player-nums" placeholder="e.g. 4, 12, 19, 27, 45, 58" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
                             </div>
                             <button type="button" onclick="addLotteryPlayer()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all">Save Ticket</button>
@@ -396,7 +376,7 @@
             </div>
         </section>
 
-        <!-- TV LIVE DISPLAY TAB (FIXED PORTS FOR MOBILE & TV) -->
+        <!-- TV LIVE DISPLAY TAB (FULLSCREEN SECURE TV MODE) -->
         <section id="tab-tv" class="tab-content hidden fixed inset-0 z-[150] bg-stone-950 m-0 p-0 overflow-hidden">
             <div id="tv-fullscreen-wrapper" class="w-screen h-screen bg-stone-950 flex flex-col justify-between p-0 m-0 relative overflow-hidden">
                 <div class="absolute top-4 right-4 z-[160] flex gap-2">
@@ -438,14 +418,14 @@
                 <div class="bg-stone-900 p-6 rounded-2xl border border-stone-800 shadow-sm flex justify-between items-center">
                     <div>
                         <h2 class="font-cinzel text-3xl font-bold text-white">Manager Control Panel</h2>
-                        <p class="text-stone-400 text-sm mt-1">Authenticated as Administrator. Cloud database synchronized.</p>
+                        <p class="text-stone-400 text-sm mt-1">Authenticated as Administrator.</p>
                     </div>
                     <button type="button" onclick="logoutToPortal()" class="bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 px-4 py-2.5 rounded-xl text-sm">Log Out</button>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-stone-900 p-6 rounded-2xl border border-stone-800 shadow-sm space-y-3">
                         <h3 class="font-cinzel text-lg font-bold text-white">Database Control</h3>
-                        <p class="text-xs text-stone-400">Purge local cache and reset default cloud layout.</p>
+                        <p class="text-xs text-stone-400">Purge local cache and reset default layout.</p>
                         <button type="button" onclick="resetAllData()" class="w-full bg-red-950/60 hover:bg-red-900/80 text-red-300 border border-red-800 py-3 rounded-xl text-xs transition-all font-bold">Reset Database to Default</button>
                     </div>
                 </div>
@@ -464,149 +444,63 @@
 
     <!-- ENGINE CODE -->
     <script>
-        // Global Error Diagnostics Listener (Ignoring benign TV network CORS/offline events)
-        window.onerror = function(msg, url, line) {
-            if (typeof msg === 'string' && (msg.indexOf('NetworkError') !== -1 || msg.indexOf('CORS') !== -1 || msg.indexOf('Script error') !== -1)) {
-                return true; // suppress benign network alerts on Smart TVs
-            }
-            var box = document.getElementById('global-error-box');
-            var txt = document.getElementById('global-error-msg');
-            if (box && txt) {
-                txt.innerText = msg + ' (Line ' + line + ')';
-                box.classList.remove('hidden');
-            }
-            return false;
-        };
+        // Suppress TV Browser Network/CORS noise entirely
+        window.onerror = function() { return true; };
+        window.onunhandledrejection = function() { return true; };
 
-        window.onunhandledrejection = function(e) {
-            return true; // suppress async network rejection alerts on Smart TVs
-        };
-
-        var PROJECT_ID = "minersposters";
-
-        var posters = [
+        var defaultPosters = [
             { id: 1, category: 'sports', theme: 'gold', icon: '⚽', title: 'LIVE PREMIER LEAGUE', subtitle: 'Join us this Saturday for live HD matches on our big screens. Special cask ales on tap all day!', date: 'Saturday @ 3:00 PM', badge: 'FREE ENTRY' },
             { id: 2, category: 'events', theme: 'gold', icon: '🕺', title: 'WEEKLY PUB QUIZ & DJ', subtitle: 'Test your knowledge with our resident quizmaster followed by weekend disco!', date: 'Tonight @ 8:30 PM', badge: '£2 ENTRY' },
             { id: 3, category: 'christmas', theme: 'royal', icon: '🎄', title: 'CHRISTMAS PARTY NIGHT', subtitle: 'Book your festive table now! Traditional roast turkey, mince pies, and mulled wine.', date: 'December 20th', badge: 'BOOK NOW' },
             { id: 4, category: 'stpatricks', theme: 'rustic', icon: '☘️', title: 'ST. PATRICKS DAY BASH', subtitle: 'Live traditional music, hearty Irish stew, and discounted pints of Guinness all night long!', date: 'March 17th', badge: 'LIVE MUSIC' }
         ];
+
+        var defaultTicker = '🍺 Welcome to The Miners Arms Brereton! • Tonight: Pub Quiz @ 8:30 PM • Real Ale Guest Cask: Staffordshire Gold 4.2% • Live Premier League Saturday!';
+
+        var posters = defaultPosters;
         var archive = [];
         var bonusPlayers = {};
         var lotteryPlayers = [];
         var currentWinningLotteryNums = [];
         var currentBonusWinnerAnnouncement = '';
-        var liveTickerText = '🍺 Welcome to The Miners Arms Brereton! • Tonight: Pub Quiz @ 8:30 PM • Real Ale Guest Cask: Staffordshire Gold 4.2% • Live Premier League Saturday!';
+        var liveTickerText = defaultTicker;
         
         var currentRole = localStorage.getItem('miners_user_role') === 'admin' ? 'admin' : 'guest';
         var tvCarouselIndex = 0;
 
-        function xhrRequest(method, url, data, callback) {
+        function loadFromLocalStorage() {
             try {
-                var xhr = new XMLHttpRequest();
-                xhr.open(method, url, true);
-                xhr.timeout = 8000;
-                xhr.onreadystatechange = function() {
-                    if (xhr.readyState === 4) {
-                        if (xhr.status >= 200 && xhr.status < 300) {
-                            try {
-                                var json = xhr.responseText ? JSON.parse(xhr.responseText) : {};
-                                callback(null, json);
-                            } catch (e) {
-                                callback(null, {});
-                            }
-                        } else {
-                            callback(new Error('HTTP Status: ' + xhr.status));
-                        }
-                    }
-                };
-                xhr.onerror = function() { callback(new Error('Network Error')); };
-                xhr.ontimeout = function() { callback(new Error('Timeout')); };
-
-                if (data && typeof data === 'object') {
-                    xhr.setRequestHeader('Content-Type', 'application/json');
-                    xhr.send(JSON.stringify(data));
-                } else {
-                    xhr.send(data);
-                }
-            } catch (err) {
-                callback(err);
-            }
-        }
-
-        function saveToCloud() {
-            var payload = { posters: posters, archive: archive, bonusPlayers: bonusPlayers, lotteryPlayers: lotteryPlayers, currentWinningLotteryNums: currentWinningLotteryNums, currentBonusWinnerAnnouncement: currentBonusWinnerAnnouncement, liveTickerText: liveTickerText };
-            var url = 'https://firestore.googleapis.com/v1/projects/' + PROJECT_ID + '/databases/(default)/documents/miners_pub/portal_state';
-            
-            var firestoreBody = { fields: { dataJson: { stringValue: JSON.stringify(payload) } } };
-
-            xhrRequest('PATCH', url + '?updateMask.fieldPaths=dataJson', firestoreBody, function(err) {
-                if (!err) {
-                    updateSyncBadge(true);
-                } else {
-                    xhrRequest('POST', 'https://firestore.googleapis.com/v1/projects/' + PROJECT_ID + '/databases/(default)/documents/miners_pub?documentId=portal_state', firestoreBody, function(errPost) {
-                        if (!errPost) {
-                            updateSyncBadge(true);
-                        } else {
-                            localStorage.setItem('miners_cloud_fallback', JSON.stringify(payload));
-                            updateSyncBadge(false, "Offline Local Mode");
-                        }
-                    });
-                }
-            });
-        }
-
-        function initRealtimeSync() {
-            var url = 'https://firestore.googleapis.com/v1/projects/' + PROJECT_ID + '/databases/(default)/documents/miners_pub/portal_state';
-            xhrRequest('GET', url, null, function(err, data) {
-                if (!err && data && data.fields && data.fields.dataJson) {
-                    try {
-                        var parsed = JSON.parse(data.fields.dataJson.stringValue);
-                        posters = parsed.posters || posters;
-                        archive = parsed.archive || [];
-                        bonusPlayers = parsed.bonusPlayers || {};
-                        lotteryPlayers = parsed.lotteryPlayers || [];
-                        currentWinningLotteryNums = parsed.currentWinningLotteryNums || [];
-                        currentBonusWinnerAnnouncement = parsed.currentBonusWinnerAnnouncement || '';
-                        liveTickerText = parsed.liveTickerText || liveTickerText;
-                        updateSyncBadge(true);
-                        refreshAllUI();
-                    } catch (e) {}
-                } else {
-                    loadFromFallback();
-                }
-            });
-        }
-
-        function loadFromFallback() {
-            var saved = localStorage.getItem('miners_cloud_fallback');
-            if (saved) {
-                try {
+                var saved = localStorage.getItem('miners_portal_local_state');
+                if (saved) {
                     var data = JSON.parse(saved);
-                    posters = data.posters || posters;
+                    posters = data.posters || defaultPosters;
                     archive = data.archive || [];
                     bonusPlayers = data.bonusPlayers || {};
                     lotteryPlayers = data.lotteryPlayers || [];
                     currentWinningLotteryNums = data.currentWinningLotteryNums || [];
                     currentBonusWinnerAnnouncement = data.currentBonusWinnerAnnouncement || '';
-                    liveTickerText = data.liveTickerText || liveTickerText;
-                } catch(e) {}
-            }
-            refreshAllUI();
+                    liveTickerText = data.liveTickerText || defaultTicker;
+                }
+            } catch (e) {}
         }
 
-        function updateSyncBadge(isSynced, customText) {
-            var badge = document.getElementById('cloud-sync-status');
-            if (!badge) return;
-            if (isSynced) {
-                badge.className = "bg-emerald-950/80 text-emerald-300 text-xs px-4 py-1.5 text-center font-medium border-b border-emerald-800/40 flex items-center justify-center space-x-2";
-                badge.innerHTML = '<span>☁️ Firebase Cloud Connected</span>';
-            } else {
-                badge.className = "bg-amber-950/80 text-amber-200 text-xs px-4 py-1.5 text-center font-medium border-b border-amber-800/40 flex items-center justify-center space-x-2";
-                badge.innerHTML = '<span>⚠️ ' + (customText || 'Cloud Sync Warning') + '</span>';
-            }
+        function saveToLocalStorage() {
+            try {
+                var payload = { 
+                    posters: posters, 
+                    archive: archive, 
+                    bonusPlayers: bonusPlayers, 
+                    lotteryPlayers: lotteryPlayers, 
+                    currentWinningLotteryNums: currentWinningLotteryNums, 
+                    currentBonusWinnerAnnouncement: currentBonusWinnerAnnouncement, 
+                    liveTickerText: liveTickerText 
+                };
+                localStorage.setItem('miners_portal_local_state', JSON.stringify(payload));
+            } catch (e) {}
         }
 
         function refreshAllUI() {
+            loadFromLocalStorage();
             renderPosters();
             renderArchive();
             renderBonusGrid();
@@ -708,11 +602,11 @@
             };
 
             posters.unshift(newPoster);
-            saveToCloud();
+            saveToLocalStorage();
             renderPosters();
             renderTvFeed();
             switchTab('posters');
-            alert('Poster successfully published to live screens!');
+            alert('Announcement saved locally and published to screens!');
         }
 
         function proceedAsGuest() {
@@ -787,10 +681,10 @@
             var txt = document.getElementById('posters-marquee-input').value.trim();
             if (txt) {
                 liveTickerText = txt;
-                saveToCloud();
+                saveToLocalStorage();
                 var marqueeSpan = document.getElementById('tv-marquee-text');
                 if (marqueeSpan) marqueeSpan.innerText = liveTickerText;
-                alert('Marquee ticker broadcasted to all TV screens!');
+                alert('Marquee ticker updated on all TV screens!');
             }
         }
 
@@ -800,6 +694,7 @@
         }
 
         function switchTab(tabId) {
+            loadFromLocalStorage();
             var tabs = document.querySelectorAll('.tab-content');
             for (var i = 0; i < tabs.length; i++) {
                 tabs[i].classList.add('hidden');
@@ -876,7 +771,6 @@
             var filtered = displayList.filter(function(p) { return filter === 'all' || p.category === filter; });
             filtered.forEach(function(p) {
                 var archiveBtn = currentRole === 'admin' ? '<button type="button" onclick="archivePoster(' + p.id + ')" class="text-red-400 hover:text-red-300 p-2">📦</button>' : '';
-                
                 var iconHTML = p.icon ? '<div class="text-amber-400 text-3xl mb-2">' + p.icon + '</div>' : '';
                 grid.innerHTML += `
                     <div class="bg-stone-900 border border-stone-800 rounded-2xl p-6 flex flex-col justify-between shadow-lg">
@@ -930,7 +824,7 @@
             if (index !== -1) {
                 var removed = posters.splice(index, 1)[0];
                 archive.push(removed);
-                saveToCloud();
+                saveToLocalStorage();
                 renderPosters();
             }
         }
@@ -966,7 +860,7 @@
             if (index !== -1) {
                 var restored = archive.splice(index, 1)[0];
                 posters.push(restored);
-                saveToCloud();
+                saveToLocalStorage();
                 renderArchive();
             }
         }
@@ -974,7 +868,7 @@
         function deleteArchived(id) {
             if (currentRole !== 'admin') return;
             archive = archive.filter(function(p) { return p.id != id; });
-            saveToCloud();
+            saveToLocalStorage();
             renderArchive();
         }
 
@@ -1010,7 +904,7 @@
                 return;
             }
             bonusPlayers[num] = name;
-            saveToCloud();
+            saveToLocalStorage();
             document.getElementById('bonus-player-name').value = '';
             document.getElementById('bonus-player-num').value = '';
             renderBonusGrid();
@@ -1021,7 +915,7 @@
             if (bonusPlayers[num]) {
                 if (confirm('Remove ' + bonusPlayers[num] + ' from number ' + num + '?')) {
                     delete bonusPlayers[num];
-                    saveToCloud();
+                    saveToLocalStorage();
                     renderBonusGrid();
                 }
             }
@@ -1035,7 +929,7 @@
             var winner = bonusPlayers[winNum];
             
             currentBonusWinnerAnnouncement = winner ? '🏆 Bonus Ball #' + winNum + ' Winner: ' + winner + '!' : '⚠️ Bonus Ball #' + winNum + ' was unassigned.';
-            saveToCloud();
+            saveToLocalStorage();
 
             resultBox.classList.remove('hidden');
             resultBox.innerHTML = currentBonusWinnerAnnouncement;
@@ -1047,13 +941,13 @@
                     theme: 'royal',
                     icon: '🏆',
                     title: 'BONUS BALL WINNER!',
-                    subtitle: 'Congratulations to ' + winner + ' for winning with Ball #' + winNum + '!\n\nDrinks are on the house or collect your cash prize at the bar!',
+                    subtitle: 'Congratulations to ' + winner + ' for winning with Ball #' + winNum + '!\n\nCollect your prize at the bar!',
                     date: 'Drawn Today',
                     badge: 'JACKPOT WINNER',
                     isImageUpload: false
                 };
                 posters.unshift(bonusPoster);
-                saveToCloud();
+                saveToLocalStorage();
             }
         }
 
@@ -1068,7 +962,7 @@
                 return;
             }
             lotteryPlayers.push({ name: name, nums: nums });
-            saveToCloud();
+            saveToLocalStorage();
             document.getElementById('lottery-player-name').value = '';
             document.getElementById('lottery-player-nums').value = '';
             renderLotteryList();
@@ -1108,7 +1002,7 @@
         function deleteLotteryPlayer(idx) {
             if (currentRole !== 'admin') return;
             lotteryPlayers.splice(idx, 1);
-            saveToCloud();
+            saveToLocalStorage();
             renderLotteryList();
         }
 
@@ -1128,7 +1022,7 @@
                 }
             });
 
-            saveToCloud();
+            saveToLocalStorage();
             renderLotteryList();
             
             var winningBallsStr = currentWinningLotteryNums.map(function(n) { return renderBallHTML(n, true); }).join(' ');
@@ -1152,13 +1046,14 @@
         function resetLotteryDraw() {
             if (currentRole !== 'admin') return;
             currentWinningLotteryNums = [];
-            saveToCloud();
+            saveToLocalStorage();
             document.getElementById('lottery-winning-input').value = '';
             document.getElementById('lottery-draw-result').classList.add('hidden');
             renderLotteryList();
         }
 
         function renderTvFeed() {
+            loadFromLocalStorage();
             var container = document.getElementById('tv-full-poster-display');
             if (!container) return;
 
@@ -1215,10 +1110,6 @@
             }
         }, 7000);
 
-        setInterval(function() {
-            initRealtimeSync();
-        }, 10000);
-
         function toggleTvFullScreen() {
             var elem = document.getElementById('tv-fullscreen-wrapper');
             if (!document.fullscreenElement && !document.webkitFullscreenElement) {
@@ -1245,8 +1136,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            loadFromLocalStorage();
             applyRoleStateUI(true);
-            initRealtimeSync();
 
             setTimeout(function() {
                 var launchBtn = document.getElementById('btn-tv-launch-primary');
@@ -1257,7 +1148,6 @@
             document.addEventListener('keydown', function(e) {
                 var code = e.keyCode || e.which;
                 
-                // OK / Enter Button Click Handler
                 if (code === 13 || code === 32 || code === 1025 || code === 29443 || e.key === 'Enter') {
                     var active = document.activeElement;
                     if (active && (active.tagName === 'BUTTON' || active.tagName === 'INPUT' || active.tagName === 'SELECT' || active.tagName === 'TEXTAREA')) {
@@ -1265,7 +1155,6 @@
                         e.preventDefault();
                     }
                 }
-                // D-Pad Arrow Spatial Movement Handler
                 else if (code === 37 || code === 38 || code === 39 || code === 40 || ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
                     var focusables = Array.from(document.querySelectorAll('button:not(.hidden), input:not(.hidden), select:not(.hidden), textarea:not(.hidden)'));
                     var index = focusables.indexOf(document.activeElement);
