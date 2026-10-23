@@ -2,7 +2,7 @@
 <html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>The Miners Arms Brereton - Display & Management Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
@@ -32,11 +32,24 @@
             cursor: pointer !important; 
             -webkit-tap-highlight-color: rgba(245, 158, 11, 0.8) !important; 
             touch-action: manipulation !important;
+        }
+
+        button {
             user-select: none;
             -webkit-user-select: none;
         }
 
-        /* Fixed LG TV focus styling: Removed transform scale to prevent Magic Remote click loops */
+        /* Prevent nested spans from capturing touch target instead of parent button */
+        button * {
+            pointer-events: none;
+        }
+
+        input, textarea, select {
+            user-select: auto !important;
+            -webkit-user-select: auto !important;
+        }
+
+        /* LG TV & Mobile focus accessibility styling */
         button:focus, select:focus, input:focus, textarea:focus { 
             outline: 5px solid #f59e0b !important; 
             outline-offset: 2px !important;
@@ -366,8 +379,8 @@
             </div>
         </section>
 
-        <!-- TV LIVE DISPLAY TAB -->
-        <section id="tab-tv" class="tab-content hidden absolute inset-0 z-[150] bg-stone-950 m-0 p-0 overflow-hidden">
+        <!-- TV LIVE DISPLAY TAB (UPDATED: FIXED INSET-0 FOR MOBILE PORTS) -->
+        <section id="tab-tv" class="tab-content hidden fixed inset-0 z-[150] bg-stone-950 m-0 p-0 overflow-hidden">
             <div id="tv-fullscreen-wrapper" class="w-screen h-screen bg-stone-950 flex flex-col justify-between p-0 m-0 relative overflow-hidden">
                 <div class="absolute top-4 right-4 z-[160] flex gap-2">
                     <button type="button" onclick="toggleTvFullScreen()" class="bg-stone-900/90 hover:bg-amber-600 text-amber-400 hover:text-white border border-amber-500/50 px-4 py-2 rounded-xl text-xs font-bold shadow-xl transition-all flex items-center space-x-2">
@@ -695,9 +708,6 @@
                 if (adminMarqueeBox) adminMarqueeBox.classList.remove('hidden');
                 statusBadge.innerText = 'Admin (Logout)';
             } else {
-                if (!localStorage.getItem('miners_user_role_prompted')) {
-                    overlay.classList.remove('hidden');
-                }
                 adminNav.classList.add('hidden');
                 if (adminMarqueeBox) adminMarqueeBox.classList.add('hidden');
                 statusBadge.innerText = 'Guest Mode';
@@ -737,6 +747,7 @@
             var tabs = document.querySelectorAll('.tab-content');
             for (var i = 0; i < tabs.length; i++) {
                 tabs[i].classList.add('hidden');
+                if (tabs[i].id === 'tab-tv') tabs[i].classList.remove('flex');
             }
 
             var btns = document.querySelectorAll('.tab-btn');
@@ -1186,7 +1197,7 @@
                 if (launchBtn) launchBtn.focus();
             }, 300);
 
-            // Robust remote / keyboard click handler for Smart TV Web browsers (LG webOS / Samsung Tizen)
+            // LG TV Remote key control handling
             document.addEventListener('keydown', function(e) {
                 var code = e.keyCode || e.which;
                 if (code === 13 || code === 32 || code === 1025 || code === 29443) {
@@ -1197,14 +1208,7 @@
                     }
                 }
             });
-
-            // Ensure touch/pointer events trigger smoothly on LG TV Web browsers
-            document.addEventListener('touchend', function(e) {
-                if (e.target && e.target.tagName === 'BUTTON') {
-                    e.target.click();
-                }
-            }, { passive: true });
         });
     </script>
 </body>
-</html>
+                            </html>
