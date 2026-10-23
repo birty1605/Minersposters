@@ -39,7 +39,6 @@
             -webkit-user-select: none;
         }
 
-        /* Prevent nested spans from capturing touch target instead of parent button */
         button * {
             pointer-events: none;
         }
@@ -49,7 +48,7 @@
             -webkit-user-select: auto !important;
         }
 
-        /* LG TV & Mobile focus accessibility styling */
+        /* LG TV & Mobile High-Visibility Focus Outline */
         button:focus, select:focus, input:focus, textarea:focus { 
             outline: 5px solid #f59e0b !important; 
             outline-offset: 2px !important;
@@ -379,7 +378,7 @@
             </div>
         </section>
 
-        <!-- TV LIVE DISPLAY TAB (UPDATED: FIXED INSET-0 FOR MOBILE PORTS) -->
+        <!-- TV LIVE DISPLAY TAB -->
         <section id="tab-tv" class="tab-content hidden fixed inset-0 z-[150] bg-stone-950 m-0 p-0 overflow-hidden">
             <div id="tv-fullscreen-wrapper" class="w-screen h-screen bg-stone-950 flex flex-col justify-between p-0 m-0 relative overflow-hidden">
                 <div class="absolute top-4 right-4 z-[160] flex gap-2">
@@ -1197,13 +1196,31 @@
                 if (launchBtn) launchBtn.focus();
             }, 300);
 
-            // LG TV Remote key control handling
+            // Robust LG TV Remote & Keyboard D-Pad Navigation + Click Handler
             document.addEventListener('keydown', function(e) {
                 var code = e.keyCode || e.which;
-                if (code === 13 || code === 32 || code === 1025 || code === 29443) {
+                
+                // OK / Enter Button click
+                if (code === 13 || code === 32 || code === 1025 || code === 29443 || e.key === 'Enter') {
                     var active = document.activeElement;
-                    if (active && (active.tagName === 'BUTTON' || active.tagName === 'INPUT' || active.tagName === 'SELECT')) {
+                    if (active && (active.tagName === 'BUTTON' || active.tagName === 'INPUT' || active.tagName === 'SELECT' || active.tagName === 'TEXTAREA')) {
                         active.click();
+                        e.preventDefault();
+                    }
+                }
+                // D-Pad Arrow Keys for Smart TV Navigation
+                else if (code === 37 || code === 38 || code === 39 || code === 40 || ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                    var focusables = Array.from(document.querySelectorAll('button:not(.hidden), input:not(.hidden), select:not(.hidden), textarea:not(.hidden)'));
+                    var index = focusables.indexOf(document.activeElement);
+                    if (index === -1) {
+                        if (focusables.length > 0) focusables[0].focus();
+                    } else {
+                        if (code === 38 || e.key === 'ArrowUp' || code === 37 || e.key === 'ArrowLeft') {
+                            index = (index - 1 + focusables.length) % focusables.length;
+                        } else if (code === 40 || e.key === 'ArrowDown' || code === 39 || e.key === 'ArrowRight') {
+                            index = (index + 1) % focusables.length;
+                        }
+                        focusables[index].focus();
                         e.preventDefault();
                     }
                 }
@@ -1211,4 +1228,4 @@
         });
     </script>
 </body>
-                            </html>
+</html>
