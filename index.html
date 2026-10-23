@@ -37,10 +37,19 @@
         button * { pointer-events: none; }
         input, textarea, select { user-select: auto !important; -webkit-user-select: auto !important; }
 
-        button:focus, select:focus, input:focus, textarea:focus { 
-            outline: 5px solid #f59e0b !important; 
-            outline-offset: 2px !important;
-            box-shadow: 0 0 25px rgba(245, 158, 11, 0.9) !important;
+        /* High-Visibility Focus Outline for TV D-Pad Remote[cite: 2] */
+        .tab-btn:focus,
+        button:focus,
+        input:focus,
+        select:focus,
+        textarea:focus,
+        .upload-dropzone:focus {
+            outline: 6px solid #FFFF00 !important;
+            outline-offset: 4px !important;
+            background-color: #FFFF00 !important;
+            color: #000000 !important;
+            font-weight: 800 !important;
+            box-shadow: 0 0 40px #FFFF00 !important;
             z-index: 999 !important;
         }
 
@@ -58,13 +67,17 @@
         }
         .lottery-ball.waiting-bright { box-shadow: 0 0 10px rgba(245, 158, 11, 0.7), inset -2px -2px 4px rgba(0,0,0,0.4); }
         .lottery-ball.won-dull { position: relative; opacity: 0.35; filter: grayscale(80%); }
+
+        .alert-msg { padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; display: none; font-weight: 700; font-size: 1.1rem; }
+        .alert-success { background: rgba(76, 209, 55, 0.3); color: #76ff6b; border: 2px solid #4CD137; }
+        .alert-error { background: rgba(255, 107, 107, 0.3); color: #ff9999; border: 2px solid #FF6B6B; }
     </style>
 </head>
 <body class="h-full flex flex-col relative bg-stone-950 text-stone-100">
 
     <!-- STATUS BAR -->
     <div id="cloud-sync-status" class="bg-emerald-950/80 text-emerald-300 text-xs px-4 py-1.5 text-center font-medium border-b border-emerald-800/40 flex items-center justify-center space-x-2">
-        <span>☁️ The Miners Arms Brereton - Portal & Display System Active</span>
+        <span>☁️ The Miners Arms Brereton - Cloud & TV Portal Active</span>
     </div>
 
     <!-- MAIN PORTAL LOGIN OVERLAY (HOME PAGE LOGIN) -->
@@ -88,7 +101,7 @@
 
             <!-- MANAGER / ADMIN CREDENTIAL LOGIN -->
             <div class="border-t border-stone-800 pt-5 space-y-4">
-                <p class="text-xs text-stone-400">Pub Staff & Management? Login below to unlock generator, lottery, and administration tools.</p>
+                <p class="text-xs text-stone-400">Pub Staff & Management? Login below to unlock generator, lottery, photo uploads, and administration tools.</p>
                 
                 <div class="space-y-3 text-left bg-stone-950/50 p-4 rounded-2xl border border-stone-800">
                     <div>
@@ -124,6 +137,7 @@
             <nav class="flex flex-wrap items-center gap-2" id="app-nav-bar">
                 <button type="button" tabindex="0" onclick="switchTab('tv')" id="btn-tv" class="tab-btn px-4 py-2.5 rounded-xl font-bold text-sm bg-amber-600 text-white shadow-lg flex items-center space-x-2"><span>📺 TV Live View</span></button>
                 <button type="button" tabindex="0" onclick="switchTab('posters')" id="btn-posters" class="tab-btn px-4 py-2.5 rounded-xl font-medium text-sm text-stone-300 hover:bg-white/10 flex items-center space-x-2"><span>🖼 Posters View</span></button>
+                <button type="button" tabindex="0" onclick="switchTab('upload')" id="btn-upload" class="tab-btn px-4 py-2.5 rounded-xl font-medium text-sm text-stone-300 hover:bg-white/10 flex items-center space-x-2"><span>📸 Upload Photo</span></button>
                 
                 <div id="admin-only-nav-items" class="hidden flex flex-wrap items-center gap-2">
                     <button type="button" tabindex="0" onclick="switchTab('generator')" id="btn-generator" class="tab-btn px-4 py-2.5 rounded-xl font-medium text-sm text-stone-300 hover:bg-white/10 flex items-center space-x-2"><span>✨ Generator</span></button>
@@ -140,6 +154,32 @@
     </header>
 
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 overflow-y-auto" id="main-container">
+
+        <!-- UPLOAD PICTURE TAB -->
+        <section id="tab-upload" class="tab-content hidden space-y-6">
+            <div class="bg-stone-900 border-2 border-amber-600/50 rounded-3xl p-6 md:p-10 max-w-xl mx-auto shadow-2xl space-y-6">
+                <div class="text-center space-y-2">
+                    <h2 class="font-cinzel text-2xl md:text-3xl font-bold text-amber-400">Share Your Memories</h2>
+                    <p class="text-stone-400 text-sm">Upload your favorite moments to be reviewed and displayed on live pub screens.</p>
+                </div>
+                
+                <div id="uploadAlert" class="alert-msg"></div>
+
+                <form id="uploadForm" onsubmit="handleImageUpload(event)" class="space-y-4">
+                    <div class="border-3 border-dashed border-amber-500/60 rounded-2xl p-8 text-center bg-amber-950/20 cursor-pointer hover:bg-amber-950/40 transition-all" id="dropzoneBox" tabindex="0" onclick="triggerFileInput()">
+                        <div class="text-4xl mb-2 text-amber-400">📷</div>
+                        <p class="font-bold text-base text-white">Click or Press OK to browse picture</p>
+                        <p class="text-stone-400 text-xs mt-1">Supports JPG, PNG, WEBP via Cloudinary</p>
+                        <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="previewFile(event)">
+                    </div>
+
+                    <div id="previewBox" class="hidden text-center space-y-4">
+                        <img id="imagePreview" class="max-h-64 mx-auto rounded-xl border-2 border-amber-500 object-contain" alt="Preview">
+                        <button type="submit" id="submitBtn" tabindex="0" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all">🚀 Submit Picture for Approval</button>
+                    </div>
+                </form>
+            </div>
+        </section>
 
         <!-- POSTERS TAB -->
         <section id="tab-posters" class="tab-content hidden space-y-6">
@@ -363,7 +403,7 @@
         <section id="tab-tv" class="tab-content hidden fixed inset-0 z-[150] bg-stone-950 m-0 p-0 overflow-hidden">
             <div id="tv-fullscreen-wrapper" class="w-screen h-screen bg-stone-950 flex flex-col justify-between p-0 m-0 relative overflow-hidden">
                 <div class="absolute top-4 right-4 z-[160] flex gap-2">
-                    <button type="button" tabindex="0" onclick="toggleTvFullScreen()" class="bg-stone-900/90 hover:bg-amber-600 text-amber-400 hover:text-white border border-amber-500/50 px-4 py-2 rounded-xl text-xs font-bold shadow-xl transition-all flex items-center space-x-2">
+                    <button type="button" tabindex="0" onclick="enterFullscreen()" class="bg-stone-900/90 hover:bg-amber-600 text-amber-400 hover:text-white border border-amber-500/50 px-4 py-2 rounded-xl text-xs font-bold shadow-xl transition-all flex items-center space-x-2">
                         <span>Fullscreen</span>
                     </button>
                     <button type="button" tabindex="0" onclick="switchTab('posters')" class="bg-stone-900/90 hover:bg-red-600 text-stone-300 hover:text-white border border-stone-700 px-4 py-2 rounded-xl text-xs font-bold shadow-xl transition-all">
@@ -379,9 +419,15 @@
                 </div>
 
                 <!-- FULLSCREEN DISPLAY AREA -->
-                <div class="w-full flex-1 flex flex-col justify-center items-center overflow-hidden p-3 md:p-8 m-0 box-border">
-                    <div id="tv-full-poster-display" class="w-full max-w-5xl h-full max-h-[85vh] rounded-3xl p-6 md:p-10 flex flex-col justify-between items-center text-center shadow-2xl relative overflow-hidden text-white border-4 border-amber-500">
+                <div class="w-full flex-1 flex flex-col justify-center items-center overflow-hidden p-3 md:p-8 m-0 box-border relative">
+                    <div id="tvStatusMsg" class="text-amber-400 font-cinzel text-2xl font-bold">Connecting to Live Feed...</div>
+                    <img id="tvActiveImg" class="w-full h-full object-contain absolute inset-0 hidden" alt="Live Slide">
+                    <div id="tv-full-poster-display" class="w-full max-w-5xl h-full max-h-[85vh] rounded-3xl p-6 md:p-10 flex flex-col justify-between items-center text-center shadow-2xl relative overflow-hidden text-white border-4 border-amber-500 bg-stone-900">
                     </div>
+                </div>
+                
+                <div class="absolute bottom-4 left-4 z-[160] bg-stone-900/90 border border-amber-500/50 px-4 py-2 rounded-xl text-amber-300 text-xs font-bold" id="tvCounter">
+                    0 / 0 Slides
                 </div>
             </div>
         </section>
@@ -405,12 +451,22 @@
                     </div>
                     <button type="button" tabindex="0" onclick="logoutToPortal()" class="bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 px-4 py-2.5 rounded-xl text-sm">Log Out</button>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-stone-900 p-6 rounded-2xl border border-stone-800 shadow-sm space-y-3">
-                        <h3 class="font-cinzel text-lg font-bold text-white">Database Control</h3>
-                        <p class="text-xs text-stone-400">Purge local cache and reset default layout.</p>
-                        <button type="button" tabindex="0" onclick="resetAllData()" class="w-full bg-red-950/60 hover:bg-red-900/80 text-red-300 border border-red-800 py-3 rounded-xl text-xs transition-all font-bold">Reset Database to Default</button>
-                    </div>
+                
+                <!-- PHOTO MODERATION QUEUES -->
+                <div class="bg-stone-900 p-6 rounded-2xl border border-stone-800 shadow-sm space-y-4">
+                    <h3 class="font-cinzel text-xl font-bold text-amber-400">📸 Pending Photo Moderation Queue</h3>
+                    <div id="pendingQueue" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+                </div>
+
+                <div class="bg-stone-900 p-6 rounded-2xl border border-stone-800 shadow-sm space-y-4">
+                    <h3 class="font-cinzel text-xl font-bold text-emerald-400">🟢 Live Active Display Photos</h3>
+                    <div id="liveQueue" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+                </div>
+
+                <div class="bg-stone-900 p-6 rounded-2xl border border-stone-800 shadow-sm space-y-3">
+                    <h3 class="font-cinzel text-lg font-bold text-white">Database Control</h3>
+                    <p class="text-xs text-stone-400">Purge local cache and reset default layout.</p>
+                    <button type="button" tabindex="0" onclick="resetAllData()" class="w-full bg-red-950/60 hover:bg-red-900/80 text-red-300 border border-red-800 py-3 rounded-xl text-xs transition-all font-bold">Reset Database to Default</button>
                 </div>
             </div>
         </section>
@@ -431,6 +487,10 @@
         window.onerror = function() { return true; };
         window.onunhandledrejection = function() { return true; };
 
+        var PROJECT_ID = "minerspictures";
+        var CLOUDINARY_CLOUD_NAME = 'vju0scal';
+        var CLOUDINARY_UPLOAD_PRESET = 'miners_preset';
+
         var defaultPosters = [
             { id: 1, category: 'sports', theme: 'gold', icon: '⚽', title: 'LIVE PREMIER LEAGUE', subtitle: 'Join us this Saturday for live HD matches on our big screens. Special cask ales on tap all day!', date: 'Saturday @ 3:00 PM', badge: 'FREE ENTRY' },
             { id: 2, category: 'events', theme: 'gold', icon: '🕺', title: 'WEEKLY PUB QUIZ & DJ', subtitle: 'Test your knowledge with our resident quizmaster followed by weekend disco!', date: 'Tonight @ 8:30 PM', badge: '£2 ENTRY' },
@@ -447,6 +507,11 @@
         var currentWinningLotteryNums = [];
         var currentBonusWinnerAnnouncement = '';
         var liveTickerText = defaultTicker;
+        var cachedPhotos = [];
+        var selectedFileObject = null;
+        var currentSlideIndex = 0;
+        var slideshowInterval = null;
+        var pollInterval = null;
         
         var currentRole = 'guest';
         try {
@@ -658,7 +723,7 @@
             document.getElementById('portal-login-error').classList.add('hidden');
             
             var overlay = document.getElementById('portal-login-overlay');
-            if (overlay) overlay.classList.remove('hidden');
+            if (overlay) overlay.classList.add('hidden');
             applyRoleStateUI();
         }
 
@@ -710,7 +775,10 @@
             if (tabId === 'tv') {
                 var marqueeSpan = document.getElementById('tv-marquee-text');
                 if (marqueeSpan) marqueeSpan.innerText = liveTickerText;
-                renderTvFeed();
+                initRestSync();
+            }
+            if (tabId === 'admin' && currentRole === 'admin') {
+                initRestSync();
             }
         }
 
@@ -1038,10 +1106,312 @@
             renderLotteryList();
         }
 
+        // --- CLOUDINARY & FIRESTORE REST INTEGRATION ---
+        function xhrRequest(method, url, data, callback) {
+            var xhr = new XMLHttpRequest();
+            xhr.open(method, url, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try {
+                            var json = xhr.responseText ? JSON.parse(xhr.responseText) : {};
+                            callback(null, json);
+                        } catch (e) {
+                            callback(null, {});
+                        }
+                    } else {
+                        callback(new Error('HTTP Status: ' + xhr.status));
+                    }
+                }
+            };
+            if (data && typeof data === 'object' && !(data instanceof FormData)) {
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(JSON.stringify(data));
+            } else {
+                xhr.send(data);
+            }
+        }
+
+        function formatJpgUrl(url) {
+            if (!url) return '';
+            var safe = url;
+            if (safe.indexOf('cloudinary.com') !== -1 && safe.indexOf('/upload/') !== -1) {
+                safe = safe.replace('/upload/', '/upload/f_jpg,q_auto/');
+            }
+            return safe;
+        }
+
+        function triggerFileInput() {
+            var fileInput = document.getElementById('fileInput');
+            if (fileInput) fileInput.click();
+        }
+
+        function previewFile(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+
+            selectedFileObject = file;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var previewImg = document.getElementById('imagePreview');
+                var previewBox = document.getElementById('previewBox');
+                if (previewImg && previewBox) {
+                    previewImg.src = e.target.result;
+                    previewBox.style.display = 'block';
+                    var submitBtn = document.getElementById('submitBtn');
+                    if (submitBtn) submitBtn.focus();
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleImageUpload(e) {
+            e.preventDefault();
+            if (!selectedFileObject) {
+                showAlert('uploadAlert', 'Please select a picture first.', 'error');
+                return;
+            }
+
+            var submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) {
+                submitBtn.innerText = 'Uploading to Cloudinary...';
+                submitBtn.disabled = true;
+            }
+
+            var formData = new FormData();
+            formData.append('file', selectedFileObject);
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD_NAME + '/image/upload', true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        var data = JSON.parse(xhr.responseText);
+                        if (!data.secure_url) {
+                            uploadFailed('Cloudinary error: secure_url missing');
+                            return;
+                        }
+                        restFirestoreAdd({
+                            dataUrl: data.secure_url,
+                            status: 'pending',
+                            timestamp: Date.now()
+                        });
+                    } else {
+                        uploadFailed('Upload failed status: ' + xhr.status);
+                    }
+                }
+            };
+            xhr.send(formData);
+
+            function uploadFailed(msg) {
+                showAlert('uploadAlert', msg, 'error');
+                if (submitBtn) {
+                    submitBtn.innerText = '🚀 Submit Picture for Approval';
+                    submitBtn.disabled = false;
+                }
+            }
+        }
+
+        function initRestSync() {
+            var url = 'https://firestore.googleapis.com/v1/projects/' + PROJECT_ID + '/databases/(default)/documents/photos';
+            xhrRequest('GET', url, null, function(err, data) {
+                if (err) return;
+                cachedPhotos = [];
+                if (data && data.documents) {
+                    for (var i = 0; i < data.documents.length; i++) {
+                        var doc = data.documents[i];
+                        var nameParts = doc.name.split('/');
+                        var docId = nameParts[nameParts.length - 1];
+                        var fields = doc.fields || {};
+                        
+                        cachedPhotos.push({
+                            id: docId,
+                            dataUrl: fields.dataUrl ? fields.dataUrl.stringValue : '',
+                            status: fields.status ? fields.status.stringValue : 'pending',
+                            timestamp: fields.timestamp ? parseInt(fields.timestamp.integerValue || fields.timestamp.doubleValue || 0) : 0
+                        });
+                    }
+                }
+
+                cachedPhotos.sort(function(a, b) { return b.timestamp - a.timestamp; });
+                if (currentRole === 'admin') renderAdminQueues();
+
+                var tvTab = document.getElementById('tab-tv');
+                if (tvTab && !tvTab.classList.contains('hidden')) {
+                    initSlideshow();
+                }
+            });
+        }
+
+        function restFirestoreAdd(photoObj) {
+            var url = 'https://firestore.googleapis.com/v1/projects/' + PROJECT_ID + '/databases/(default)/documents/photos';
+            var payload = {
+                fields: {
+                    dataUrl: { stringValue: photoObj.dataUrl },
+                    status: { stringValue: photoObj.status },
+                    timestamp: { integerValue: String(photoObj.timestamp) }
+                }
+            };
+            xhrRequest('POST', url, payload, function(err) {
+                var submitBtn = document.getElementById('submitBtn');
+                if (submitBtn) {
+                    submitBtn.innerText = '🚀 Submit Picture for Approval';
+                    submitBtn.disabled = false;
+                }
+                if (!err) {
+                    showAlert('uploadAlert', 'Picture uploaded successfully! Awaiting review.', 'success');
+                    document.getElementById('uploadForm').reset();
+                    document.getElementById('previewBox').style.display = 'none';
+                    selectedFileObject = null;
+                    initRestSync();
+                } else {
+                    showAlert('uploadAlert', 'Database save failed.', 'error');
+                }
+            });
+        }
+
+        function restFirestoreUpdate(id, updates) {
+            var url = 'https://firestore.googleapis.com/v1/projects/' + PROJECT_ID + '/databases/(default)/documents/photos/' + id + '?updateMask.fieldPaths=status&updateMask.fieldPaths=timestamp';
+            var fieldsObj = {
+                status: { stringValue: updates.status }
+            };
+            if (updates.timestamp) {
+                fieldsObj.timestamp = { integerValue: String(updates.timestamp) };
+            }
+            xhrRequest('PATCH', url, { fields: fieldsObj }, function() {
+                initRestSync();
+            });
+        }
+
+        function restFirestoreDelete(id) {
+            var url = 'https://firestore.googleapis.com/v1/projects/' + PROJECT_ID + '/databases/(default)/documents/photos/' + id;
+            var xhr = new XMLHttpRequest();
+            xhr.open('DELETE', url, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) initRestSync();
+            };
+            xhr.send();
+        }
+
+        function renderAdminQueues() {
+            var pendingQ = document.getElementById('pendingQueue');
+            var liveQ = document.getElementById('liveQueue');
+            if (!pendingQ) return;
+
+            pendingQ.innerHTML = '';
+            liveQ.innerHTML = '';
+
+            var pending = cachedPhotos.filter(function(p) { return p.status === 'pending'; });
+            var live = cachedPhotos.filter(function(p) { return p.status === 'live'; });
+
+            pendingQ.innerHTML = pending.length === 0 ? '<p class="text-stone-500 text-xs">No pending photos.</p>' :
+                pending.map(function(p) {
+                    var safeUrl = formatJpgUrl(p.dataUrl);
+                    return '<div class="bg-stone-950 p-3 rounded-xl border border-stone-800"><img src="' + safeUrl + '" class="w-full h-32 object-cover rounded-lg mb-2"><div class="flex gap-2"><button class="flex-1 bg-emerald-600 text-black font-bold py-1.5 rounded text-xs" tabindex="0" onclick="updatePhotoStatus(\'' + p.id + '\', \'live\')">Approve</button><button class="flex-1 bg-red-600 text-white font-bold py-1.5 rounded text-xs" tabindex="0" onclick="deletePhoto(\'' + p.id + '\')">Reject</button></div></div>';
+                }).join('');
+
+            liveQ.innerHTML = live.length === 0 ? '<p class="text-stone-500 text-xs">No live photos.</p>' :
+                live.map(function(p) {
+                    var safeUrl = formatJpgUrl(p.dataUrl);
+                    return '<div class="bg-stone-950 p-3 rounded-xl border border-stone-800"><img src="' + safeUrl + '" class="w-full h-32 object-cover rounded-lg mb-2"><button class="w-full bg-red-600 text-white font-bold py-1.5 rounded text-xs" tabindex="0" onclick="deletePhoto(\'' + p.id + '\')">Delete</button></div>';
+                }).join('');
+        }
+
+        function updatePhotoStatus(id, newStatus) {
+            var updates = { status: newStatus };
+            if (newStatus === 'live') updates.timestamp = Date.now();
+            restFirestoreUpdate(id, updates);
+        }
+
+        function deletePhoto(id) {
+            if (!confirm('Delete picture?')) return;
+            restFirestoreDelete(id);
+        }
+
+        function initSlideshow() {
+            var livePhotos = cachedPhotos.filter(function(p) { return p.status === 'live'; });
+            var msg = document.getElementById('tvStatusMsg');
+            var counter = document.getElementById('tvCounter');
+            var displayImg = document.getElementById('tvActiveImg');
+            var posterDisplay = document.getElementById('tv-full-poster-display');
+
+            if (livePhotos.length === 0) {
+                if (slideshowInterval) clearInterval(slideshowInterval);
+                if (msg) {
+                    msg.innerText = "No live photo slideshow items available yet.";
+                    msg.style.display = "block";
+                }
+                if (displayImg) displayImg.style.display = "none";
+                if (posterDisplay) posterDisplay.style.display = "flex";
+                if (counter) counter.innerText = '0 / 0 Slides';
+                renderTvFeed();
+                return;
+            }
+
+            if (msg) msg.style.display = "none";
+            if (posterDisplay) posterDisplay.style.display = "none";
+            if (displayImg) displayImg.style.display = "block";
+            if (slideshowInterval) clearInterval(slideshowInterval);
+            currentSlideIndex = 0;
+
+            loadPhotoToTv(livePhotos[0].dataUrl, function() {
+                if (counter) counter.innerText = 'Slide 1 / ' + livePhotos.length;
+            });
+
+            slideshowInterval = setInterval(function() {
+                if (livePhotos.length <= 1) return;
+                currentSlideIndex = (currentSlideIndex + 1) % livePhotos.length;
+                loadPhotoToTv(livePhotos[currentSlideIndex].dataUrl, function() {
+                    if (counter) counter.innerText = 'Slide ' + (currentSlideIndex + 1) + ' / ' + livePhotos.length;
+                });
+            }, 6000);
+        }
+
+        function loadPhotoToTv(url, callback) {
+            var displayImg = document.getElementById('tvActiveImg');
+            var safeUrl = formatJpgUrl(url);
+
+            if (displayImg) {
+                displayImg.src = safeUrl;
+                displayImg.style.display = "block";
+                void displayImg.offsetHeight;
+            }
+            if (callback) callback();
+        }
+
+        function enterFullscreen() {
+            var tvEl = document.getElementById('tv-fullscreen-wrapper');
+            if (!tvEl) return;
+            if (tvEl.requestFullscreen) tvEl.requestFullscreen();
+            else if (tvEl.webkitRequestFullscreen) tvEl.webkitRequestFullscreen();
+        }
+
+        function showAlert(elementId, message, type) {
+            var el = document.getElementById(elementId);
+            if (!el) return;
+            el.innerText = message;
+            el.className = 'alert-msg alert-' + type;
+            el.style.display = 'block';
+            setTimeout(function() { el.style.display = 'none'; }, 6000);
+        }
+
         function renderTvFeed() {
             loadFromLocalStorage();
             var container = document.getElementById('tv-full-poster-display');
-            if (!container) return;
+            var displayImg = document.getElementById('tvActiveImg');
+            var msg = document.getElementById('tvStatusMsg');
+            var counter = document.getElementById('tvCounter');
+
+            var livePhotos = cachedPhotos.filter(function(p) { return p.status === 'live'; });
+            if (livePhotos.length > 0) {
+                initSlideshow();
+                return;
+            }
+
+            if (displayImg) displayImg.style.display = 'none';
+            if (msg) msg.style.display = 'none';
+            if (container) container.style.display = 'flex';
 
             var marqueeSpan = document.getElementById('tv-marquee-text');
             if (marqueeSpan) marqueeSpan.innerText = liveTickerText;
@@ -1086,32 +1456,19 @@
                     <p class="text-xs text-stone-400 tracking-widest uppercase">BRERETON COMMUNITY PUB & KITCHEN</p>
                 </div>
             `;
+            if (counter) counter.innerText = 'Poster ' + (tvCarouselIndex + 1) + ' / ' + carouselPosters.length;
         }
 
         setInterval(function() {
             var tvTab = document.getElementById('tab-tv');
             if (tvTab && !tvTab.classList.contains('hidden')) {
-                tvCarouselIndex++;
-                renderTvFeed();
+                var livePhotos = cachedPhotos.filter(function(p) { return p.status === 'live'; });
+                if (livePhotos.length === 0) {
+                    tvCarouselIndex++;
+                    renderTvFeed();
+                }
             }
         }, 7000);
-
-        function toggleTvFullScreen() {
-            var elem = document.getElementById('tv-fullscreen-wrapper');
-            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-                if (elem.requestFullscreen) {
-                    elem.requestFullscreen().catch(function(err) {});
-                } else if (elem.webkitRequestFullscreen) {
-                    elem.webkitRequestFullscreen();
-                }
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                }
-            }
-        }
 
         function resetAllData() {
             if (currentRole !== 'admin') return;
@@ -1121,52 +1478,52 @@
             }
         }
 
+        // --- BULLETPROOF LG REMOTE D-PAD & CLICK HANDLERS ---
+        document.addEventListener('keydown', function(e) {
+            var code = e.keyCode || e.which;
+            var activeEl = document.activeElement;
+
+            if (['Enter', ' ', 'Select', 'OK'].indexOf(e.key) !== -1 || code === 13 || code === 32 || code === 1025 || code === 29443) {
+                if (activeEl) {
+                    var target = activeEl.closest('button, input, select, textarea, a, .upload-dropzone');
+                    if (target) {
+                        if (typeof target.click === 'function') {
+                            target.click();
+                            e.preventDefault();
+                        }
+                    }
+                }
+            }
+            else if (code === 37 || code === 38 || code === 39 || code === 40 || ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                var focusables = Array.from(document.querySelectorAll('button:not(.hidden), input:not(.hidden), select:not(.hidden), textarea:not(.hidden), .upload-dropzone:not(.hidden)'));
+                var index = focusables.indexOf(activeEl);
+                if (index === -1) {
+                    if (focusables.length > 0) focusables[0].focus();
+                } else {
+                    if (code === 38 || e.key === 'ArrowUp' || code === 37 || e.key === 'ArrowLeft') {
+                        index = (index - 1 + focusables.length) % focusables.length;
+                    } else if (code === 40 || e.key === 'ArrowDown' || code === 39 || e.key === 'ArrowRight') {
+                        index = (index + 1) % focusables.length;
+                    }
+                    focusables[index].focus();
+                    e.preventDefault();
+                }
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             loadFromLocalStorage();
             applyRoleStateUI(true);
+
+            try {
+                initRestSync();
+                pollInterval = setInterval(initRestSync, 10000);
+            } catch (err) {}
 
             setTimeout(function() {
                 var launchBtn = document.getElementById('btn-tv-launch-primary');
                 if (launchBtn) launchBtn.focus();
             }, 300);
-
-            // LG TV Remote & Spatial D-Pad OK Button Keydown & DOM-Traversal Click Executor
-            document.addEventListener('keydown', function(e) {
-                var code = e.keyCode || e.which;
-                if (code === 13 || code === 32 || code === 1025 || code === 29443 || e.key === 'Enter') {
-                    var active = document.activeElement;
-                    if (active) {
-                        // Traverse up DOM to find the nearest interactive button/element
-                        var target = active.closest('button, input, select, textarea, a');
-                        if (target) {
-                            if (target.tagName === 'BUTTON' || target.getAttribute('role') === 'button' || target.type === 'submit' || target.type === 'button') {
-                                if (typeof target.onclick === 'function') {
-                                    target.onclick();
-                                }
-                                target.click();
-                                e.preventDefault();
-                            } else if (target.tagName === 'INPUT' && (target.type === 'text' || target.type === 'password' || target.type === 'number')) {
-                                // Allow typing/focus in inputs
-                            }
-                        }
-                    }
-                }
-                else if (code === 37 || code === 38 || code === 39 || code === 40 || ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-                    var focusables = Array.from(document.querySelectorAll('button:not(.hidden), input:not(.hidden), select:not(.hidden), textarea:not(.hidden)'));
-                    var index = focusables.indexOf(document.activeElement);
-                    if (index === -1) {
-                        if (focusables.length > 0) focusables[0].focus();
-                    } else {
-                        if (code === 38 || e.key === 'ArrowUp' || code === 37 || e.key === 'ArrowLeft') {
-                            index = (index - 1 + focusables.length) % focusables.length;
-                        } else if (code === 40 || e.key === 'ArrowDown' || code === 39 || e.key === 'ArrowRight') {
-                            index = (index + 1) % focusables.length;
-                        }
-                        focusables[index].focus();
-                        e.preventDefault();
-                    }
-                }
-            });
         });
     </script>
 </body>
