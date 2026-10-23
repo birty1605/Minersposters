@@ -36,11 +36,11 @@
             -webkit-user-select: none;
         }
 
+        /* Fixed LG TV focus styling: Removed transform scale to prevent Magic Remote click loops */
         button:focus, select:focus, input:focus, textarea:focus { 
-            outline: 6px solid #f59e0b !important; 
-            outline-offset: 3px !important;
-            box-shadow: 0 0 30px rgba(245, 158, 11, 1) !important;
-            transform: scale(1.03) !important;
+            outline: 5px solid #f59e0b !important; 
+            outline-offset: 2px !important;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.9) !important;
             z-index: 999 !important;
         }
 
@@ -58,7 +58,6 @@
         }
         .lottery-ball.waiting-bright {
             box-shadow: 0 0 10px rgba(245, 158, 11, 0.7), inset -2px -2px 4px rgba(0,0,0,0.4);
-            transform: scale(1.05);
         }
         .lottery-ball.won-dull {
             position: relative;
@@ -450,7 +449,7 @@
         var currentBonusWinnerAnnouncement = '';
         var liveTickerText = '🍺 Welcome to The Miners Arms Brereton! • Tonight: Pub Quiz @ 8:30 PM • Real Ale Guest Cask: Staffordshire Gold 4.2% • Live Premier League Saturday!';
         
-        var currentRole = sessionStorage.getItem('miners_user_role') === 'admin' ? 'admin' : 'guest';
+        var currentRole = localStorage.getItem('miners_user_role') === 'admin' ? 'admin' : 'guest';
         var tvCarouselIndex = 0;
 
         function xhrRequest(method, url, data, callback) {
@@ -662,7 +661,7 @@
 
         function proceedAsGuest() {
             currentRole = 'guest';
-            sessionStorage.removeItem('miners_user_role');
+            localStorage.removeItem('miners_user_role');
             applyRoleStateUI();
             switchTab('tv');
         }
@@ -673,13 +672,13 @@
             
             if (u === 'Gjelly' && p === 'Kevisthebest') {
                 currentRole = 'admin';
-                sessionStorage.setItem('miners_user_role', 'admin');
+                localStorage.setItem('miners_user_role', 'admin');
                 document.getElementById('portal-login-error').classList.add('hidden');
                 applyRoleStateUI();
                 switchTab('posters');
             } else {
                 currentRole = 'guest';
-                sessionStorage.removeItem('miners_user_role');
+                localStorage.removeItem('miners_user_role');
                 document.getElementById('portal-login-error').classList.remove('hidden');
             }
         }
@@ -696,7 +695,9 @@
                 if (adminMarqueeBox) adminMarqueeBox.classList.remove('hidden');
                 statusBadge.innerText = 'Admin (Logout)';
             } else {
-                overlay.classList.add('hidden');
+                if (!localStorage.getItem('miners_user_role_prompted')) {
+                    overlay.classList.remove('hidden');
+                }
                 adminNav.classList.add('hidden');
                 if (adminMarqueeBox) adminMarqueeBox.classList.add('hidden');
                 statusBadge.innerText = 'Guest Mode';
@@ -705,7 +706,7 @@
 
         function logoutToPortal() {
             currentRole = 'guest';
-            sessionStorage.removeItem('miners_user_role');
+            localStorage.removeItem('miners_user_role');
             document.getElementById('portal-admin-user').value = '';
             document.getElementById('portal-admin-pass').value = '';
             document.getElementById('portal-login-error').classList.add('hidden');
@@ -1185,15 +1186,24 @@
                 if (launchBtn) launchBtn.focus();
             }, 300);
 
+            // Robust remote / keyboard click handler for Smart TV Web browsers (LG webOS / Samsung Tizen)
             document.addEventListener('keydown', function(e) {
                 var code = e.keyCode || e.which;
-                if (code === 13 || code === 32 || code === 1025) {
+                if (code === 13 || code === 32 || code === 1025 || code === 29443) {
                     var active = document.activeElement;
-                    if (active && active.tagName === 'BUTTON') {
+                    if (active && (active.tagName === 'BUTTON' || active.tagName === 'INPUT' || active.tagName === 'SELECT')) {
                         active.click();
+                        e.preventDefault();
                     }
                 }
             });
+
+            // Ensure touch/pointer events trigger smoothly on LG TV Web browsers
+            document.addEventListener('touchend', function(e) {
+                if (e.target && e.target.tagName === 'BUTTON') {
+                    e.target.click();
+                }
+            }, { passive: true });
         });
     </script>
 </body>
