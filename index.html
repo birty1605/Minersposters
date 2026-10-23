@@ -62,14 +62,14 @@
 </head>
 <body class="h-full flex flex-col relative bg-stone-950 text-stone-100">
 
-    <!-- GLOBAL ERROR BOX (SMART TV SAFEGUARDED) -->
+    <!-- GLOBAL ERROR BOX -->
     <div id="global-error-box" class="hidden fixed top-0 left-0 right-0 z-[300] bg-red-900 border-b-2 border-red-500 text-white p-4 shadow-2xl transition-all">
         <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
             <div class="flex items-center space-x-3">
                 <span class="text-2xl">⚠️</span>
                 <div>
                     <h4 class="font-bold text-sm">System Notice</h4>
-                    <p id="global-error-msg" class="text-xs text-red-200">Running in secure TV compatibility mode.</p>
+                    <p id="global-error-msg" class="text-xs text-red-200">An unexpected event occurred.</p>
                 </div>
             </div>
             <div class="flex gap-2">
@@ -81,10 +81,10 @@
 
     <!-- STATUS BAR -->
     <div id="cloud-sync-status" class="bg-emerald-950/80 text-emerald-300 text-xs px-4 py-1.5 text-center font-medium border-b border-emerald-800/40 flex items-center justify-center space-x-2">
-        <span>📺 The Miners Arms Brereton - Secure TV & Display Portal</span>
+        <span>☁️ The Miners Arms Brereton - Portal & Display System Active</span>
     </div>
 
-    <!-- MAIN PORTAL LOGIN OVERLAY -->
+    <!-- MAIN PORTAL LOGIN OVERLAY (HOME PAGE LOGIN) -->
     <div id="portal-login-overlay" class="fixed inset-0 bg-stone-950/95 backdrop-blur-md z-[200] flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-stone-900 border-2 border-amber-600/60 rounded-3xl max-w-xl w-full p-6 md:p-10 shadow-2xl space-y-6 text-center relative my-auto">
             <div class="space-y-2">
@@ -98,7 +98,7 @@
             <!-- QUICK GUEST ACCESS BUTTON -->
             <div class="p-4 bg-amber-950/40 border-2 border-amber-500 rounded-2xl space-y-3 shadow-lg">
                 <p class="text-xs text-amber-200 font-bold uppercase tracking-wider">📺 Enter as Public Viewer / TV Display</p>
-                <button type="button" id="btn-tv-launch-primary" onclick="proceedAsGuest()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-4 rounded-xl shadow-xl font-cinzel tracking-wider text-base md:text-lg flex items-center justify-center space-x-3 transition-all">
+                <button type="button" tabindex="0" id="btn-tv-launch-primary" onclick="proceedAsGuest()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-4 rounded-xl shadow-xl font-cinzel tracking-wider text-base md:text-lg flex items-center justify-center space-x-3 transition-all">
                     <span>▶ LAUNCH LIVE TV DISPLAY FEED</span>
                 </button>
             </div>
@@ -110,13 +110,13 @@
                 <div class="space-y-3 text-left bg-stone-950/50 p-4 rounded-2xl border border-stone-800">
                     <div>
                         <label class="block text-[11px] uppercase tracking-wider text-stone-400 mb-1">Username</label>
-                        <input type="text" id="portal-admin-user" placeholder="Enter admin username" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
+                        <input type="text" tabindex="0" id="portal-admin-user" placeholder="Enter admin username" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
                     </div>
                     <div>
                         <label class="block text-[11px] uppercase tracking-wider text-stone-400 mb-1">Password</label>
-                        <input type="password" id="portal-admin-pass" placeholder="Enter password" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
+                        <input type="password" tabindex="0" id="portal-admin-pass" placeholder="Enter password" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
                     </div>
-                    <button type="button" onclick="attemptPortalAdminLogin()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3.5 rounded-xl shadow-lg font-cinzel text-sm flex items-center justify-center space-x-2 mt-2">
+                    <button type="button" tabindex="0" onclick="attemptPortalAdminLogin()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3.5 rounded-xl shadow-lg font-cinzel text-sm flex items-center justify-center space-x-2 mt-2">
                         <span>🔑 Authenticate Manager Access</span>
                     </button>
                     <div id="portal-login-error" class="text-red-400 text-xs text-center font-bold hidden pt-1">Invalid credentials. Access denied.</div>
@@ -139,17 +139,17 @@
             </div>
 
             <nav class="flex flex-wrap items-center gap-2" id="app-nav-bar">
-                <button type="button" onclick="switchTab('tv')" id="btn-tv" class="tab-btn px-4 py-2.5 rounded-xl font-bold text-sm bg-amber-600 text-white shadow-lg flex items-center space-x-2"><span>📺 TV Live View</span></button>
-                <button type="button" onclick="switchTab('posters')" id="btn-posters" class="tab-btn px-4 py-2.5 rounded-xl font-medium text-sm text-stone-300 hover:bg-white/10 flex items-center space-x-2"><span>🖼 Posters View</span></button>
+                <button type="button" tabindex="0" onclick="switchTab('tv')" id="btn-tv" class="tab-btn px-4 py-2.5 rounded-xl font-bold text-sm bg-amber-600 text-white shadow-lg flex items-center space-x-2"><span>📺 TV Live View</span></button>
+                <button type="button" tabindex="0" onclick="switchTab('posters')" id="btn-posters" class="tab-btn px-4 py-2.5 rounded-xl font-medium text-sm text-stone-300 hover:bg-white/10 flex items-center space-x-2"><span>🖼 Posters View</span></button>
                 
                 <div id="admin-only-nav-items" class="hidden flex flex-wrap items-center gap-2">
-                    <button type="button" onclick="switchTab('generator')" id="btn-generator" class="tab-btn px-4 py-2.5 rounded-xl font-medium text-sm text-stone-300 hover:bg-white/10 flex items-center space-x-2"><span>✨ Generator</span></button>
-                    <button type="button" onclick="switchTab('games')" id="btn-games" class="tab-btn px-4 py-2.5 rounded-xl font-medium text-sm text-stone-300 hover:bg-white/10 flex items-center space-x-2"><span>🎟 Lottery & Bonus</span></button>
-                    <button type="button" onclick="switchTab('archive')" id="btn-archive" class="tab-btn px-4 py-2.5 rounded-xl font-medium text-sm text-stone-300 hover:bg-white/10 flex items-center space-x-2"><span>📦 Archive</span></button>
-                    <button type="button" onclick="switchTab('admin')" id="btn-admin" class="tab-btn px-4 py-2.5 rounded-xl font-medium text-sm text-stone-300 hover:bg-white/10 flex items-center space-x-2"><span>🛡 Admin Panel</span></button>
+                    <button type="button" tabindex="0" onclick="switchTab('generator')" id="btn-generator" class="tab-btn px-4 py-2.5 rounded-xl font-medium text-sm text-stone-300 hover:bg-white/10 flex items-center space-x-2"><span>✨ Generator</span></button>
+                    <button type="button" tabindex="0" onclick="switchTab('games')" id="btn-games" class="tab-btn px-4 py-2.5 rounded-xl font-medium text-sm text-stone-300 hover:bg-white/10 flex items-center space-x-2"><span>🎟 Lottery & Bonus</span></button>
+                    <button type="button" tabindex="0" onclick="switchTab('archive')" id="btn-archive" class="tab-btn px-4 py-2.5 rounded-xl font-medium text-sm text-stone-300 hover:bg-white/10 flex items-center space-x-2"><span>📦 Archive</span></button>
+                    <button type="button" tabindex="0" onclick="switchTab('admin')" id="btn-admin" class="tab-btn px-4 py-2.5 rounded-xl font-medium text-sm text-stone-300 hover:bg-white/10 flex items-center space-x-2"><span>🛡 Admin Panel</span></button>
                 </div>
 
-                <button type="button" onclick="logoutToPortal()" class="px-3.5 py-2.5 rounded-xl text-xs bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 flex items-center space-x-1.5">
+                <button type="button" tabindex="0" onclick="logoutToPortal()" class="px-3.5 py-2.5 rounded-xl text-xs bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 flex items-center space-x-1.5">
                     <span id="login-status-badge">Guest Mode</span>
                 </button>
             </nav>
@@ -168,8 +168,8 @@
                     <span class="text-[10px] bg-emerald-950 text-emerald-300 px-3 py-1 rounded-full border border-emerald-700 font-bold uppercase tracking-wider">Broadcasting Live</span>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-3">
-                    <input type="text" id="posters-marquee-input" placeholder="Type custom ticker message to stream on TVs..." class="flex-1 bg-stone-950 border border-stone-700 text-white rounded-xl px-4 py-3 text-sm focus:border-amber-500">
-                    <button type="button" onclick="updatePostersPageTicker()" class="bg-amber-600 hover:bg-amber-500 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md whitespace-nowrap flex items-center justify-center space-x-2">
+                    <input type="text" tabindex="0" id="posters-marquee-input" placeholder="Type custom ticker message to stream on TVs..." class="flex-1 bg-stone-950 border border-stone-700 text-white rounded-xl px-4 py-3 text-sm focus:border-amber-500">
+                    <button type="button" tabindex="0" onclick="updatePostersPageTicker()" class="bg-amber-600 hover:bg-amber-500 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md whitespace-nowrap flex items-center justify-center space-x-2">
                         <span>📢 Broadcast to TV</span>
                     </button>
                 </div>
@@ -181,7 +181,7 @@
                     <p class="text-stone-400 text-sm mt-1">Notices currently rotating across TV screens.</p>
                 </div>
                 <div>
-                    <select id="poster-filter" onchange="filterPosters()" class="bg-stone-950 border border-stone-700 text-stone-200 rounded-xl px-4 py-2.5 text-sm focus:border-amber-500">
+                    <select id="poster-filter" tabindex="0" onchange="filterPosters()" class="bg-stone-950 border border-stone-700 text-stone-200 rounded-xl px-4 py-2.5 text-sm focus:border-amber-500">
                         <option value="all">All Categories</option>
                         <option value="sports">Live Sports</option>
                         <option value="events">Events & Music</option>
@@ -209,7 +209,7 @@
                         <h3 class="font-cinzel text-xl text-white font-semibold">Template Configurator</h3>
                         <div>
                             <label class="block text-xs uppercase tracking-wider text-stone-400 mb-1">Preset Category</label>
-                            <select id="gen-category" onchange="applyTemplatePreset()" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
+                            <select id="gen-category" tabindex="0" onchange="applyTemplatePreset()" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
                                 <option value="sports">Live Sports</option>
                                 <option value="events">Events & Music</option>
                                 <option value="drinks">Drinks & Specials</option>
@@ -220,7 +220,7 @@
                         </div>
                         <div>
                             <label class="block text-xs uppercase tracking-wider text-stone-400 mb-1">Theme Palette</label>
-                            <select id="gen-theme" onchange="updatePosterPreview()" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
+                            <select id="gen-theme" tabindex="0" onchange="updatePosterPreview()" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
                                 <option value="gold">Classic Gold & Timber</option>
                                 <option value="royal">Royal Crimson & Gold</option>
                                 <option value="neon">Neon Pub Dark</option>
@@ -231,7 +231,7 @@
                         </div>
                         <div>
                             <label class="block text-xs uppercase tracking-wider text-stone-400 mb-1">Graphic Icon</label>
-                            <select id="gen-icon" onchange="updatePosterPreview()" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
+                            <select id="gen-icon" tabindex="0" onchange="updatePosterPreview()" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
                                 <option value="⚽">⚽ Football</option>
                                 <option value="🏉">🏉 Rugby</option>
                                 <option value="🕺">🕺 Disco / DJ</option>
@@ -245,24 +245,24 @@
                         </div>
                         <div>
                             <label class="block text-xs uppercase tracking-wider text-stone-400 mb-1">Main Headline</label>
-                            <input type="text" id="gen-title" value="LIVE PREMIER LEAGUE" oninput="updatePosterPreview()" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
+                            <input type="text" tabindex="0" id="gen-title" value="LIVE PREMIER LEAGUE" oninput="updatePosterPreview()" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
                         </div>
                         <div>
                             <label class="block text-xs uppercase tracking-wider text-stone-400 mb-1">Event Details</label>
-                            <textarea id="gen-subtitle" rows="3" oninput="updatePosterPreview()" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">Join us this Saturday for live HD matches on our big screens. Special cask ales on tap all day!</textarea>
+                            <textarea id="gen-subtitle" tabindex="0" rows="3" oninput="updatePosterPreview()" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">Join us this Saturday for live HD matches on our big screens. Special cask ales on tap all day!</textarea>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs uppercase tracking-wider text-stone-400 mb-1">Date & Time</label>
-                                <input type="text" id="gen-date" value="Saturday @ 3:00 PM" oninput="updatePosterPreview()" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
+                                <input type="text" tabindex="0" id="gen-date" value="Saturday @ 3:00 PM" oninput="updatePosterPreview()" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
                             </div>
                             <div>
                                 <label class="block text-xs uppercase tracking-wider text-stone-400 mb-1">Badge</label>
-                                <input type="text" id="gen-badge" value="FREE ENTRY" oninput="updatePosterPreview()" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
+                                <input type="text" tabindex="0" id="gen-badge" value="FREE ENTRY" oninput="updatePosterPreview()" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
                             </div>
                         </div>
                         <div class="pt-4">
-                            <button type="button" onclick="saveGeneratedPoster()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2">
+                            <button type="button" tabindex="0" onclick="saveGeneratedPoster()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2">
                                 <span>💾 Save Announcement Locally</span>
                             </button>
                         </div>
@@ -299,8 +299,8 @@
                     <p class="text-stone-400 text-sm mt-1">Manage players, assign ball numbers, and stream winning announcements.</p>
                 </div>
                 <div class="flex gap-2">
-                    <button type="button" onclick="switchGameSubTab('bonus')" id="btn-sub-bonus" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-amber-600 text-white transition-all">Bonus Ball</button>
-                    <button type="button" onclick="switchGameSubTab('lottery')" id="btn-sub-lottery" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-stone-800 text-stone-300 transition-all">Pub Lottery (1-59)</button>
+                    <button type="button" tabindex="0" onclick="switchGameSubTab('bonus')" id="btn-sub-bonus" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-amber-600 text-white transition-all">Bonus Ball</button>
+                    <button type="button" tabindex="0" onclick="switchGameSubTab('lottery')" id="btn-sub-lottery" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-stone-800 text-stone-300 transition-all">Pub Lottery (1-59)</button>
                 </div>
             </div>
 
@@ -312,19 +312,19 @@
                         <div class="space-y-3 pt-2">
                             <div>
                                 <label class="block text-xs uppercase tracking-wider text-stone-400 mb-1">Player Name</label>
-                                <input type="text" id="bonus-player-name" placeholder="Enter player name" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
+                                <input type="text" tabindex="0" id="bonus-player-name" placeholder="Enter player name" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
                             </div>
                             <div>
                                 <label class="block text-xs uppercase tracking-wider text-stone-400 mb-1">Select Number (1 - 59)</label>
-                                <input type="number" id="bonus-player-num" min="1" max="59" placeholder="e.g. 7" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
+                                <input type="number" tabindex="0" id="bonus-player-num" min="1" max="59" placeholder="e.g. 7" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
                             </div>
-                            <button type="button" onclick="addBonusPlayer()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all">Assign Number</button>
+                            <button type="button" tabindex="0" onclick="addBonusPlayer()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all">Assign Number</button>
                         </div>
                         <div class="border-t border-stone-800 pt-4 mt-4 space-y-2">
                             <h4 class="font-cinzel text-sm text-stone-200 font-bold">Announce Winning Bonus Number</h4>
                             <div class="flex gap-2">
-                                <input type="number" id="bonus-winning-input" min="1" max="59" placeholder="Winning #" class="w-1/2 bg-stone-950 border border-stone-700 text-white rounded-xl p-2.5 text-sm focus:border-amber-500">
-                                <button type="button" onclick="drawBonusBall()" class="w-1/2 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl text-sm shadow transition-all">Announce Winner</button>
+                                <input type="number" tabindex="0" id="bonus-winning-input" min="1" max="59" placeholder="Winning #" class="w-1/2 bg-stone-950 border border-stone-700 text-white rounded-xl p-2.5 text-sm focus:border-amber-500">
+                                <button type="button" tabindex="0" onclick="drawBonusBall()" class="w-1/2 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl text-sm shadow transition-all">Announce Winner</button>
                             </div>
                             <div id="bonus-winner-result" class="p-3 bg-stone-950 rounded-xl text-xs text-amber-300 border border-amber-800/50 mt-2 hidden"></div>
                         </div>
@@ -347,20 +347,20 @@
                         <div class="space-y-3 pt-2">
                             <div>
                                 <label class="block text-xs uppercase tracking-wider text-stone-400 mb-1">Player Name</label>
-                                <input type="text" id="lottery-player-name" placeholder="Enter player name" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
+                                <input type="text" tabindex="0" id="lottery-player-name" placeholder="Enter player name" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
                             </div>
                             <div>
                                 <label class="block text-xs uppercase tracking-wider text-stone-400 mb-1">Pick 6 Numbers (1-59)</label>
-                                <input type="text" id="lottery-player-nums" placeholder="e.g. 4, 12, 19, 27, 45, 58" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
+                                <input type="text" tabindex="0" id="lottery-player-nums" placeholder="e.g. 4, 12, 19, 27, 45, 58" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
                             </div>
-                            <button type="button" onclick="addLotteryPlayer()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all">Save Ticket</button>
+                            <button type="button" tabindex="0" onclick="addLotteryPlayer()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all">Save Ticket</button>
                         </div>
                         <div class="border-t border-stone-800 pt-4 mt-4 space-y-3">
                             <h4 class="font-cinzel text-sm text-stone-200 font-bold">Accumulate Winning Draw Numbers</h4>
-                            <input type="text" id="lottery-winning-input" placeholder="e.g. 4, 12, 19, 27, 45, 58" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
+                            <input type="text" tabindex="0" id="lottery-winning-input" placeholder="e.g. 4, 12, 19, 27, 45, 58" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
                             <div class="flex gap-2">
-                                <button type="button" onclick="checkLotteryDraw()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl text-sm shadow transition-all">Add/Mark Numbers</button>
-                                <button type="button" onclick="resetLotteryDraw()" class="bg-stone-800 hover:bg-stone-700 text-stone-300 px-3 py-2.5 rounded-xl text-xs">Refresh Draw</button>
+                                <button type="button" tabindex="0" onclick="checkLotteryDraw()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl text-sm shadow transition-all">Add/Mark Numbers</button>
+                                <button type="button" tabindex="0" onclick="resetLotteryDraw()" class="bg-stone-800 hover:bg-stone-700 text-stone-300 px-3 py-2.5 rounded-xl text-xs">Refresh Draw</button>
                             </div>
                             <div id="lottery-draw-result" class="p-3 bg-stone-950 rounded-xl text-xs text-amber-200 border border-amber-800/50 mt-2 hidden"></div>
                         </div>
@@ -380,10 +380,10 @@
         <section id="tab-tv" class="tab-content hidden fixed inset-0 z-[150] bg-stone-950 m-0 p-0 overflow-hidden">
             <div id="tv-fullscreen-wrapper" class="w-screen h-screen bg-stone-950 flex flex-col justify-between p-0 m-0 relative overflow-hidden">
                 <div class="absolute top-4 right-4 z-[160] flex gap-2">
-                    <button type="button" onclick="toggleTvFullScreen()" class="bg-stone-900/90 hover:bg-amber-600 text-amber-400 hover:text-white border border-amber-500/50 px-4 py-2 rounded-xl text-xs font-bold shadow-xl transition-all flex items-center space-x-2">
+                    <button type="button" tabindex="0" onclick="toggleTvFullScreen()" class="bg-stone-900/90 hover:bg-amber-600 text-amber-400 hover:text-white border border-amber-500/50 px-4 py-2 rounded-xl text-xs font-bold shadow-xl transition-all flex items-center space-x-2">
                         <span>Fullscreen</span>
                     </button>
-                    <button type="button" onclick="switchTab('posters')" class="bg-stone-900/90 hover:bg-red-600 text-stone-300 hover:text-white border border-stone-700 px-4 py-2 rounded-xl text-xs font-bold shadow-xl transition-all">
+                    <button type="button" tabindex="0" onclick="switchTab('posters')" class="bg-stone-900/90 hover:bg-red-600 text-stone-300 hover:text-white border border-stone-700 px-4 py-2 rounded-xl text-xs font-bold shadow-xl transition-all">
                         <span>✕ Exit TV Mode</span>
                     </button>
                 </div>
@@ -420,13 +420,13 @@
                         <h2 class="font-cinzel text-3xl font-bold text-white">Manager Control Panel</h2>
                         <p class="text-stone-400 text-sm mt-1">Authenticated as Administrator.</p>
                     </div>
-                    <button type="button" onclick="logoutToPortal()" class="bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 px-4 py-2.5 rounded-xl text-sm">Log Out</button>
+                    <button type="button" tabindex="0" onclick="logoutToPortal()" class="bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 px-4 py-2.5 rounded-xl text-sm">Log Out</button>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-stone-900 p-6 rounded-2xl border border-stone-800 shadow-sm space-y-3">
                         <h3 class="font-cinzel text-lg font-bold text-white">Database Control</h3>
                         <p class="text-xs text-stone-400">Purge local cache and reset default layout.</p>
-                        <button type="button" onclick="resetAllData()" class="w-full bg-red-950/60 hover:bg-red-900/80 text-red-300 border border-red-800 py-3 rounded-xl text-xs transition-all font-bold">Reset Database to Default</button>
+                        <button type="button" tabindex="0" onclick="resetAllData()" class="w-full bg-red-950/60 hover:bg-red-900/80 text-red-300 border border-red-800 py-3 rounded-xl text-xs transition-all font-bold">Reset Database to Default</button>
                     </div>
                 </div>
             </div>
@@ -437,7 +437,7 @@
     <!-- POSTER MODAL -->
     <div id="poster-modal" class="fixed inset-0 bg-stone-950/80 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
         <div class="bg-stone-900 border-2 border-amber-500 rounded-3xl max-w-lg w-full p-6 md:p-8 relative shadow-2xl space-y-4 pointer-events-auto max-h-[90vh] overflow-y-auto text-white">
-            <button type="button" onclick="closePosterModal()" class="absolute top-4 right-4 text-stone-400 hover:text-white text-xl transition-colors w-10 h-10 flex items-center justify-center rounded-full bg-stone-800 border border-stone-700">✕</button>
+            <button type="button" tabindex="0" onclick="closePosterModal()" class="absolute top-4 right-4 text-stone-400 hover:text-white text-xl transition-colors w-10 h-10 flex items-center justify-center rounded-full bg-stone-800 border border-stone-700">✕</button>
             <div id="modal-content" class="text-center space-y-3 pt-2"></div>
         </div>
     </div>
@@ -773,11 +773,11 @@
 
             var filtered = displayList.filter(function(p) { return filter === 'all' || p.category === filter; });
             filtered.forEach(function(p) {
-                var archiveBtn = currentRole === 'admin' ? '<button type="button" onclick="archivePoster(' + p.id + ')" class="text-red-400 hover:text-red-300 p-2">📦</button>' : '';
+                var archiveBtn = currentRole === 'admin' ? '<button type="button" tabindex="0" onclick="archivePoster(' + p.id + ')" class="text-red-400 hover:text-red-300 p-2">📦</button>' : '';
                 var iconHTML = p.icon ? '<div class="text-amber-400 text-3xl mb-2">' + p.icon + '</div>' : '';
                 grid.innerHTML += `
                     <div class="bg-stone-900 border border-stone-800 rounded-2xl p-6 flex flex-col justify-between shadow-lg">
-                        <button type="button" onclick="openPosterModal('${p.id}')" class="w-full text-left focus:outline-none">
+                        <button type="button" tabindex="0" onclick="openPosterModal('${p.id}')" class="w-full text-left focus:outline-none">
                             <div class="flex justify-between items-center mb-3">
                                 <span class="text-xs font-cinzel text-amber-300 bg-amber-950 px-3 py-1 rounded-full border border-amber-800 uppercase font-bold">${p.category}</span>
                                 <span class="text-xs bg-amber-600 text-white font-bold px-2.5 py-0.5 rounded-lg">${p.badge}</span>
@@ -849,8 +849,8 @@
                             <p class="text-stone-400 text-xs">${p.subtitle}</p>
                         </div>
                         <div class="mt-4 flex justify-between items-center">
-                            <button type="button" onclick="restorePoster(${p.id})" class="text-xs bg-amber-950 text-amber-300 px-3 py-1.5 rounded-xl border border-amber-800 font-bold">Restore</button>
-                            <button type="button" onclick="deleteArchived(${p.id})" class="text-xs text-red-400 hover:text-red-300 p-2">🗑</button>
+                            <button type="button" tabindex="0" onclick="restorePoster(${p.id})" class="text-xs bg-amber-950 text-amber-300 px-3 py-1.5 rounded-xl border border-amber-800 font-bold">Restore</button>
+                            <button type="button" tabindex="0" onclick="deleteArchived(${p.id})" class="text-xs text-red-400 hover:text-red-300 p-2">🗑</button>
                         </div>
                     </div>
                 `;
@@ -885,7 +885,7 @@
                 var player = bonusPlayers[i];
                 if (player) assignedCount++;
                 grid.innerHTML += `
-                    <button type="button" onclick="handleBonusTile(${i})" class="aspect-square rounded-xl flex flex-col items-center justify-center p-1 text-center transition-all border ${player ? 'bg-amber-950 border-amber-500 text-amber-200' : 'bg-stone-950 border-stone-800 text-stone-400 hover:border-amber-500/50'}" title="${player ? player : 'Available'}">
+                    <button type="button" tabindex="0" onclick="handleBonusTile(${i})" class="aspect-square rounded-xl flex flex-col items-center justify-center p-1 text-center transition-all border ${player ? 'bg-amber-950 border-amber-500 text-amber-200' : 'bg-stone-950 border-stone-800 text-stone-400 hover:border-amber-500/50'}" title="${player ? player : 'Available'}">
                         <span class="font-cinzel font-bold text-sm">${i}</span>
                         <span class="text-[9px] truncate w-full px-0.5">${player || ''}</span>
                     </button>
@@ -988,7 +988,7 @@
                     return renderBallHTML(n, isMatched);
                 }).join(' ');
 
-                var deleteBtn = currentRole === 'admin' ? '<button type="button" onclick="deleteLotteryPlayer(' + idx + ')" class="text-red-400 hover:text-red-300 text-xs p-2">🗑</button>' : '';
+                var deleteBtn = currentRole === 'admin' ? '<button type="button" tabindex="0" onclick="deleteLotteryPlayer(' + idx + ')" class="text-red-400 hover:text-red-300 text-xs p-2">🗑</button>' : '';
 
                 list.innerHTML += `
                     <div class="p-3.5 bg-stone-950 rounded-xl border border-stone-800 flex justify-between items-center text-sm">
@@ -1147,10 +1147,9 @@
                 if (launchBtn) launchBtn.focus();
             }, 300);
 
-            // LG TV Remote & Spatial D-Pad Keyboard Navigation Handler
+            // LG TV Remote & Spatial D-Pad OK Button Keydown & Keyup Handlers
             document.addEventListener('keydown', function(e) {
                 var code = e.keyCode || e.which;
-                
                 if (code === 13 || code === 32 || code === 1025 || code === 29443 || e.key === 'Enter') {
                     var active = document.activeElement;
                     if (active && (active.tagName === 'BUTTON' || active.tagName === 'INPUT' || active.tagName === 'SELECT' || active.tagName === 'TEXTAREA')) {
@@ -1170,6 +1169,17 @@
                             index = (index + 1) % focusables.length;
                         }
                         focusables[index].focus();
+                        e.preventDefault();
+                    }
+                }
+            });
+
+            document.addEventListener('keyup', function(e) {
+                var code = e.keyCode || e.which;
+                if (code === 13 || code === 32 || code === 1025 || code === 29443 || e.key === 'Enter') {
+                    var active = document.activeElement;
+                    if (active && active.tagName === 'BUTTON') {
+                        active.click();
                         e.preventDefault();
                     }
                 }
