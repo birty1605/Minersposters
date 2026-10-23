@@ -39,6 +39,7 @@
             -webkit-user-select: none;
         }
 
+        /* Prevent nested spans from blocking click events on LG TV Web browsers */
         button * {
             pointer-events: none;
         }
@@ -48,7 +49,7 @@
             -webkit-user-select: auto !important;
         }
 
-        /* LG TV & Mobile High-Visibility Focus Outline */
+        /* LG TV Remote D-Pad & Focus Visibility Outline */
         button:focus, select:focus, input:focus, textarea:focus { 
             outline: 5px solid #f59e0b !important; 
             outline-offset: 2px !important;
@@ -79,6 +80,23 @@
     </style>
 </head>
 <body class="h-full flex flex-col relative bg-stone-950 text-stone-100">
+
+    <!-- GLOBAL DIAGNOSTIC ERROR BOX -->
+    <div id="global-error-box" class="hidden fixed top-0 left-0 right-0 z-[300] bg-red-900 border-b-2 border-red-500 text-white p-4 shadow-2xl transition-all">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl">⚠️</span>
+                <div>
+                    <h4 class="font-bold text-sm">System Fault Detected</h4>
+                    <p id="global-error-msg" class="text-xs text-red-200">An unexpected browser or network event occurred.</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button type="button" onclick="location.reload()" class="bg-red-700 hover:bg-red-600 px-3 py-1.5 rounded-lg text-xs font-bold border border-red-400">Reload App</button>
+                <button type="button" onclick="document.getElementById('global-error-box').classList.add('hidden')" class="bg-stone-800 px-3 py-1.5 rounded-lg text-xs">Dismiss</button>
+            </div>
+        </div>
+    </div>
 
     <!-- CLOUD SYNC STATUS BAR -->
     <div id="cloud-sync-status" class="bg-amber-950/80 text-amber-200 text-xs px-4 py-1.5 text-center font-medium border-b border-amber-800/40 flex items-center justify-center space-x-2">
@@ -378,7 +396,7 @@
             </div>
         </section>
 
-        <!-- TV LIVE DISPLAY TAB -->
+        <!-- TV LIVE DISPLAY TAB (FIXED PORTS FOR MOBILE & TV) -->
         <section id="tab-tv" class="tab-content hidden fixed inset-0 z-[150] bg-stone-950 m-0 p-0 overflow-hidden">
             <div id="tv-fullscreen-wrapper" class="w-screen h-screen bg-stone-950 flex flex-col justify-between p-0 m-0 relative overflow-hidden">
                 <div class="absolute top-4 right-4 z-[160] flex gap-2">
@@ -446,6 +464,26 @@
 
     <!-- ENGINE CODE -->
     <script>
+        // Global Error Diagnostics Listener
+        window.onerror = function(msg, url, line) {
+            var box = document.getElementById('global-error-box');
+            var txt = document.getElementById('global-error-msg');
+            if (box && txt) {
+                txt.innerText = msg + ' (Line ' + line + ')';
+                box.classList.remove('hidden');
+            }
+            return false;
+        };
+
+        window.onunhandledrejection = function(e) {
+            var box = document.getElementById('global-error-box');
+            var txt = document.getElementById('global-error-msg');
+            if (box && txt) {
+                txt.innerText = 'Promise error: ' + (e.reason ? e.reason.message || e.reason : 'Async Network Fault');
+                box.classList.remove('hidden');
+            }
+        };
+
         var PROJECT_ID = "minersposters";
 
         var posters = [
@@ -675,6 +713,10 @@
             currentRole = 'guest';
             localStorage.removeItem('miners_user_role');
             applyRoleStateUI();
+            
+            var overlay = document.getElementById('portal-login-overlay');
+            if (overlay) overlay.classList.add('hidden');
+            
             switchTab('tv');
         }
 
@@ -686,30 +728,39 @@
                 currentRole = 'admin';
                 localStorage.setItem('miners_user_role', 'admin');
                 document.getElementById('portal-login-error').classList.add('hidden');
+                
+                var overlay = document.getElementById('portal-login-overlay');
+                if (overlay) overlay.classList.add('hidden');
+
                 applyRoleStateUI();
                 switchTab('posters');
             } else {
                 currentRole = 'guest';
                 localStorage.removeItem('miners_user_role');
                 document.getElementById('portal-login-error').classList.remove('hidden');
+                applyRoleStateUI();
             }
         }
 
-        function applyRoleStateUI() {
+        function applyRoleStateUI(isInitialLoad) {
             var overlay = document.getElementById('portal-login-overlay');
             var adminNav = document.getElementById('admin-only-nav-items');
             var adminMarqueeBox = document.getElementById('admin-marquee-box');
             var statusBadge = document.getElementById('login-status-badge');
 
             if (currentRole === 'admin') {
-                overlay.classList.add('hidden');
-                adminNav.classList.remove('hidden');
+                if (overlay) overlay.classList.add('hidden');
+                if (adminNav) adminNav.classList.remove('hidden');
                 if (adminMarqueeBox) adminMarqueeBox.classList.remove('hidden');
-                statusBadge.innerText = 'Admin (Logout)';
+                if (statusBadge) statusBadge.innerText = 'Admin (Logout)';
             } else {
-                adminNav.classList.add('hidden');
+                if (adminNav) adminNav.classList.add('hidden');
                 if (adminMarqueeBox) adminMarqueeBox.classList.add('hidden');
-                statusBadge.innerText = 'Guest Mode';
+                if (statusBadge) statusBadge.innerText = 'Guest Mode';
+
+                if (isInitialLoad && overlay) {
+                    overlay.classList.remove('hidden');
+                }
             }
         }
 
@@ -721,7 +772,7 @@
             document.getElementById('portal-login-error').classList.add('hidden');
             
             var overlay = document.getElementById('portal-login-overlay');
-            overlay.classList.remove('hidden');
+            if (overlay) overlay.classList.remove('hidden');
             applyRoleStateUI();
         }
 
@@ -1188,7 +1239,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            applyRoleStateUI();
+            applyRoleStateUI(true);
             initRealtimeSync();
 
             setTimeout(function() {
@@ -1196,11 +1247,11 @@
                 if (launchBtn) launchBtn.focus();
             }, 300);
 
-            // Robust LG TV Remote & Keyboard D-Pad Navigation + Click Handler
+            // LG TV Remote & Spatial D-Pad Keyboard Navigation Handler
             document.addEventListener('keydown', function(e) {
                 var code = e.keyCode || e.which;
                 
-                // OK / Enter Button click
+                // OK / Enter Button Click Handler
                 if (code === 13 || code === 32 || code === 1025 || code === 29443 || e.key === 'Enter') {
                     var active = document.activeElement;
                     if (active && (active.tagName === 'BUTTON' || active.tagName === 'INPUT' || active.tagName === 'SELECT' || active.tagName === 'TEXTAREA')) {
@@ -1208,7 +1259,7 @@
                         e.preventDefault();
                     }
                 }
-                // D-Pad Arrow Keys for Smart TV Navigation
+                // D-Pad Arrow Spatial Movement Handler
                 else if (code === 37 || code === 38 || code === 39 || code === 40 || ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
                     var focusables = Array.from(document.querySelectorAll('button:not(.hidden), input:not(.hidden), select:not(.hidden), textarea:not(.hidden)'));
                     var index = focusables.indexOf(document.activeElement);
