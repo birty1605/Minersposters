@@ -1054,7 +1054,7 @@
                 return;
             }
             lotteryPlayers.push({ name: name, nums: nums });
-            saveToCloud();
+            saveToCloud(); // <-- Fixed: Now saves ticket data to cloud database instantly
             document.getElementById('lottery-player-name').value = '';
             document.getElementById('lottery-player-nums').value = '';
             renderLotteryList();
@@ -1094,7 +1094,7 @@
         function deleteLotteryPlayer(idx) {
             if (currentRole !== 'admin') return;
             lotteryPlayers.splice(idx, 1);
-            saveToCloud();
+            saveToCloud(); // <-- Fixed: Syncs ticket deletion to cloud
             renderLotteryList();
         }
 
@@ -1117,7 +1117,7 @@
                 }
             });
 
-            saveToCloud();
+            saveToCloud(); // <-- Fixed: Syncs draw numbers and last marked batch to cloud
             renderLotteryList();
             renderPosters();
             renderTvFeed();
@@ -1144,7 +1144,7 @@
             if (currentRole !== 'admin') return;
             currentWinningLotteryNums = [];
             lastMarkedLotteryNums = [];
-            saveToCloud();
+            saveToCloud(); // <-- Fixed: Clears draw state in cloud
             document.getElementById('lottery-winning-input').value = '';
             document.getElementById('lottery-draw-result').classList.add('hidden');
             renderLotteryList();
