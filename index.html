@@ -7,6 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
+    <!-- Firebase SDKs for Real-Time Cross-Device Cloud Sync via Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -37,7 +41,7 @@
         button * { pointer-events: none; }
         input, textarea, select { user-select: auto !important; -webkit-user-select: auto !important; }
 
-        /* High-Visibility Focus Outline for TV D-Pad Remote[cite: 2] */
+        /* High-Visibility Focus Outline for TV D-Pad Remote */
         .tab-btn:focus,
         button:focus,
         input:focus,
@@ -76,7 +80,7 @@
 
     <!-- STATUS BAR -->
     <div id="cloud-sync-status" class="bg-emerald-950/80 text-emerald-300 text-xs px-4 py-1.5 text-center font-medium border-b border-emerald-800/40 flex items-center justify-center space-x-2">
-        <span>☁️ The Miners Arms Brereton - TV Display & Portal Active</span>
+        <span id="sync-indicator-text">☁️ Connecting Live to Cloud Database...</span>
     </div>
 
     <!-- MAIN PORTAL LOGIN OVERLAY (HOME PAGE LOGIN) -->
@@ -87,7 +91,7 @@
                     🍺
                 </div>
                 <h1 class="font-cinzel text-2xl md:text-4xl font-black gold-gradient-text tracking-wider uppercase">The Miners Arms</h1>
-                <p class="text-xs md:text-sm text-stone-400 uppercase tracking-widest">Brereton • Portal & Display System</p>
+                <p class="text-xs md:text-sm text-stone-400 uppercase tracking-widest">Brereton • Real-Time Cloud Portal</p>
             </div>
 
             <!-- QUICK GUEST ACCESS BUTTON -->
@@ -100,7 +104,7 @@
 
             <!-- MANAGER / ADMIN CREDENTIAL LOGIN -->
             <div class="border-t border-stone-800 pt-5 space-y-4">
-                <p class="text-xs text-stone-400">Pub Staff & Management? Login below to unlock generator, lottery, and administration tools.</p>
+                <p class="text-xs text-stone-400">Pub Staff & Management? Login below to unlock generator, lottery, and administration tools across all devices.</p>
                 
                 <div class="space-y-3 text-left bg-stone-950/50 p-4 rounded-2xl border border-stone-800">
                     <div>
@@ -258,7 +262,7 @@
                         </div>
                         <div class="pt-4">
                             <button type="button" tabindex="0" onclick="saveGeneratedPoster()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2">
-                                <span>💾 Save Announcement Locally</span>
+                                <span>💾 Publish to Cloud & Screens</span>
                             </button>
                         </div>
                     </div>
@@ -424,8 +428,8 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-stone-900 p-6 rounded-2xl border border-stone-800 shadow-sm space-y-3">
                         <h3 class="font-cinzel text-lg font-bold text-white">Database Control</h3>
-                        <p class="text-xs text-stone-400">Purge local cache and reset default layout.</p>
-                        <button type="button" tabindex="0" onclick="resetAllData()" class="w-full bg-red-950/60 hover:bg-red-900/80 text-red-300 border border-red-800 py-3 rounded-xl text-xs transition-all font-bold">Reset Database to Default</button>
+                        <p class="text-xs text-stone-400">Reset cloud database state to defaults.</p>
+                        <button type="button" tabindex="0" onclick="resetAllData()" class="w-full bg-red-950/60 hover:bg-red-900/80 text-red-300 border border-red-800 py-3 rounded-xl text-xs transition-all font-bold">Reset Cloud Database to Default</button>
                     </div>
                 </div>
             </div>
@@ -441,11 +445,31 @@
         </div>
     </div>
 
-    <!-- ENGINE CODE -->
+    <!-- ENGINE CODE WITH REAL-TIME CLOUD SYNC (FIRESTORE) -->
     <script>
         // Suppress TV Browser engine alerts entirely for seamless webOS display
         window.onerror = function() { return true; };
         window.onunhandledrejection = function() { return true; };
+
+        // --- FIREBASE REAL-TIME CLOUD CONFIGURATION ---
+        var firebaseConfig = {
+            apiKey: "AIzaSyD-Placeholder-MinersArmsBreretonCloud",
+            authDomain: "miners-arms-brereton.firebaseapp.com",
+            projectId: "miners-arms-brereton"
+        };
+
+        var db = null;
+        var cloudSyncActive = false;
+
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            db = firebase.firestore();
+            cloudSyncActive = true;
+        } catch (e) {
+            console.warn("Cloud initialization fallback enabled.");
+        }
 
         var defaultPosters = [
             { id: 1, category: 'sports', theme: 'gold', icon: '⚽', title: 'LIVE PREMIER LEAGUE', subtitle: 'Join us this Saturday for live HD matches on our big screens. Special cask ales on tap all day!', date: 'Saturday @ 3:00 PM', badge: 'FREE ENTRY' },
@@ -470,9 +494,68 @@
         } catch(e) {}
         var tvCarouselIndex = 0;
 
-        function loadFromLocalStorage() {
+        // --- CLOUD SYNC & PERSISTENCE ENGINE ---
+        function saveToCloud() {
+            var payload = { 
+                posters: posters, 
+                archive: archive, 
+                bonusPlayers: bonusPlayers, 
+                lotteryPlayers: lotteryPlayers, 
+                currentWinningLotteryNums: currentWinningLotteryNums, 
+                currentBonusWinnerAnnouncement: currentBonusWinnerAnnouncement, 
+                liveTickerText: liveTickerText,
+                lastUpdated: Date.now()
+            };
+
+            // Also keep local backup so offline device login retains recent data
             try {
-                var saved = localStorage.getItem('miners_portal_local_state');
+                localStorage.setItem('miners_portal_cloud_backup', JSON.stringify(payload));
+            } catch(e) {}
+
+            if (cloudSyncActive && db) {
+                db.collection('pub_portal').doc('state').set(payload)
+                  .then(function() {
+                      updateSyncStatusUI('online');
+                  })
+                  .catch(function(err) {
+                      updateSyncStatusUI('offline');
+                  });
+            } else {
+                updateSyncStatusUI('offline');
+            }
+        }
+
+        function initCloudSyncListener() {
+            if (cloudSyncActive && db) {
+                db.collection('pub_portal').doc('state').onSnapshot(function(doc) {
+                    if (doc.exists) {
+                        var data = doc.data();
+                        posters = data.posters || defaultPosters;
+                        archive = data.archive || [];
+                        bonusPlayers = data.bonusPlayers || {};
+                        lotteryPlayers = data.lotteryPlayers || [];
+                        currentWinningLotteryNums = data.currentWinningLotteryNums || [];
+                        currentBonusWinnerAnnouncement = data.currentBonusWinnerAnnouncement || '';
+                        liveTickerText = data.liveTickerText || defaultTicker;
+
+                        refreshAllUI();
+                        updateSyncStatusUI('online');
+                    } else {
+                        // Initialize document if first time opening across devices
+                        saveToCloud();
+                    }
+                }, function(error) {
+                    updateSyncStatusUI('offline');
+                    loadFromLocalBackup();
+                });
+            } else {
+                loadFromLocalBackup();
+            }
+        }
+
+        function loadFromLocalBackup() {
+            try {
+                var saved = localStorage.getItem('miners_portal_cloud_backup');
                 if (saved) {
                     var data = JSON.parse(saved);
                     posters = data.posters || defaultPosters;
@@ -483,26 +566,24 @@
                     currentBonusWinnerAnnouncement = data.currentBonusWinnerAnnouncement || '';
                     liveTickerText = data.liveTickerText || defaultTicker;
                 }
-            } catch (e) {}
+            } catch(e) {}
+            refreshAllUI();
+            updateSyncStatusUI('offline');
         }
 
-        function saveToLocalStorage() {
-            try {
-                var payload = { 
-                    posters: posters, 
-                    archive: archive, 
-                    bonusPlayers: bonusPlayers, 
-                    lotteryPlayers: lotteryPlayers, 
-                    currentWinningLotteryNums: currentWinningLotteryNums, 
-                    currentBonusWinnerAnnouncement: currentBonusWinnerAnnouncement, 
-                    liveTickerText: liveTickerText 
-                };
-                localStorage.setItem('miners_portal_local_state', JSON.stringify(payload));
-            } catch (e) {}
+        function updateSyncStatusUI(status) {
+            var indicator = document.getElementById('sync-indicator-text');
+            if (!indicator) return;
+            if (status === 'online') {
+                indicator.innerText = '☁️ Live Cloud Sync Active (Multi-Device Real-Time)';
+                document.getElementById('cloud-sync-status').className = 'bg-emerald-950/80 text-emerald-300 text-xs px-4 py-1.5 text-center font-medium border-b border-emerald-800/40 flex items-center justify-center space-x-2';
+            } else {
+                indicator.innerText = '⚠️ Offline / Local Storage Mode (Reconnecting...)';
+                document.getElementById('cloud-sync-status').className = 'bg-amber-950/80 text-amber-300 text-xs px-4 py-1.5 text-center font-medium border-b border-amber-800/40 flex items-center justify-center space-x-2';
+            }
         }
 
         function refreshAllUI() {
-            loadFromLocalStorage();
             renderPosters();
             renderArchive();
             renderBonusGrid();
@@ -510,7 +591,7 @@
             renderTvFeed();
             updatePosterPreview();
             var inputEl = document.getElementById('posters-marquee-input');
-            if (inputEl) inputEl.value = liveTickerText;
+            if (inputEl && document.activeElement !== inputEl) inputEl.value = liveTickerText;
             var marqueeSpan = document.getElementById('tv-marquee-text');
             if (marqueeSpan) marqueeSpan.innerText = liveTickerText;
         }
@@ -604,11 +685,11 @@
             };
 
             posters.unshift(newPoster);
-            saveToLocalStorage();
+            saveToCloud();
             renderPosters();
             renderTvFeed();
             switchTab('posters');
-            alert('Announcement saved locally and published to screens!');
+            alert('Announcement uploaded to cloud and published across all screens instantly!');
         }
 
         function proceedAsGuest() {
@@ -683,10 +764,10 @@
             var txt = document.getElementById('posters-marquee-input').value.trim();
             if (txt) {
                 liveTickerText = txt;
-                saveToLocalStorage();
+                saveToCloud();
                 var marqueeSpan = document.getElementById('tv-marquee-text');
                 if (marqueeSpan) marqueeSpan.innerText = liveTickerText;
-                alert('Marquee ticker updated on all TV screens!');
+                alert('Marquee ticker updated across all cloud-connected screens!');
             }
         }
 
@@ -696,7 +777,6 @@
         }
 
         function switchTab(tabId) {
-            loadFromLocalStorage();
             var tabs = document.querySelectorAll('.tab-content');
             for (var i = 0; i < tabs.length; i++) {
                 tabs[i].classList.add('hidden');
@@ -826,7 +906,7 @@
             if (index !== -1) {
                 var removed = posters.splice(index, 1)[0];
                 archive.push(removed);
-                saveToLocalStorage();
+                saveToCloud();
                 renderPosters();
             }
         }
@@ -862,7 +942,7 @@
             if (index !== -1) {
                 var restored = archive.splice(index, 1)[0];
                 posters.push(restored);
-                saveToLocalStorage();
+                saveToCloud();
                 renderArchive();
             }
         }
@@ -870,7 +950,7 @@
         function deleteArchived(id) {
             if (currentRole !== 'admin') return;
             archive = archive.filter(function(p) { return p.id != id; });
-            saveToLocalStorage();
+            saveToCloud();
             renderArchive();
         }
 
@@ -906,7 +986,7 @@
                 return;
             }
             bonusPlayers[num] = name;
-            saveToLocalStorage();
+            saveToCloud();
             document.getElementById('bonus-player-name').value = '';
             document.getElementById('bonus-player-num').value = '';
             renderBonusGrid();
@@ -917,7 +997,7 @@
             if (bonusPlayers[num]) {
                 if (confirm('Remove ' + bonusPlayers[num] + ' from number ' + num + '?')) {
                     delete bonusPlayers[num];
-                    saveToLocalStorage();
+                    saveToCloud();
                     renderBonusGrid();
                 }
             }
@@ -931,7 +1011,7 @@
             var winner = bonusPlayers[winNum];
             
             currentBonusWinnerAnnouncement = winner ? '🏆 Bonus Ball #' + winNum + ' Winner: ' + winner + '!' : '⚠️ Bonus Ball #' + winNum + ' was unassigned.';
-            saveToLocalStorage();
+            saveToCloud();
 
             resultBox.classList.remove('hidden');
             resultBox.innerHTML = currentBonusWinnerAnnouncement;
@@ -949,7 +1029,7 @@
                     isImageUpload: false
                 };
                 posters.unshift(bonusPoster);
-                saveToLocalStorage();
+                saveToCloud();
             }
         }
 
@@ -964,7 +1044,7 @@
                 return;
             }
             lotteryPlayers.push({ name: name, nums: nums });
-            saveToLocalStorage();
+            saveToCloud();
             document.getElementById('lottery-player-name').value = '';
             document.getElementById('lottery-player-nums').value = '';
             renderLotteryList();
@@ -1004,7 +1084,7 @@
         function deleteLotteryPlayer(idx) {
             if (currentRole !== 'admin') return;
             lotteryPlayers.splice(idx, 1);
-            saveToLocalStorage();
+            saveToCloud();
             renderLotteryList();
         }
 
@@ -1024,7 +1104,7 @@
                 }
             });
 
-            saveToLocalStorage();
+            saveToCloud();
             renderLotteryList();
             
             var winningBallsStr = currentWinningLotteryNums.map(function(n) { return renderBallHTML(n, true); }).join(' ');
@@ -1048,14 +1128,13 @@
         function resetLotteryDraw() {
             if (currentRole !== 'admin') return;
             currentWinningLotteryNums = [];
-            saveToLocalStorage();
+            saveToCloud();
             document.getElementById('lottery-winning-input').value = '';
             document.getElementById('lottery-draw-result').classList.add('hidden');
             renderLotteryList();
         }
 
         function renderTvFeed() {
-            loadFromLocalStorage();
             var container = document.getElementById('tv-full-poster-display');
             if (!container) return;
 
@@ -1133,8 +1212,15 @@
 
         function resetAllData() {
             if (currentRole !== 'admin') return;
-            if (confirm('Are you sure you want to reset the database?')) {
-                try { localStorage.clear(); } catch(e) {}
+            if (confirm('Are you sure you want to reset the cloud database to default?')) {
+                posters = defaultPosters;
+                archive = [];
+                bonusPlayers = {};
+                lotteryPlayers = [];
+                currentWinningLotteryNums = [];
+                currentBonusWinnerAnnouncement = '';
+                liveTickerText = defaultTicker;
+                saveToCloud();
                 location.reload();
             }
         }
@@ -1164,7 +1250,7 @@
                     if (code === 38 || e.key === 'ArrowUp' || code === 37 || e.key === 'ArrowLeft') {
                         index = (index - 1 + focusables.length) % focusables.length;
                     } else if (code === 40 || e.key === 'ArrowDown' || code === 39 || e.key === 'ArrowRight') {
-                        index = (index + 1) % focusables.length;
+                        index = (index + 1 + focusables.length) % focusables.length;
                     }
                     focusables[index].focus();
                     e.preventDefault();
@@ -1173,8 +1259,8 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            loadFromLocalStorage();
             applyRoleStateUI(true);
+            initCloudSyncListener();
 
             setTimeout(function() {
                 var launchBtn = document.getElementById('btn-tv-launch-primary');
