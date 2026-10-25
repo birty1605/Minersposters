@@ -355,10 +355,10 @@
                             <button type="button" tabindex="0" onclick="addLotteryPlayer()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all">Save Ticket</button>
                         </div>
                         <div class="border-t border-stone-800 pt-4 mt-4 space-y-3">
-                            <h4 class="font-cinzel text-sm text-stone-200 font-bold">Accumulate Winning Draw Numbers</h4>
-                            <input type="text" tabindex="0" id="lottery-winning-input" placeholder="e.g. 4, 12, 19, 27, 45, 58" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
+                            <h4 class="font-cinzel text-sm text-stone-200 font-bold">Add New Winning Numbers to Draw</h4>
+                            <input type="text" tabindex="0" id="lottery-winning-input" placeholder="e.g. 7, 14, 21" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
                             <div class="flex gap-2">
-                                <button type="button" tabindex="0" onclick="checkLotteryDraw()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl text-sm shadow transition-all">Add/Mark Numbers</button>
+                                <button type="button" tabindex="0" onclick="checkLotteryDraw()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl text-sm shadow transition-all">Add & Publish Last Numbers</button>
                                 <button type="button" tabindex="0" onclick="resetLotteryDraw()" class="bg-stone-800 hover:bg-stone-700 text-stone-300 px-3 py-2.5 rounded-xl text-xs">Refresh Draw</button>
                             </div>
                             <div id="lottery-draw-result" class="p-3 bg-stone-950 rounded-xl text-xs text-amber-200 border border-amber-800/50 mt-2 hidden"></div>
@@ -445,7 +445,7 @@
         </div>
     </div>
 
-    <!-- ENGINE CODE WITH REAL-TIME CLOUD SYNC (FIRESTORE) -->
+    <!-- ENGINE CODE WITH REAL-TIME CLOUD SYNC & RECENTLY MARKED LOTTERY NUMBERS -->
     <script>
         // Suppress TV Browser engine alerts entirely for seamless webOS display
         window.onerror = function() { return true; };
@@ -485,6 +485,7 @@
         var bonusPlayers = {};
         var lotteryPlayers = [];
         var currentWinningLotteryNums = [];
+        var lastMarkedLotteryNums = []; // Stores only the latest batch of numbers marked in this draw
         var currentBonusWinnerAnnouncement = '';
         var liveTickerText = defaultTicker;
         
@@ -493,6 +494,7 @@
             currentRole = localStorage.getItem('miners_user_role') === 'admin' ? 'admin' : 'guest';
         } catch(e) {}
         var tvCarouselIndex = 0;
+        var isLocalMutation = false; // Prevents UI reset jumps when receiving own snapshot updates
 
         // --- CLOUD SYNC & PERSISTENCE ENGINE ---
         function saveToCloud() {
@@ -502,22 +504,26 @@
                 bonusPlayers: bonusPlayers, 
                 lotteryPlayers: lotteryPlayers, 
                 currentWinningLotteryNums: currentWinningLotteryNums, 
+                lastMarkedLotteryNums: lastMarkedLotteryNums,
                 currentBonusWinnerAnnouncement: currentBonusWinnerAnnouncement, 
                 liveTickerText: liveTickerText,
                 lastUpdated: Date.now()
             };
 
-            // Also keep local backup so offline device login retains recent data
+            // Keep local backup for offline resilience
             try {
                 localStorage.setItem('miners_portal_cloud_backup', JSON.stringify(payload));
             } catch(e) {}
 
             if (cloudSyncActive && db) {
+                isLocalMutation = true;
                 db.collection('pub_portal').doc('state').set(payload)
                   .then(function() {
                       updateSyncStatusUI('online');
+                      setTimeout(function() { isLocalMutation = false; }, 500);
                   })
                   .catch(function(err) {
+                      isLocalMutation = false;
                       updateSyncStatusUI('offline');
                   });
             } else {
@@ -528,20 +534,20 @@
         function initCloudSyncListener() {
             if (cloudSyncActive && db) {
                 db.collection('pub_portal').doc('state').onSnapshot(function(doc) {
-                    if (doc.exists) {
+                    if (doc.exists && !isLocalMutation) {
                         var data = doc.data();
                         posters = data.posters || defaultPosters;
                         archive = data.archive || [];
                         bonusPlayers = data.bonusPlayers || {};
                         lotteryPlayers = data.lotteryPlayers || [];
                         currentWinningLotteryNums = data.currentWinningLotteryNums || [];
+                        lastMarkedLotteryNums = data.lastMarkedLotteryNums || [];
                         currentBonusWinnerAnnouncement = data.currentBonusWinnerAnnouncement || '';
                         liveTickerText = data.liveTickerText || defaultTicker;
 
                         refreshAllUI();
                         updateSyncStatusUI('online');
-                    } else {
-                        // Initialize document if first time opening across devices
+                    } else if (!doc.exists) {
                         saveToCloud();
                     }
                 }, function(error) {
@@ -563,6 +569,7 @@
                     bonusPlayers = data.bonusPlayers || {};
                     lotteryPlayers = data.lotteryPlayers || [];
                     currentWinningLotteryNums = data.currentWinningLotteryNums || [];
+                    lastMarkedLotteryNums = data.lastMarkedLotteryNums || [];
                     currentBonusWinnerAnnouncement = data.currentBonusWinnerAnnouncement || '';
                     liveTickerText = data.liveTickerText || defaultTicker;
                 }
@@ -579,7 +586,7 @@
                 document.getElementById('cloud-sync-status').className = 'bg-emerald-950/80 text-emerald-300 text-xs px-4 py-1.5 text-center font-medium border-b border-emerald-800/40 flex items-center justify-center space-x-2';
             } else {
                 indicator.innerText = '⚠️ Offline / Local Storage Mode (Reconnecting...)';
-                document.getElementById('cloud-sync-status').className = 'bg-amber-950/80 text-amber-300 text-xs px-4 py-1.5 text-center font-medium border-b border-amber-800/40 flex items-center justify-center space-x-2';
+                document.getElementById('cloud-sync-status').className = 'bg-amber-950/80 text-amber-300 text-xs px-4 py-1.5 text-center font-medium border-b border-emerald-800/40 flex items-center justify-center space-x-2';
             }
         }
 
@@ -837,13 +844,15 @@
                     return p.name + ': [' + p.nums.join(', ') + ']' + (matched.length > 0 ? ' (Matches: ' + matched.length + ')' : '');
                 }).join(' • ');
 
+                var lastMarkedStr = lastMarkedLotteryNums.length > 0 ? lastMarkedLotteryNums.join(', ') : currentWinningLotteryNums.join(', ');
+
                 displayList.unshift({
                     id: 'lottery-auto',
                     category: 'lottery',
                     theme: 'royal',
                     icon: '🎟',
                     title: 'LATEST LOTTERY RESULTS',
-                    subtitle: 'Winning Numbers: ' + currentWinningLotteryNums.join(', ') + '.\n\nEntries:\n' + playerResultsText,
+                    subtitle: 'Recently Marked Numbers: ' + lastMarkedStr + '.\n\nAll Drawn So Far: ' + currentWinningLotteryNums.join(', ') + '.\n\nEntries:\n' + playerResultsText,
                     date: 'Drawn Today',
                     badge: 'JACKPOT DRAW',
                     isImageUpload: false
@@ -875,9 +884,10 @@
         }
 
         function openPosterModal(id) {
+            var lastMarkedStr = lastMarkedLotteryNums.length > 0 ? lastMarkedLotteryNums.join(', ') : currentWinningLotteryNums.join(', ');
             var p = posters.find(function(item) { return item.id == id; }) || 
                     archive.find(function(item) { return item.id == id; }) || 
-                    { title: 'LATEST LOTTERY RESULTS', badge: 'JACKPOT', icon: '🎟', subtitle: 'Winning Numbers: ' + currentWinningLotteryNums.join(', '), date: 'Today' };
+                    { title: 'LATEST LOTTERY RESULTS', badge: 'JACKPOT', icon: '🎟', subtitle: 'Recently Marked Numbers: ' + lastMarkedStr, date: 'Today' };
             
             var iconHTML = p.icon ? '<div class="text-amber-400 text-4xl mb-2">' + p.icon + '</div>' : '';
             document.getElementById('modal-content').innerHTML = `
@@ -1098,6 +1108,9 @@
                 return;
             }
 
+            // Capture only the newly entered numbers for the poster display
+            lastMarkedLotteryNums = newNums;
+
             newNums.forEach(function(n) {
                 if (currentWinningLotteryNums.indexOf(n) === -1) {
                     currentWinningLotteryNums.push(n);
@@ -1106,9 +1119,11 @@
 
             saveToCloud();
             renderLotteryList();
+            renderPosters();
+            renderTvFeed();
             
-            var winningBallsStr = currentWinningLotteryNums.map(function(n) { return renderBallHTML(n, true); }).join(' ');
-            var resultsHTML = '🎲 <strong>Accumulated Winning Numbers:</strong><div class="flex gap-1 mt-1 flex-wrap">' + winningBallsStr + '</div><hr class="border-stone-800 my-2">';
+            var winningBallsStr = lastMarkedLotteryNums.map(function(n) { return renderBallHTML(n, true); }).join(' ');
+            var resultsHTML = '🎲 <strong>Recently Marked Numbers:</strong><div class="flex gap-1 mt-1 flex-wrap">' + winningBallsStr + '</div><hr class="border-stone-800 my-2">';
             var winnerFound = false;
 
             lotteryPlayers.forEach(function(p) {
@@ -1121,17 +1136,20 @@
 
             var resBox = document.getElementById('lottery-draw-result');
             resBox.classList.remove('hidden');
-            resBox.innerHTML = winnerFound ? resultsHTML : '🎲 Numbers added. No player matches found yet.';
+            resBox.innerHTML = winnerFound ? resultsHTML : '🎲 Numbers marked and published to screens.';
             document.getElementById('lottery-winning-input').value = '';
         }
 
         function resetLotteryDraw() {
             if (currentRole !== 'admin') return;
             currentWinningLotteryNums = [];
+            lastMarkedLotteryNums = [];
             saveToCloud();
             document.getElementById('lottery-winning-input').value = '';
             document.getElementById('lottery-draw-result').classList.add('hidden');
             renderLotteryList();
+            renderPosters();
+            renderTvFeed();
         }
 
         function renderTvFeed() {
@@ -1149,13 +1167,13 @@
                     return p.name + ': ' + ballsStr + (matched.length > 0 ? ' (Matches: ' + matched.length + ')' : '');
                 }).join('\n');
 
-                var winningBallsStr = currentWinningLotteryNums.map(function(n) { return renderBallHTML(n, true); }).join(' ');
+                var lastMarkedBallsStr = lastMarkedLotteryNums.map(function(n) { return renderBallHTML(n, true); }).join(' ');
 
                 carouselPosters.unshift({
                     icon: '🎟',
                     title: 'LATEST LOTTERY RESULTS',
                     badge: 'JACKPOT DRAW',
-                    subtitle: 'Winning Numbers:\n' + winningBallsStr + '\n\n' + playerResultsText,
+                    subtitle: 'Recently Marked Numbers:\n' + lastMarkedBallsStr + '\n\n' + playerResultsText,
                     isImageUpload: false,
                     theme: 'royal'
                 });
@@ -1218,6 +1236,7 @@
                 bonusPlayers = {};
                 lotteryPlayers = [];
                 currentWinningLotteryNums = [];
+                lastMarkedLotteryNums = [];
                 currentBonusWinnerAnnouncement = '';
                 liveTickerText = defaultTicker;
                 saveToCloud();
