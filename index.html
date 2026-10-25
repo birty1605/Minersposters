@@ -78,8 +78,39 @@
 </head>
 <body class="h-full flex flex-col relative bg-stone-950 text-stone-100">
 
-    <!-- STATUS BAR -->
-    <div id="cloud-sync-status" class="bg-emerald-950/80 text-emerald-300 text-xs px-4 py-1.5 text-center font-medium border-b border-emerald-800/40 flex items-center justify-center space-x-2">
+    <!-- COMPACT STREAMLINED HEADER (Saves Screen Space, Doesn't Stick) -->
+    <header class="wood-texture border-b border-amber-900/40 px-3 py-2 shadow-lg w-full" id="main-header">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-full border border-amber-500 flex items-center justify-center bg-stone-900 text-amber-400 text-base shadow">
+                    🍺
+                </div>
+                <div>
+                    <h1 class="font-cinzel font-bold text-base md:text-lg text-white leading-tight">The Miners Arms</h1>
+                    <p class="text-[10px] text-amber-400/80 tracking-widest uppercase">Brereton Hub</p>
+                </div>
+            </div>
+
+            <nav class="flex flex-wrap items-center gap-1.5" id="app-nav-bar">
+                <button type="button" tabindex="0" onclick="switchTab('tv')" id="btn-tv" class="tab-btn px-3 py-1.5 rounded-lg font-bold text-xs bg-amber-600 text-white shadow flex items-center space-x-1"><span>📺 TV Live</span></button>
+                <button type="button" tabindex="0" onclick="switchTab('posters')" id="btn-posters" class="tab-btn px-3 py-1.5 rounded-lg font-medium text-xs text-stone-300 hover:bg-white/10 flex items-center space-x-1"><span>🖼 Posters</span></button>
+                
+                <div id="admin-only-nav-items" class="hidden flex flex-wrap items-center gap-1.5">
+                    <button type="button" tabindex="0" onclick="switchTab('generator')" id="btn-generator" class="tab-btn px-3 py-1.5 rounded-lg font-medium text-xs text-stone-300 hover:bg-white/10 flex items-center space-x-1"><span>✨ Generator</span></button>
+                    <button type="button" tabindex="0" onclick="switchTab('games')" id="btn-games" class="tab-btn px-3 py-1.5 rounded-lg font-medium text-xs text-stone-300 hover:bg-white/10 flex items-center space-x-1"><span>🎟 Lottery & Bonus</span></button>
+                    <button type="button" tabindex="0" onclick="switchTab('archive')" id="btn-archive" class="tab-btn px-3 py-1.5 rounded-lg font-medium text-xs text-stone-300 hover:bg-white/10 flex items-center space-x-1"><span>📦 Archive</span></button>
+                    <button type="button" tabindex="0" onclick="switchTab('admin')" id="btn-admin" class="tab-btn px-3 py-1.5 rounded-lg font-medium text-xs text-stone-300 hover:bg-white/10 flex items-center space-x-1"><span>🛡 Admin</span></button>
+                </div>
+
+                <button type="button" tabindex="0" onclick="logoutToPortal()" class="px-2.5 py-1.5 rounded-lg text-[11px] bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 flex items-center space-x-1">
+                    <span id="login-status-badge">Guest</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- STATUS BANNER (Inside Normal Page Layout) -->
+    <div id="cloud-sync-status" class="bg-emerald-950/80 text-emerald-300 text-[11px] px-3 py-1 text-center font-medium border-b border-emerald-800/40 flex items-center justify-center space-x-2">
         <span id="sync-indicator-text">☁️ Connecting Live to Cloud Database...</span>
     </div>
 
@@ -123,37 +154,6 @@
             </div>
         </div>
     </div>
-
-    <!-- MAIN APP HEADER -->
-    <header class="wood-texture border-b border-amber-900/40 sticky top-0 z-40 px-4 py-3 shadow-xl" id="main-header">
-        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
-            <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 rounded-full border-2 border-amber-500 flex items-center justify-center bg-stone-900 text-amber-400 shadow-lg text-2xl">
-                    🍺
-                </div>
-                <div>
-                    <h1 class="font-cinzel font-bold text-xl md:text-2xl text-white tracking-wider">The Miners Arms</h1>
-                    <p class="text-xs text-amber-400/80 tracking-widest uppercase">Brereton Community Hub</p>
-                </div>
-            </div>
-
-            <nav class="flex flex-wrap items-center gap-2" id="app-nav-bar">
-                <button type="button" tabindex="0" onclick="switchTab('tv')" id="btn-tv" class="tab-btn px-4 py-2.5 rounded-xl font-bold text-sm bg-amber-600 text-white shadow-lg flex items-center space-x-2"><span>📺 TV Live View</span></button>
-                <button type="button" tabindex="0" onclick="switchTab('posters')" id="btn-posters" class="tab-btn px-4 py-2.5 rounded-xl font-medium text-sm text-stone-300 hover:bg-white/10 flex items-center space-x-2"><span>🖼 Posters View</span></button>
-                
-                <div id="admin-only-nav-items" class="hidden flex flex-wrap items-center gap-2">
-                    <button type="button" tabindex="0" onclick="switchTab('generator')" id="btn-generator" class="tab-btn px-4 py-2.5 rounded-xl font-medium text-sm text-stone-300 hover:bg-white/10 flex items-center space-x-2"><span>✨ Generator</span></button>
-                    <button type="button" tabindex="0" onclick="switchTab('games')" id="btn-games" class="tab-btn px-4 py-2.5 rounded-xl font-medium text-sm text-stone-300 hover:bg-white/10 flex items-center space-x-2"><span>🎟 Lottery & Bonus</span></button>
-                    <button type="button" tabindex="0" onclick="switchTab('archive')" id="btn-archive" class="tab-btn px-4 py-2.5 rounded-xl font-medium text-sm text-stone-300 hover:bg-white/10 flex items-center space-x-2"><span>📦 Archive</span></button>
-                    <button type="button" tabindex="0" onclick="switchTab('admin')" id="btn-admin" class="tab-btn px-4 py-2.5 rounded-xl font-medium text-sm text-stone-300 hover:bg-white/10 flex items-center space-x-2"><span>🛡 Admin Panel</span></button>
-                </div>
-
-                <button type="button" tabindex="0" onclick="logoutToPortal()" class="px-3.5 py-2.5 rounded-xl text-xs bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 flex items-center space-x-1.5">
-                    <span id="login-status-badge">Guest Mode</span>
-                </button>
-            </nav>
-        </div>
-    </header>
 
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 overflow-y-auto" id="main-container">
 
@@ -428,8 +428,8 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-stone-900 p-6 rounded-2xl border border-stone-800 shadow-sm space-y-3">
                         <h3 class="font-cinzel text-lg font-bold text-white">Database Control</h3>
-                        <p class="text-xs text-stone-400">Reset cloud database state to defaults.</p>
-                        <button type="button" tabindex="0" onclick="resetAllData()" class="w-full bg-red-950/60 hover:bg-red-900/80 text-red-300 border border-red-800 py-3 rounded-xl text-xs transition-all font-bold">Reset Cloud Database to Default</button>
+                        <p class="text-xs text-stone-400">Reset database state back to default preset.</p>
+                        <button type="button" tabindex="0" onclick="resetAllData()" class="w-full bg-red-950/60 hover:bg-red-900/80 text-red-300 border border-red-800 py-3 rounded-xl text-xs transition-all font-bold">Reset All Data to Default</button>
                     </div>
                 </div>
             </div>
@@ -445,7 +445,7 @@
         </div>
     </div>
 
-    <!-- ENGINE CODE WITH REAL-TIME CLOUD SYNC & RECENTLY MARKED LOTTERY NUMBERS -->
+    <!-- ENGINE CODE WITH RELIABLE PERSISTENCE & REAL-TIME SYNC -->
     <script>
         // Suppress TV Browser engine alerts entirely for seamless webOS display
         window.onerror = function() { return true; };
@@ -485,7 +485,7 @@
         var bonusPlayers = {};
         var lotteryPlayers = [];
         var currentWinningLotteryNums = [];
-        var lastMarkedLotteryNums = []; // Stores only the latest batch of numbers marked in this draw
+        var lastMarkedLotteryNums = [];
         var currentBonusWinnerAnnouncement = '';
         var liveTickerText = defaultTicker;
         
@@ -494,10 +494,10 @@
             currentRole = localStorage.getItem('miners_user_role') === 'admin' ? 'admin' : 'guest';
         } catch(e) {}
         var tvCarouselIndex = 0;
-        var isLocalMutation = false; // Prevents UI reset jumps when receiving own snapshot updates
+        var isLocalMutation = false;
 
-        // --- CLOUD SYNC & PERSISTENCE ENGINE ---
-        function saveToCloud() {
+        // --- RELIABLE DUAL-LAYER STORAGE ENGINE (LOCALSTORAGE + FIREBASE CLOUD) ---
+        function saveState() {
             var payload = { 
                 posters: posters, 
                 archive: archive, 
@@ -510,11 +510,14 @@
                 lastUpdated: Date.now()
             };
 
-            // Keep local backup for offline resilience
+            // 1. Guaranteed Local Browser Persistence (Prevents data loss on refresh)
             try {
-                localStorage.setItem('miners_portal_cloud_backup', JSON.stringify(payload));
-            } catch(e) {}
+                localStorage.setItem('miners_portal_saved_state', JSON.stringify(payload));
+            } catch(e) {
+                console.error("Local persistence error:", e);
+            }
 
+            // 2. Real-Time Cloud Synchronization Across Devices
             if (cloudSyncActive && db) {
                 isLocalMutation = true;
                 db.collection('pub_portal').doc('state').set(payload)
@@ -524,14 +527,37 @@
                   })
                   .catch(function(err) {
                       isLocalMutation = false;
-                      updateSyncStatusUI('offline');
+                      updateSyncStatusUI('local');
                   });
             } else {
-                updateSyncStatusUI('offline');
+                updateSyncStatusUI('local');
             }
         }
 
+        function loadLocalState() {
+            try {
+                var saved = localStorage.getItem('miners_portal_saved_state');
+                if (saved) {
+                    var data = JSON.parse(saved);
+                    posters = data.posters || defaultPosters;
+                    archive = data.archive || [];
+                    bonusPlayers = data.bonusPlayers || {};
+                    lotteryPlayers = data.lotteryPlayers || [];
+                    currentWinningLotteryNums = data.currentWinningLotteryNums || [];
+                    lastMarkedLotteryNums = data.lastMarkedLotteryNums || [];
+                    currentBonusWinnerAnnouncement = data.currentBonusWinnerAnnouncement || '';
+                    liveTickerText = data.liveTickerText || defaultTicker;
+                    return true;
+                }
+            } catch(e) {}
+            return false;
+        }
+
         function initCloudSyncListener() {
+            // First load saved local data so refreshing instantly shows saved players & bonus balls
+            loadLocalState();
+            refreshAllUI();
+
             if (cloudSyncActive && db) {
                 db.collection('pub_portal').doc('state').onSnapshot(function(doc) {
                     if (doc.exists && !isLocalMutation) {
@@ -545,48 +571,31 @@
                         currentBonusWinnerAnnouncement = data.currentBonusWinnerAnnouncement || '';
                         liveTickerText = data.liveTickerText || defaultTicker;
 
+                        // Save cloud state to local backup
+                        try { localStorage.setItem('miners_portal_saved_state', JSON.stringify(data)); } catch(e) {}
+
                         refreshAllUI();
                         updateSyncStatusUI('online');
                     } else if (!doc.exists) {
-                        saveToCloud();
+                        saveState();
                     }
                 }, function(error) {
-                    updateSyncStatusUI('offline');
-                    loadFromLocalBackup();
+                    updateSyncStatusUI('local');
                 });
             } else {
-                loadFromLocalBackup();
+                updateSyncStatusUI('local');
             }
-        }
-
-        function loadFromLocalBackup() {
-            try {
-                var saved = localStorage.getItem('miners_portal_cloud_backup');
-                if (saved) {
-                    var data = JSON.parse(saved);
-                    posters = data.posters || defaultPosters;
-                    archive = data.archive || [];
-                    bonusPlayers = data.bonusPlayers || {};
-                    lotteryPlayers = data.lotteryPlayers || [];
-                    currentWinningLotteryNums = data.currentWinningLotteryNums || [];
-                    lastMarkedLotteryNums = data.lastMarkedLotteryNums || [];
-                    currentBonusWinnerAnnouncement = data.currentBonusWinnerAnnouncement || '';
-                    liveTickerText = data.liveTickerText || defaultTicker;
-                }
-            } catch(e) {}
-            refreshAllUI();
-            updateSyncStatusUI('offline');
         }
 
         function updateSyncStatusUI(status) {
             var indicator = document.getElementById('sync-indicator-text');
             if (!indicator) return;
             if (status === 'online') {
-                indicator.innerText = '☁️ Live Cloud Sync Active (Multi-Device Real-Time)';
-                document.getElementById('cloud-sync-status').className = 'bg-emerald-950/80 text-emerald-300 text-xs px-4 py-1.5 text-center font-medium border-b border-emerald-800/40 flex items-center justify-center space-x-2';
+                indicator.innerText = '☁️ Live Cloud Sync Active (Multi-Device Sync On)';
+                document.getElementById('cloud-sync-status').className = 'bg-emerald-950/80 text-emerald-300 text-[11px] px-3 py-1 text-center font-medium border-b border-emerald-800/40 flex items-center justify-center space-x-2';
             } else {
-                indicator.innerText = '⚠️ Offline / Local Storage Mode (Reconnecting...)';
-                document.getElementById('cloud-sync-status').className = 'bg-amber-950/80 text-amber-300 text-xs px-4 py-1.5 text-center font-medium border-b border-emerald-800/40 flex items-center justify-center space-x-2';
+                indicator.innerText = '💾 Saved Locally in Browser (Data Intact Across Refresh)';
+                document.getElementById('cloud-sync-status').className = 'bg-amber-950/80 text-amber-300 text-[11px] px-3 py-1 text-center font-medium border-b border-amber-800/40 flex items-center justify-center space-x-2';
             }
         }
 
@@ -692,7 +701,7 @@
             };
 
             posters.unshift(newPoster);
-            saveToCloud();
+            saveState();
             renderPosters();
             renderTvFeed();
             switchTab('posters');
@@ -771,7 +780,7 @@
             var txt = document.getElementById('posters-marquee-input').value.trim();
             if (txt) {
                 liveTickerText = txt;
-                saveToCloud();
+                saveState();
                 var marqueeSpan = document.getElementById('tv-marquee-text');
                 if (marqueeSpan) marqueeSpan.innerText = liveTickerText;
                 alert('Marquee ticker updated across all cloud-connected screens!');
@@ -916,7 +925,7 @@
             if (index !== -1) {
                 var removed = posters.splice(index, 1)[0];
                 archive.push(removed);
-                saveToCloud();
+                saveState();
                 renderPosters();
             }
         }
@@ -952,7 +961,7 @@
             if (index !== -1) {
                 var restored = archive.splice(index, 1)[0];
                 posters.push(restored);
-                saveToCloud();
+                saveState();
                 renderArchive();
             }
         }
@@ -960,7 +969,7 @@
         function deleteArchived(id) {
             if (currentRole !== 'admin') return;
             archive = archive.filter(function(p) { return p.id != id; });
-            saveToCloud();
+            saveState();
             renderArchive();
         }
 
@@ -996,7 +1005,7 @@
                 return;
             }
             bonusPlayers[num] = name;
-            saveToCloud();
+            saveState(); // Saved to both Local Storage & Cloud
             document.getElementById('bonus-player-name').value = '';
             document.getElementById('bonus-player-num').value = '';
             renderBonusGrid();
@@ -1007,7 +1016,7 @@
             if (bonusPlayers[num]) {
                 if (confirm('Remove ' + bonusPlayers[num] + ' from number ' + num + '?')) {
                     delete bonusPlayers[num];
-                    saveToCloud();
+                    saveState();
                     renderBonusGrid();
                 }
             }
@@ -1021,7 +1030,7 @@
             var winner = bonusPlayers[winNum];
             
             currentBonusWinnerAnnouncement = winner ? '🏆 Bonus Ball #' + winNum + ' Winner: ' + winner + '!' : '⚠️ Bonus Ball #' + winNum + ' was unassigned.';
-            saveToCloud();
+            saveState();
 
             resultBox.classList.remove('hidden');
             resultBox.innerHTML = currentBonusWinnerAnnouncement;
@@ -1039,7 +1048,7 @@
                     isImageUpload: false
                 };
                 posters.unshift(bonusPoster);
-                saveToCloud();
+                saveState();
             }
         }
 
@@ -1054,7 +1063,7 @@
                 return;
             }
             lotteryPlayers.push({ name: name, nums: nums });
-            saveToCloud(); // <-- Fixed: Now saves ticket data to cloud database instantly
+            saveState(); // Saved to both Local Storage & Cloud
             document.getElementById('lottery-player-name').value = '';
             document.getElementById('lottery-player-nums').value = '';
             renderLotteryList();
@@ -1094,7 +1103,7 @@
         function deleteLotteryPlayer(idx) {
             if (currentRole !== 'admin') return;
             lotteryPlayers.splice(idx, 1);
-            saveToCloud(); // <-- Fixed: Syncs ticket deletion to cloud
+            saveState();
             renderLotteryList();
         }
 
@@ -1108,7 +1117,6 @@
                 return;
             }
 
-            // Capture only the newly entered numbers for the poster display
             lastMarkedLotteryNums = newNums;
 
             newNums.forEach(function(n) {
@@ -1117,7 +1125,7 @@
                 }
             });
 
-            saveToCloud(); // <-- Fixed: Syncs draw numbers and last marked batch to cloud
+            saveState();
             renderLotteryList();
             renderPosters();
             renderTvFeed();
@@ -1144,7 +1152,7 @@
             if (currentRole !== 'admin') return;
             currentWinningLotteryNums = [];
             lastMarkedLotteryNums = [];
-            saveToCloud(); // <-- Fixed: Clears draw state in cloud
+            saveState();
             document.getElementById('lottery-winning-input').value = '';
             document.getElementById('lottery-draw-result').classList.add('hidden');
             renderLotteryList();
@@ -1230,7 +1238,7 @@
 
         function resetAllData() {
             if (currentRole !== 'admin') return;
-            if (confirm('Are you sure you want to reset the cloud database to default?')) {
+            if (confirm('Are you sure you want to reset all data back to default?')) {
                 posters = defaultPosters;
                 archive = [];
                 bonusPlayers = {};
@@ -1239,7 +1247,7 @@
                 lastMarkedLotteryNums = [];
                 currentBonusWinnerAnnouncement = '';
                 liveTickerText = defaultTicker;
-                saveToCloud();
+                saveState();
                 location.reload();
             }
         }
