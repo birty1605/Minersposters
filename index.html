@@ -7,9 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Firebase SDKs for Real-Time Cross-Device Cloud Sync via Firestore -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <!-- Firebase Compat SDKs (v10.14.1 stable for Smart TV & Mobile Browsers) -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 
     <script>
         tailwind.config = {
@@ -41,7 +41,7 @@
         button * { pointer-events: none; }
         input, textarea, select { user-select: auto !important; -webkit-user-select: auto !important; }
 
-        /* High-Visibility Focus Outline for TV D-Pad Remote & webOS / Tizen TV Browsers */
+        /* High-Visibility Focus Outline for LG webOS TV Magic Remote & D-Pad */
         .tab-btn:focus,
         button:focus,
         input:focus,
@@ -60,20 +60,17 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 28px;
-            height: 28px;
+            width: 30px;
+            height: 30px;
             border-radius: 9999px;
             font-weight: 800;
-            font-size: 11px;
+            font-size: 12px;
             box-shadow: inset -2px -2px 4px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3);
             color: #ffffff;
+            background: radial-gradient(circle at 30% 30%, #f59e0b, #b45309);
         }
-        .lottery-ball.waiting-bright { box-shadow: 0 0 10px rgba(245, 158, 11, 0.7), inset -2px -2px 4px rgba(0,0,0,0.4); }
-        .lottery-ball.won-dull { position: relative; opacity: 0.35; filter: grayscale(80%); }
-
-        .alert-msg { padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; display: none; font-weight: 700; font-size: 1.1rem; }
-        .alert-success { background: rgba(76, 209, 55, 0.3); color: #76ff6b; border: 2px solid #4CD137; }
-        .alert-error { background: rgba(255, 107, 107, 0.3); color: #ff9999; border: 2px solid #FF6B6B; }
+        .lottery-ball.waiting-bright { box-shadow: 0 0 10px rgba(245, 158, 11, 0.8), inset -2px -2px 4px rgba(0,0,0,0.4); }
+        .lottery-ball.won-dull { position: relative; opacity: 0.4; filter: grayscale(85%); background: #44403c; }
     </style>
 </head>
 <body class="h-full flex flex-col relative bg-stone-950 text-stone-100">
@@ -109,10 +106,13 @@
         </div>
     </header>
 
-    <!-- STATUS BANNER -->
-    <div id="cloud-sync-status" class="bg-emerald-950/80 text-emerald-300 text-[11px] px-3 py-1 text-center font-medium border-b border-emerald-800/40 flex items-center justify-center space-x-2">
-        <span id="sync-indicator-text">☁️ Connecting Live to Cloud Database...</span>
+    <!-- REAL-TIME FIRESTORE SYNC STATUS BANNER -->
+    <div id="cloud-sync-status" class="bg-amber-950/90 text-amber-200 text-[11px] px-3 py-1 text-center font-bold border-b border-amber-800/40 flex items-center justify-center space-x-2">
+        <span id="sync-indicator-text">⏳ Connecting to Firestore Live Cloud...</span>
     </div>
+
+    <!-- TOAST FEEDBACK BANNER (FOR TV & MOBILE CONFIRMATIONS) -->
+    <div id="toast-notification" class="fixed bottom-5 right-5 z-[300] hidden bg-stone-900 border-2 border-amber-500 text-white px-5 py-3 rounded-2xl shadow-2xl text-sm font-bold max-w-sm"></div>
 
     <!-- MAIN PORTAL LOGIN OVERLAY -->
     <div id="portal-login-overlay" class="fixed inset-0 bg-stone-950/95 backdrop-blur-md z-[200] flex items-center justify-center p-4 overflow-y-auto">
@@ -122,12 +122,12 @@
                     🍺
                 </div>
                 <h1 class="font-cinzel text-2xl md:text-4xl font-black gold-gradient-text tracking-wider uppercase">The Miners Arms</h1>
-                <p class="text-xs md:text-sm text-stone-400 uppercase tracking-widest">Brereton • Real-Time Cloud Portal</p>
+                <p class="text-xs md:text-sm text-stone-400 uppercase tracking-widest">Brereton • Real-Time Firestore Portal</p>
             </div>
 
             <!-- QUICK GUEST ACCESS BUTTON -->
             <div class="p-4 bg-amber-950/40 border-2 border-amber-500 rounded-2xl space-y-3 shadow-lg">
-                <p class="text-xs text-amber-200 font-bold uppercase tracking-wider">📺 Enter as Public Viewer / TV Display</p>
+                <p class="text-xs text-amber-200 font-bold uppercase tracking-wider">📺 Enter as Public Viewer / LG TV Display</p>
                 <button type="button" tabindex="0" id="btn-tv-launch-primary" onclick="proceedAsGuest()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-4 rounded-xl shadow-xl font-cinzel tracking-wider text-base md:text-lg flex items-center justify-center space-x-3 transition-all">
                     <span>▶ LAUNCH LIVE TV DISPLAY FEED</span>
                 </button>
@@ -135,7 +135,7 @@
 
             <!-- MANAGER / ADMIN CREDENTIAL LOGIN -->
             <div class="border-t border-stone-800 pt-5 space-y-4">
-                <p class="text-xs text-stone-400">Pub Staff & Management? Login below to unlock generator, lottery, and administration tools across all devices.</p>
+                <p class="text-xs text-stone-400">Pub Staff & Management? Login below to update lottery numbers & bonus balls live across all devices.</p>
                 
                 <div class="space-y-3 text-left bg-stone-950/50 p-4 rounded-2xl border border-stone-800">
                     <div>
@@ -295,7 +295,7 @@
             <div class="bg-stone-900 p-6 rounded-2xl border border-stone-800 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 class="font-cinzel text-3xl font-bold text-white">Pub Lottery & Bonus Ball Suite</h2>
-                    <p class="text-stone-400 text-sm mt-1">Manage players, assign ball numbers, and stream winning announcements.</p>
+                    <p class="text-stone-400 text-sm mt-1">Updates push instantaneously via Firestore to all TVs and devices.</p>
                 </div>
                 <div class="flex gap-2">
                     <button type="button" tabindex="0" onclick="switchGameSubTab('bonus')" id="btn-sub-bonus" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-amber-600 text-white transition-all">Bonus Ball</button>
@@ -317,7 +317,7 @@
                                 <label class="block text-xs uppercase tracking-wider text-stone-400 mb-1">Select Number (1 - 59)</label>
                                 <input type="number" tabindex="0" id="bonus-player-num" min="1" max="59" placeholder="e.g. 7" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
                             </div>
-                            <button type="button" tabindex="0" onclick="addBonusPlayer()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all">Assign Number</button>
+                            <button type="button" tabindex="0" onclick="addBonusPlayer()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all">Assign Number & Sync Live</button>
                         </div>
                         <div class="border-t border-stone-800 pt-4 mt-4 space-y-2">
                             <h4 class="font-cinzel text-sm text-stone-200 font-bold">Announce Winning Bonus Number</h4>
@@ -352,13 +352,13 @@
                                 <label class="block text-xs uppercase tracking-wider text-stone-400 mb-1">Pick 6 Numbers (1-59)</label>
                                 <input type="text" tabindex="0" id="lottery-player-nums" placeholder="e.g. 4, 12, 19, 27, 45, 58" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
                             </div>
-                            <button type="button" tabindex="0" onclick="addLotteryPlayer()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all">Save Ticket</button>
+                            <button type="button" tabindex="0" onclick="addLotteryPlayer()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all">Save Ticket & Sync Live</button>
                         </div>
                         <div class="border-t border-stone-800 pt-4 mt-4 space-y-3">
                             <h4 class="font-cinzel text-sm text-stone-200 font-bold">Add New Winning Numbers to Draw</h4>
                             <input type="text" tabindex="0" id="lottery-winning-input" placeholder="e.g. 7, 14, 21" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-sm focus:border-amber-500">
                             <div class="flex gap-2">
-                                <button type="button" tabindex="0" onclick="checkLotteryDraw()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl text-sm shadow transition-all">Add & Publish Last Numbers</button>
+                                <button type="button" tabindex="0" onclick="checkLotteryDraw()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl text-sm shadow transition-all">Add & Publish Live</button>
                                 <button type="button" tabindex="0" onclick="resetLotteryDraw()" class="bg-stone-800 hover:bg-stone-700 text-stone-300 px-3 py-2.5 rounded-xl text-xs">Refresh Draw</button>
                             </div>
                             <div id="lottery-draw-result" class="p-3 bg-stone-950 rounded-xl text-xs text-amber-200 border border-amber-800/50 mt-2 hidden"></div>
@@ -425,11 +425,20 @@
                     </div>
                     <button type="button" tabindex="0" onclick="logoutToPortal()" class="bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 px-4 py-2.5 rounded-xl text-sm">Log Out</button>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- CLOUD CONNECTION SETUP CARD -->
+                    <div class="bg-stone-900 p-6 rounded-2xl border border-amber-600/40 shadow-sm space-y-3">
+                        <h3 class="font-cinzel text-lg font-bold text-amber-400">☁️ Live Firestore Cloud Setup</h3>
+                        <p class="text-xs text-stone-400">Paste your Firebase Web App config object below if not hardcoded in <code>index.html</code>. Saves directly to this device.</p>
+                        <textarea id="firebase-config-input" tabindex="0" rows="5" placeholder='{"apiKey": "...", "authDomain": "...", "projectId": "..."}' class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-xs font-mono focus:border-amber-500"></textarea>
+                        <button type="button" tabindex="0" onclick="saveCustomFirebaseConfig()" class="w-full bg-amber-600 hover:bg-amber-500 text-white py-3 rounded-xl text-xs transition-all font-bold">Connect Firestore & Reload</button>
+                    </div>
+
+                    <!-- DATABASE RESET CARD -->
                     <div class="bg-stone-900 p-6 rounded-2xl border border-stone-800 shadow-sm space-y-3">
                         <h3 class="font-cinzel text-lg font-bold text-white">Database Control</h3>
-                        <p class="text-xs text-stone-400">Reset database state back to default preset.</p>
-                        <button type="button" tabindex="0" onclick="resetAllData()" class="w-full bg-red-950/60 hover:bg-red-900/80 text-red-300 border border-red-800 py-3 rounded-xl text-xs transition-all font-bold">Reset All Data to Default</button>
+                        <p class="text-xs text-stone-400">Reset database state back to default preset across all connected devices.</p>
+                        <button type="button" tabindex="0" onclick="resetAllData()" class="w-full bg-red-950/60 hover:bg-red-900/80 text-red-300 border border-red-800 py-3 rounded-xl text-xs transition-all font-bold">Reset All Cloud Data to Default</button>
                     </div>
                 </div>
             </div>
@@ -445,30 +454,80 @@
         </div>
     </div>
 
-    <!-- ENGINE CODE WITH RELIABLE PERSISTENCE & REAL-TIME SYNC -->
+    <!-- ENGINE CODE WITH REAL-TIME FIRESTORE SYNC & LG TV D-PAD SUPPORT -->
     <script>
-        // Suppress TV Browser engine alerts entirely for seamless webOS / smart TV display
+        // Suppress non-critical TV browser warnings
         window.onerror = function() { return true; };
         window.onunhandledrejection = function() { return true; };
 
-        // --- FIREBASE REAL-TIME CLOUD CONFIGURATION ---
-        var firebaseConfig = {
-            apiKey: "AIzaSyD-Placeholder-MinersArmsBreretonCloud",
-            authDomain: "miners-arms-brereton.firebaseapp.com",
-            projectId: "miners-arms-brereton"
+        // =========================================================================
+        // STEP 1: PASTE YOUR FIREBASE PROJECT CONFIG BELOW FOR LIVE CROSS-DEVICE SYNC
+        // (Get this from Firebase Console -> Project Settings -> Your Apps -> Web App)
+        // =========================================================================
+        var defaultFirebaseConfig = {
+            apiKey: "PASTE_YOUR_REAL_FIREBASE_API_KEY_HERE",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
+
+        var firebaseConfig = defaultFirebaseConfig;
+        try {
+            var storedConfig = localStorage.getItem('miners_custom_firebase_config');
+            if (storedConfig) {
+                firebaseConfig = JSON.parse(storedConfig);
+            }
+        } catch (e) {}
 
         var db = null;
         var cloudSyncActive = false;
+        var hasValidFirebaseConfig = firebaseConfig && firebaseConfig.apiKey && firebaseConfig.apiKey.indexOf("PASTE_YOUR") === -1;
 
-        try {
-            if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
+        if (hasValidFirebaseConfig) {
+            try {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                db = firebase.firestore();
+                // Long-polling ensures compatibility with LG webOS & Samsung Tizen TV browsers
+                db.settings({ experimentalForceLongPolling: true });
+                cloudSyncActive = true;
+            } catch (e) {
+                console.error("Firebase init failed:", e);
             }
-            db = firebase.firestore();
-            cloudSyncActive = true;
-        } catch (e) {
-            console.warn("Cloud initialization fallback enabled.");
+        }
+
+        function showToast(msg) {
+            var toast = document.getElementById('toast-notification');
+            if (!toast) return;
+            toast.innerText = msg;
+            toast.classList.remove('hidden');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(function() {
+                toast.classList.add('hidden');
+            }, 3500);
+        }
+
+        function saveCustomFirebaseConfig() {
+            var raw = document.getElementById('firebase-config-input').value.trim();
+            if (!raw) return;
+            try {
+                // Allow pasting either raw JSON or JS object snippet
+                var cleaned = raw.replace(/^[^{]*/, '').replace(/[^}]*$/, '');
+                cleaned = cleaned.replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":');
+                var parsed = JSON.parse(cleaned);
+                if (!parsed.apiKey || !parsed.projectId) {
+                    showToast('⚠️ Invalid config: apiKey and projectId are required.');
+                    return;
+                }
+                localStorage.setItem('miners_custom_firebase_config', JSON.stringify(parsed));
+                showToast('✅ Firebase config saved! Reloading...');
+                setTimeout(function() { location.reload(); }, 800);
+            } catch (e) {
+                showToast('⚠️ Could not parse config. Paste valid JSON keys.');
+            }
         }
 
         var defaultPosters = [
@@ -480,7 +539,7 @@
 
         var defaultTicker = '🍺 Welcome to The Miners Arms Brereton! • Tonight: Pub Quiz @ 8:30 PM • Real Ale Guest Cask: Staffordshire Gold 4.2% • Live Premier League Saturday!';
 
-        var posters = defaultPosters;
+        var posters = defaultPosters.slice(0);
         var archive = [];
         var bonusPlayers = {};
         var lotteryPlayers = [];
@@ -488,15 +547,15 @@
         var lastMarkedLotteryNums = [];
         var currentBonusWinnerAnnouncement = '';
         var liveTickerText = defaultTicker;
+        var localWritePending = false;
         
         var currentRole = 'guest';
         try {
             currentRole = localStorage.getItem('miners_user_role') === 'admin' ? 'admin' : 'guest';
         } catch(e) {}
         var tvCarouselIndex = 0;
-        var isLocalMutation = false;
 
-        // --- RELIABLE DUAL-LAYER STORAGE ENGINE (LOCALSTORAGE + FIREBASE CLOUD) ---
+        // --- REAL-TIME FIRESTORE WRITE & LOCAL FALLBACK ---
         function saveState() {
             var payload = { 
                 posters: posters, 
@@ -510,27 +569,27 @@
                 lastUpdated: Date.now()
             };
 
-            // 1. Guaranteed Local Browser Persistence (Prevents data loss on refresh)
+            // Save local backup for offline/instant startup
             try {
                 localStorage.setItem('miners_portal_saved_state', JSON.stringify(payload));
-            } catch(e) {
-                console.error("Local persistence error:", e);
-            }
+            } catch(e) {}
 
-            // 2. Real-Time Cloud Synchronization Across Devices
+            // Push live update to Firestore for all connected devices
             if (cloudSyncActive && db) {
-                isLocalMutation = true;
-                db.collection('pub_portal').doc('state').set(payload)
+                localWritePending = true;
+                updateSyncStatusUI('syncing');
+                db.collection('pub_portal').doc('live_state').set(payload, { merge: true })
                   .then(function() {
+                      localWritePending = false;
                       updateSyncStatusUI('online');
-                      setTimeout(function() { isLocalMutation = false; }, 500);
                   })
                   .catch(function(err) {
-                      isLocalMutation = false;
-                      updateSyncStatusUI('local');
+                      localWritePending = false;
+                      console.error("Firestore write error:", err);
+                      updateSyncStatusUI('error');
                   });
             } else {
-                updateSyncStatusUI('local');
+                updateSyncStatusUI('config_needed');
             }
         }
 
@@ -539,12 +598,12 @@
                 var saved = localStorage.getItem('miners_portal_saved_state');
                 if (saved) {
                     var data = JSON.parse(saved);
-                    posters = data.posters || defaultPosters;
-                    archive = data.archive || [];
-                    bonusPlayers = data.bonusPlayers || {};
-                    lotteryPlayers = data.lotteryPlayers || [];
-                    currentWinningLotteryNums = data.currentWinningLotteryNums || [];
-                    lastMarkedLotteryNums = data.lastMarkedLotteryNums || [];
+                    posters = Array.isArray(data.posters) ? data.posters : defaultPosters.slice(0);
+                    archive = Array.isArray(data.archive) ? data.archive : [];
+                    bonusPlayers = (data.bonusPlayers && typeof data.bonusPlayers === 'object') ? data.bonusPlayers : {};
+                    lotteryPlayers = Array.isArray(data.lotteryPlayers) ? data.lotteryPlayers : [];
+                    currentWinningLotteryNums = Array.isArray(data.currentWinningLotteryNums) ? data.currentWinningLotteryNums : [];
+                    lastMarkedLotteryNums = Array.isArray(data.lastMarkedLotteryNums) ? data.lastMarkedLotteryNums : [];
                     currentBonusWinnerAnnouncement = data.currentBonusWinnerAnnouncement || '';
                     liveTickerText = data.liveTickerText || defaultTicker;
                     return true;
@@ -553,49 +612,61 @@
             return false;
         }
 
+        // --- REAL-TIME FIRESTORE LISTENER (UPDATES ALL TVs & PHONES INSTANTLY) ---
         function initCloudSyncListener() {
-            // First load saved local data so refreshing instantly shows saved players & bonus balls
             loadLocalState();
             refreshAllUI();
 
-            if (cloudSyncActive && db) {
-                db.collection('pub_portal').doc('state').onSnapshot(function(doc) {
-                    if (doc.exists && !isLocalMutation) {
+            if (!cloudSyncActive || !db) {
+                updateSyncStatusUI('config_needed');
+                return;
+            }
+
+            // Listen to live changes in Firestore 'pub_portal/live_state'
+            db.collection('pub_portal').doc('live_state').onSnapshot(function(doc) {
+                if (doc.exists) {
+                    if (!localWritePending) {
                         var data = doc.data();
-                        posters = data.posters || defaultPosters;
-                        archive = data.archive || [];
-                        bonusPlayers = data.bonusPlayers || {};
-                        lotteryPlayers = data.lotteryPlayers || [];
-                        currentWinningLotteryNums = data.currentWinningLotteryNums || [];
-                        lastMarkedLotteryNums = data.lastMarkedLotteryNums || [];
+                        posters = Array.isArray(data.posters) ? data.posters : defaultPosters.slice(0);
+                        archive = Array.isArray(data.archive) ? data.archive : [];
+                        bonusPlayers = (data.bonusPlayers && typeof data.bonusPlayers === 'object') ? data.bonusPlayers : {};
+                        lotteryPlayers = Array.isArray(data.lotteryPlayers) ? data.lotteryPlayers : [];
+                        currentWinningLotteryNums = Array.isArray(data.currentWinningLotteryNums) ? data.currentWinningLotteryNums : [];
+                        lastMarkedLotteryNums = Array.isArray(data.lastMarkedLotteryNums) ? data.lastMarkedLotteryNums : [];
                         currentBonusWinnerAnnouncement = data.currentBonusWinnerAnnouncement || '';
                         liveTickerText = data.liveTickerText || defaultTicker;
 
-                        // Save cloud state to local backup
                         try { localStorage.setItem('miners_portal_saved_state', JSON.stringify(data)); } catch(e) {}
-
                         refreshAllUI();
-                        updateSyncStatusUI('online');
-                    } else if (!doc.exists) {
-                        saveState();
                     }
-                }, function(error) {
-                    updateSyncStatusUI('local');
-                });
-            } else {
-                updateSyncStatusUI('local');
-            }
+                    updateSyncStatusUI('online');
+                } else {
+                    // Initialize document in Firestore on very first run
+                    saveState();
+                }
+            }, function(error) {
+                console.error("Firestore listener error:", error);
+                updateSyncStatusUI('error');
+            });
         }
 
         function updateSyncStatusUI(status) {
             var indicator = document.getElementById('sync-indicator-text');
-            if (!indicator) return;
+            var banner = document.getElementById('cloud-sync-status');
+            if (!indicator || !banner) return;
+
             if (status === 'online') {
-                indicator.innerText = '☁️ Live Cloud Sync Active (Multi-Device Sync On)';
-                document.getElementById('cloud-sync-status').className = 'bg-emerald-950/80 text-emerald-300 text-[11px] px-3 py-1 text-center font-medium border-b border-emerald-800/40 flex items-center justify-center space-x-2';
+                indicator.innerText = '🟢 FIRESTORE LIVE SYNC ACTIVE • Lottery & Bonus Ball Updating Across All Devices';
+                banner.className = 'bg-emerald-950/90 text-emerald-300 text-[11px] px-3 py-1 text-center font-bold border-b border-emerald-800/40 flex items-center justify-center space-x-2';
+            } else if (status === 'syncing') {
+                indicator.innerText = '🔄 Pushing Live Update to All Connected Devices...';
+                banner.className = 'bg-blue-950/90 text-blue-300 text-[11px] px-3 py-1 text-center font-bold border-b border-blue-800/40 flex items-center justify-center space-x-2';
+            } else if (status === 'error') {
+                indicator.innerText = '⚠️ Firestore Connection Blocked — Check Firestore Rules (Allow Read/Write)';
+                banner.className = 'bg-red-950/90 text-red-300 text-[11px] px-3 py-1 text-center font-bold border-b border-red-800/40 flex items-center justify-center space-x-2';
             } else {
-                indicator.innerText = '💾 Saved Locally in Browser (Data Intact Across Refresh)';
-                document.getElementById('cloud-sync-status').className = 'bg-amber-950/80 text-amber-300 text-[11px] px-3 py-1 text-center font-medium border-b border-amber-800/40 flex items-center justify-center space-x-2';
+                indicator.innerText = '⚠️ Firebase Config Required — Add your Firebase API Keys in index.html or Admin Panel to sync across devices';
+                banner.className = 'bg-amber-950/90 text-amber-300 text-[11px] px-3 py-1 text-center font-bold border-b border-amber-800/40 flex items-center justify-center space-x-2';
             }
         }
 
@@ -670,10 +741,7 @@
         }
 
         function saveGeneratedPoster() {
-            if (currentRole !== 'admin') {
-                alert('Administrator access required to publish posters.');
-                return;
-            }
+            if (currentRole !== 'admin') return;
 
             var category = document.getElementById('gen-category').value;
             var theme = document.getElementById('gen-theme').value;
@@ -684,7 +752,7 @@
             var badge = document.getElementById('gen-badge').value.trim();
 
             if (!title) {
-                alert('Please enter a headline for your poster.');
+                showToast('⚠️ Please enter a poster headline.');
                 return;
             }
 
@@ -705,7 +773,7 @@
             renderPosters();
             renderTvFeed();
             switchTab('posters');
-            alert('Announcement uploaded to cloud and published across all screens instantly!');
+            showToast('✅ Poster published live across all screens!');
         }
 
         function proceedAsGuest() {
@@ -733,6 +801,7 @@
 
                 applyRoleStateUI();
                 switchTab('posters');
+                showToast('🔓 Logged in as Manager');
             } else {
                 currentRole = 'guest';
                 try { localStorage.removeItem('miners_user_role'); } catch(e) {}
@@ -783,7 +852,7 @@
                 saveState();
                 var marqueeSpan = document.getElementById('tv-marquee-text');
                 if (marqueeSpan) marqueeSpan.innerText = liveTickerText;
-                alert('Marquee ticker updated across all cloud-connected screens!');
+                showToast('📢 Live marquee updated across all screens!');
             }
         }
 
@@ -824,6 +893,12 @@
                 if (marqueeSpan) marqueeSpan.innerText = liveTickerText;
                 renderTvFeed();
             }
+
+            // Auto-focus first visible button for LG TV remote convenience
+            setTimeout(function() {
+                var visibleBtns = getVisibleFocusables();
+                if (visibleBtns.length > 0) visibleBtns[0].focus();
+            }, 100);
         }
 
         function switchGameSubTab(subId) {
@@ -911,6 +986,8 @@
             var modal = document.getElementById('poster-modal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
+            var closeBtn = modal.querySelector('button');
+            if (closeBtn) closeBtn.focus();
         }
 
         function closePosterModal() {
@@ -927,6 +1004,7 @@
                 archive.push(removed);
                 saveState();
                 renderPosters();
+                showToast('📦 Poster moved to archive');
             }
         }
 
@@ -963,6 +1041,7 @@
                 posters.push(restored);
                 saveState();
                 renderArchive();
+                showToast('✅ Poster restored to live rotation');
             }
         }
 
@@ -997,28 +1076,33 @@
             var name = document.getElementById('bonus-player-name').value.trim();
             var num = parseInt(document.getElementById('bonus-player-num').value, 10);
             if (!name || isNaN(num) || num < 1 || num > 59) {
-                alert('Provide a valid name and number 1-59.');
+                showToast('⚠️ Enter a player name and number between 1 and 59.');
                 return;
             }
             if (bonusPlayers[num]) {
-                alert('Number ' + num + ' is already taken by ' + bonusPlayers[num] + '.');
+                showToast('⚠️ Ball #' + num + ' is already assigned to ' + bonusPlayers[num]);
                 return;
             }
+
             bonusPlayers[num] = name;
-            saveState(); // Saved to both Local Storage & Cloud
+            saveState();
             document.getElementById('bonus-player-name').value = '';
             document.getElementById('bonus-player-num').value = '';
             renderBonusGrid();
+            showToast('⚽ Assigned #' + num + ' to ' + name + ' & synced live!');
         }
 
         function handleBonusTile(num) {
             if (currentRole !== 'admin') return;
             if (bonusPlayers[num]) {
-                if (confirm('Remove ' + bonusPlayers[num] + ' from number ' + num + '?')) {
-                    delete bonusPlayers[num];
-                    saveState();
-                    renderBonusGrid();
-                }
+                var removedPlayer = bonusPlayers[num];
+                delete bonusPlayers[num];
+                saveState();
+                renderBonusGrid();
+                showToast('🗑 Removed ' + removedPlayer + ' from #' + num);
+            } else {
+                document.getElementById('bonus-player-num').value = num;
+                document.getElementById('bonus-player-name').focus();
             }
         }
 
@@ -1026,15 +1110,14 @@
             if (currentRole !== 'admin') return;
             var winNum = parseInt(document.getElementById('bonus-winning-input').value, 10);
             var resultBox = document.getElementById('bonus-winner-result');
-            if (isNaN(winNum) || winNum < 1 || winNum > 59) return;
+            if (isNaN(winNum) || winNum < 1 || winNum > 59) {
+                showToast('⚠️ Enter a valid winning ball number (1-59).');
+                return;
+            }
             var winner = bonusPlayers[winNum];
             
             currentBonusWinnerAnnouncement = winner ? '🏆 Bonus Ball #' + winNum + ' Winner: ' + winner + '!' : '⚠️ Bonus Ball #' + winNum + ' was unassigned.';
-            saveState();
-
-            resultBox.classList.remove('hidden');
-            resultBox.innerHTML = currentBonusWinnerAnnouncement;
-
+            
             if (winner) {
                 var bonusPoster = {
                     id: Date.now(),
@@ -1048,25 +1131,36 @@
                     isImageUpload: false
                 };
                 posters.unshift(bonusPoster);
-                saveState();
             }
+
+            saveState();
+            resultBox.classList.remove('hidden');
+            resultBox.innerHTML = currentBonusWinnerAnnouncement;
+            showToast('🏆 Bonus Ball result published to TVs!');
         }
 
         function addLotteryPlayer() {
             if (currentRole !== 'admin') return;
             var name = document.getElementById('lottery-player-name').value.trim();
             var numsStr = document.getElementById('lottery-player-nums').value.trim();
-            if (!name || !numsStr) return;
-            var nums = numsStr.split(',').map(function(n) { return parseInt(n.trim(), 10); }).filter(function(n) { return !isNaN(n) && n >= 1 && n <= 59; });
-            if (nums.length !== 6) {
-                alert('Please enter exactly 6 numbers between 1 and 59.');
+            if (!name || !numsStr) {
+                showToast('⚠️ Enter player name and 6 numbers.');
                 return;
             }
+            var nums = numsStr.split(',').map(function(n) { return parseInt(n.trim(), 10); }).filter(function(n) { return !isNaN(n) && n >= 1 && n <= 59; });
+            // Remove duplicates on the same ticket
+            nums = nums.filter(function(item, pos) { return nums.indexOf(item) === pos; });
+            if (nums.length !== 6) {
+                showToast('⚠️ Please enter 6 unique numbers between 1 and 59.');
+                return;
+            }
+
             lotteryPlayers.push({ name: name, nums: nums });
-            saveState(); // Saved to both Local Storage & Cloud
+            saveState();
             document.getElementById('lottery-player-name').value = '';
             document.getElementById('lottery-player-nums').value = '';
             renderLotteryList();
+            showToast('🎟 Saved ticket for ' + name + ' & synced live!');
         }
 
         function renderLotteryList() {
@@ -1105,6 +1199,7 @@
             lotteryPlayers.splice(idx, 1);
             saveState();
             renderLotteryList();
+            showToast('🗑 Lottery ticket removed');
         }
 
         function checkLotteryDraw() {
@@ -1113,7 +1208,7 @@
             var newNums = inputStr.split(',').map(function(n) { return parseInt(n.trim(), 10); }).filter(function(n) { return !isNaN(n) && n >= 1 && n <= 59; });
             
             if (newNums.length === 0) {
-                alert('Enter valid winning numbers between 1 and 59.');
+                showToast('⚠️ Enter valid winning numbers (1-59).');
                 return;
             }
 
@@ -1144,8 +1239,9 @@
 
             var resBox = document.getElementById('lottery-draw-result');
             resBox.classList.remove('hidden');
-            resBox.innerHTML = winnerFound ? resultsHTML : '🎲 Numbers marked and published to screens.';
+            resBox.innerHTML = winnerFound ? resultsHTML : '🎲 Numbers marked and synced live to all devices.';
             document.getElementById('lottery-winning-input').value = '';
+            showToast('🎲 Lottery numbers synced live to TVs!');
         }
 
         function resetLotteryDraw() {
@@ -1158,6 +1254,7 @@
             renderLotteryList();
             renderPosters();
             renderTvFeed();
+            showToast('🔄 Lottery draw cleared across all devices');
         }
 
         function renderTvFeed() {
@@ -1238,44 +1335,66 @@
 
         function resetAllData() {
             if (currentRole !== 'admin') return;
-            if (confirm('Are you sure you want to reset all data back to default?')) {
-                posters = defaultPosters;
-                archive = [];
-                bonusPlayers = {};
-                lotteryPlayers = [];
-                currentWinningLotteryNums = [];
-                lastMarkedLotteryNums = [];
-                currentBonusWinnerAnnouncement = '';
-                liveTickerText = defaultTicker;
-                saveState();
-                location.reload();
-            }
+            posters = defaultPosters.slice(0);
+            archive = [];
+            bonusPlayers = {};
+            lotteryPlayers = [];
+            currentWinningLotteryNums = [];
+            lastMarkedLotteryNums = [];
+            currentBonusWinnerAnnouncement = '';
+            liveTickerText = defaultTicker;
+            saveState();
+            showToast('🔄 All data reset to defaults!');
+            setTimeout(function() { location.reload(); }, 800);
         }
 
-        // --- BULLETPROOF LG REMOTE D-PAD & CLICK HANDLERS ---
-        // Enhanced specifically for LG webOS TV Magic Remotes and standard infrared D-Pads (Arrows + OK / Enter)
+        // --- LG webOS TV MAGIC REMOTE & 5-WAY D-PAD NAVIGATION ENGINE ---
+        function getVisibleFocusables() {
+            var all = document.querySelectorAll('button, input, select, textarea');
+            var visible = [];
+            for (var i = 0; i < all.length; i++) {
+                if (all[i].offsetParent !== null && !all[i].disabled) {
+                    visible.push(all[i]);
+                }
+            }
+            return visible;
+        }
+
         document.addEventListener('keydown', function(e) {
             var code = e.keyCode || e.which;
             var activeEl = document.activeElement;
 
-            // Handle LG webOS remote OK / Enter / Select keycodes (13, 32, 1025, 29443)
-            if (['Enter', ' ', 'Select', 'OK'].indexOf(e.key) !== -1 || code === 13 || code === 32 || code === 1025 || code === 29443) {
-                if (activeEl) {
-                    var target = activeEl.closest('button, input, select, textarea, a');
-                    if (target) {
-                        if (typeof target.click === 'function') {
-                            target.click();
-                            e.preventDefault();
-                        }
-                    }
+            // LG webOS Back Button (keyCode 461) - closes modals or exits TV mode cleanly
+            if (code === 461 || e.key === 'GoBack') {
+                var modal = document.getElementById('poster-modal');
+                if (modal && !modal.classList.contains('hidden')) {
+                    closePosterModal();
+                    e.preventDefault();
+                    return;
+                }
+                var tvTab = document.getElementById('tab-tv');
+                if (tvTab && !tvTab.classList.contains('hidden')) {
+                    switchTab('posters');
+                    e.preventDefault();
+                    return;
                 }
             }
-            // Handle D-Pad Arrow Navigation (Up: 38, Down: 40, Left: 37, Right: 39)
-            else if (code === 37 || code === 38 || code === 39 || code === 40 || ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-                var focusables = Array.from(document.querySelectorAll('button:not(.hidden), input:not(.hidden), select:not(.hidden), textarea:not(.hidden)'));
+
+            // LG webOS OK / Select / Enter keycodes (13, 32, 1025, 29443)
+            if (e.key === 'Enter' || e.key === 'Select' || e.key === 'OK' || code === 13 || code === 1025 || code === 29443) {
+                if (activeEl && activeEl.tagName === 'BUTTON') {
+                    activeEl.click();
+                    e.preventDefault();
+                }
+            }
+            // D-Pad Arrow Navigation (Up: 38, Down: 40, Left: 37, Right: 39)
+            else if (code === 37 || code === 38 || code === 39 || code === 40 || ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].indexOf(e.key) !== -1) {
+                var focusables = getVisibleFocusables();
+                if (focusables.length === 0) return;
+
                 var index = focusables.indexOf(activeEl);
                 if (index === -1) {
-                    if (focusables.length > 0) focusables[0].focus();
+                    focusables[0].focus();
                 } else {
                     if (code === 38 || e.key === 'ArrowUp' || code === 37 || e.key === 'ArrowLeft') {
                         index = (index - 1 + focusables.length) % focusables.length;
@@ -1292,9 +1411,14 @@
             applyRoleStateUI(true);
             initCloudSyncListener();
 
+            var cfgBox = document.getElementById('firebase-config-input');
+            if (cfgBox && hasValidFirebaseConfig) {
+                cfgBox.value = JSON.stringify(firebaseConfig, null, 2);
+            }
+
             setTimeout(function() {
                 var launchBtn = document.getElementById('btn-tv-launch-primary');
-                if (launchBtn) launchBtn.focus();
+                if (launchBtn && launchBtn.offsetParent !== null) launchBtn.focus();
             }, 300);
         });
     </script>
