@@ -41,7 +41,7 @@
         button * { pointer-events: none; }
         input, textarea, select { user-select: auto !important; -webkit-user-select: auto !important; }
 
-        /* High-Visibility Focus Outline for TV D-Pad Remote */
+        /* High-Visibility Focus Outline for TV D-Pad Remote & webOS / Tizen TV Browsers */
         .tab-btn:focus,
         button:focus,
         input:focus,
@@ -78,7 +78,7 @@
 </head>
 <body class="h-full flex flex-col relative bg-stone-950 text-stone-100">
 
-    <!-- COMPACT STREAMLINED HEADER (Saves Screen Space, Doesn't Stick) -->
+    <!-- COMPACT STREAMLINED HEADER -->
     <header class="wood-texture border-b border-amber-900/40 px-3 py-2 shadow-lg w-full" id="main-header">
         <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
             <div class="flex items-center space-x-2">
@@ -109,12 +109,12 @@
         </div>
     </header>
 
-    <!-- STATUS BANNER (Inside Normal Page Layout) -->
+    <!-- STATUS BANNER -->
     <div id="cloud-sync-status" class="bg-emerald-950/80 text-emerald-300 text-[11px] px-3 py-1 text-center font-medium border-b border-emerald-800/40 flex items-center justify-center space-x-2">
         <span id="sync-indicator-text">☁️ Connecting Live to Cloud Database...</span>
     </div>
 
-    <!-- MAIN PORTAL LOGIN OVERLAY (HOME PAGE LOGIN) -->
+    <!-- MAIN PORTAL LOGIN OVERLAY -->
     <div id="portal-login-overlay" class="fixed inset-0 bg-stone-950/95 backdrop-blur-md z-[200] flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-stone-900 border-2 border-amber-600/60 rounded-3xl max-w-xl w-full p-6 md:p-10 shadow-2xl space-y-6 text-center relative my-auto">
             <div class="space-y-2">
@@ -375,7 +375,7 @@
             </div>
         </section>
 
-        <!-- TV LIVE DISPLAY TAB (FULLSCREEN SECURE TV MODE) -->
+        <!-- TV LIVE DISPLAY TAB -->
         <section id="tab-tv" class="tab-content hidden fixed inset-0 z-[150] bg-stone-950 m-0 p-0 overflow-hidden">
             <div id="tv-fullscreen-wrapper" class="w-screen h-screen bg-stone-950 flex flex-col justify-between p-0 m-0 relative overflow-hidden">
                 <div class="absolute top-4 right-4 z-[160] flex gap-2">
@@ -447,7 +447,7 @@
 
     <!-- ENGINE CODE WITH RELIABLE PERSISTENCE & REAL-TIME SYNC -->
     <script>
-        // Suppress TV Browser engine alerts entirely for seamless webOS display
+        // Suppress TV Browser engine alerts entirely for seamless webOS / smart TV display
         window.onerror = function() { return true; };
         window.onunhandledrejection = function() { return true; };
 
@@ -1253,10 +1253,12 @@
         }
 
         // --- BULLETPROOF LG REMOTE D-PAD & CLICK HANDLERS ---
+        // Enhanced specifically for LG webOS TV Magic Remotes and standard infrared D-Pads (Arrows + OK / Enter)
         document.addEventListener('keydown', function(e) {
             var code = e.keyCode || e.which;
             var activeEl = document.activeElement;
 
+            // Handle LG webOS remote OK / Enter / Select keycodes (13, 32, 1025, 29443)
             if (['Enter', ' ', 'Select', 'OK'].indexOf(e.key) !== -1 || code === 13 || code === 32 || code === 1025 || code === 29443) {
                 if (activeEl) {
                     var target = activeEl.closest('button, input, select, textarea, a');
@@ -1268,6 +1270,7 @@
                     }
                 }
             }
+            // Handle D-Pad Arrow Navigation (Up: 38, Down: 40, Left: 37, Right: 39)
             else if (code === 37 || code === 38 || code === 39 || code === 40 || ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
                 var focusables = Array.from(document.querySelectorAll('button:not(.hidden), input:not(.hidden), select:not(.hidden), textarea:not(.hidden)'));
                 var index = focusables.indexOf(activeEl);
