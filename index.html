@@ -429,9 +429,9 @@
                     <!-- CLOUD CONNECTION SETUP CARD -->
                     <div class="bg-stone-900 p-6 rounded-2xl border border-amber-600/40 shadow-sm space-y-3">
                         <h3 class="font-cinzel text-lg font-bold text-amber-400">☁️ Live Firestore Cloud Setup</h3>
-                        <p class="text-xs text-stone-400">Paste your Firebase Web App config object below if not hardcoded in <code>index.html</code>. Saves directly to this device.</p>
-                        <textarea id="firebase-config-input" tabindex="0" rows="5" placeholder='{"apiKey": "...", "authDomain": "...", "projectId": "..."}' class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-xs font-mono focus:border-amber-500"></textarea>
-                        <button type="button" tabindex="0" onclick="saveCustomFirebaseConfig()" class="w-full bg-amber-600 hover:bg-amber-500 text-white py-3 rounded-xl text-xs transition-all font-bold">Connect Firestore & Reload</button>
+                        <p class="text-xs text-stone-400">Paste alternate Firebase config JSON here if needed. Current project: <code>minersposters</code>.</p>
+                        <textarea id="firebase-config-input" tabindex="0" rows="5" class="w-full bg-stone-950 border border-stone-700 text-white rounded-xl p-3 text-xs font-mono focus:border-amber-500"></textarea>
+                        <button type="button" tabindex="0" onclick="saveCustomFirebaseConfig()" class="w-full bg-amber-600 hover:bg-amber-500 text-white py-3 rounded-xl text-xs transition-all font-bold">Update Firestore Config & Reload</button>
                     </div>
 
                     <!-- DATABASE RESET CARD -->
@@ -461,16 +461,17 @@
         window.onunhandledrejection = function() { return true; };
 
         // =========================================================================
-        // STEP 1: PASTE YOUR FIREBASE PROJECT CONFIG BELOW FOR LIVE CROSS-DEVICE SYNC
-        // (Get this from Firebase Console -> Project Settings -> Your Apps -> Web App)
+        // YOUR FIREBASE CONFIGURATION (PROJECT: minersposters)
         // =========================================================================
         var defaultFirebaseConfig = {
-            apiKey: "PASTE_YOUR_REAL_FIREBASE_API_KEY_HERE",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyA1heSmD9nYxSZb6q3PPv7dqkZPVRZ3ZKo",
+            authDomain: "minersposters.firebaseapp.com",
+            databaseURL: "https://minersposters-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "minersposters",
+            storageBucket: "minersposters.firebasestorage.app",
+            messagingSenderId: "62157646302",
+            appId: "1:62157646302:web:c35c03509e8407e8dc554f",
+            measurementId: "G-FV104CWLH4"
         };
 
         var firebaseConfig = defaultFirebaseConfig;
@@ -483,20 +484,16 @@
 
         var db = null;
         var cloudSyncActive = false;
-        var hasValidFirebaseConfig = firebaseConfig && firebaseConfig.apiKey && firebaseConfig.apiKey.indexOf("PASTE_YOUR") === -1;
 
-        if (hasValidFirebaseConfig) {
-            try {
-                if (!firebase.apps.length) {
-                    firebase.initializeApp(firebaseConfig);
-                }
-                db = firebase.firestore();
-                // Long-polling ensures compatibility with LG webOS & Samsung Tizen TV browsers
-                db.settings({ experimentalForceLongPolling: true });
-                cloudSyncActive = true;
-            } catch (e) {
-                console.error("Firebase init failed:", e);
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
             }
+            db = firebase.firestore();
+            db.settings({ experimentalForceLongPolling: true });
+            cloudSyncActive = true;
+        } catch (e) {
+            console.error("Firebase init failed:", e);
         }
 
         function showToast(msg) {
@@ -514,7 +511,6 @@
             var raw = document.getElementById('firebase-config-input').value.trim();
             if (!raw) return;
             try {
-                // Allow pasting either raw JSON or JS object snippet
                 var cleaned = raw.replace(/^[^{]*/, '').replace(/[^}]*$/, '');
                 cleaned = cleaned.replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":');
                 var parsed = JSON.parse(cleaned);
@@ -569,12 +565,10 @@
                 lastUpdated: Date.now()
             };
 
-            // Save local backup for offline/instant startup
             try {
                 localStorage.setItem('miners_portal_saved_state', JSON.stringify(payload));
             } catch(e) {}
 
-            // Push live update to Firestore for all connected devices
             if (cloudSyncActive && db) {
                 localWritePending = true;
                 updateSyncStatusUI('syncing');
@@ -612,7 +606,7 @@
             return false;
         }
 
-        // --- REAL-TIME FIRESTORE LISTENER (UPDATES ALL TVs & PHONES INSTANTLY) ---
+        // --- REAL-TIME FIRESTORE LISTENER ---
         function initCloudSyncListener() {
             loadLocalState();
             refreshAllUI();
@@ -622,7 +616,6 @@
                 return;
             }
 
-            // Listen to live changes in Firestore 'pub_portal/live_state'
             db.collection('pub_portal').doc('live_state').onSnapshot(function(doc) {
                 if (doc.exists) {
                     if (!localWritePending) {
@@ -641,7 +634,6 @@
                     }
                     updateSyncStatusUI('online');
                 } else {
-                    // Initialize document in Firestore on very first run
                     saveState();
                 }
             }, function(error) {
@@ -656,16 +648,16 @@
             if (!indicator || !banner) return;
 
             if (status === 'online') {
-                indicator.innerText = '🟢 FIRESTORE LIVE SYNC ACTIVE • Lottery & Bonus Ball Updating Across All Devices';
+                indicator.innerText = '🟢 FIRESTORE LIVE SYNC ACTIVE (minersposters) • Updating Across All Devices';
                 banner.className = 'bg-emerald-950/90 text-emerald-300 text-[11px] px-3 py-1 text-center font-bold border-b border-emerald-800/40 flex items-center justify-center space-x-2';
             } else if (status === 'syncing') {
                 indicator.innerText = '🔄 Pushing Live Update to All Connected Devices...';
                 banner.className = 'bg-blue-950/90 text-blue-300 text-[11px] px-3 py-1 text-center font-bold border-b border-blue-800/40 flex items-center justify-center space-x-2';
             } else if (status === 'error') {
-                indicator.innerText = '⚠️ Firestore Connection Blocked — Check Firestore Rules (Allow Read/Write)';
+                indicator.innerText = '⚠️ Firestore Connection Blocked — Check Firestore Rules in Firebase Console (Allow Read/Write)';
                 banner.className = 'bg-red-950/90 text-red-300 text-[11px] px-3 py-1 text-center font-bold border-b border-red-800/40 flex items-center justify-center space-x-2';
             } else {
-                indicator.innerText = '⚠️ Firebase Config Required — Add your Firebase API Keys in index.html or Admin Panel to sync across devices';
+                indicator.innerText = '⚠️ Connection Pending';
                 banner.className = 'bg-amber-950/90 text-amber-300 text-[11px] px-3 py-1 text-center font-bold border-b border-amber-800/40 flex items-center justify-center space-x-2';
             }
         }
@@ -894,7 +886,6 @@
                 renderTvFeed();
             }
 
-            // Auto-focus first visible button for LG TV remote convenience
             setTimeout(function() {
                 var visibleBtns = getVisibleFocusables();
                 if (visibleBtns.length > 0) visibleBtns[0].focus();
@@ -1148,7 +1139,6 @@
                 return;
             }
             var nums = numsStr.split(',').map(function(n) { return parseInt(n.trim(), 10); }).filter(function(n) { return !isNaN(n) && n >= 1 && n <= 59; });
-            // Remove duplicates on the same ticket
             nums = nums.filter(function(item, pos) { return nums.indexOf(item) === pos; });
             if (nums.length !== 6) {
                 showToast('⚠️ Please enter 6 unique numbers between 1 and 59.');
@@ -1364,7 +1354,6 @@
             var code = e.keyCode || e.which;
             var activeEl = document.activeElement;
 
-            // LG webOS Back Button (keyCode 461) - closes modals or exits TV mode cleanly
             if (code === 461 || e.key === 'GoBack') {
                 var modal = document.getElementById('poster-modal');
                 if (modal && !modal.classList.contains('hidden')) {
@@ -1380,14 +1369,12 @@
                 }
             }
 
-            // LG webOS OK / Select / Enter keycodes (13, 32, 1025, 29443)
             if (e.key === 'Enter' || e.key === 'Select' || e.key === 'OK' || code === 13 || code === 1025 || code === 29443) {
                 if (activeEl && activeEl.tagName === 'BUTTON') {
                     activeEl.click();
                     e.preventDefault();
                 }
             }
-            // D-Pad Arrow Navigation (Up: 38, Down: 40, Left: 37, Right: 39)
             else if (code === 37 || code === 38 || code === 39 || code === 40 || ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].indexOf(e.key) !== -1) {
                 var focusables = getVisibleFocusables();
                 if (focusables.length === 0) return;
@@ -1412,7 +1399,7 @@
             initCloudSyncListener();
 
             var cfgBox = document.getElementById('firebase-config-input');
-            if (cfgBox && hasValidFirebaseConfig) {
+            if (cfgBox) {
                 cfgBox.value = JSON.stringify(firebaseConfig, null, 2);
             }
 
@@ -1423,4 +1410,4 @@
         });
     </script>
 </body>
-</html>
+                                                                                                                                       </html>
